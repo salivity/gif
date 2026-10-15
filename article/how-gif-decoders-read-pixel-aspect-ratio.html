@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How GIF Decoders Read Pixel Aspect Ratio - gif</title>
+    <meta name="description" content="The Graphics Interchange Format (GIF) specification includes a dedicated byte in its header to define the shape of individual pixels, enabling displays with non-square pixels to render images correctly. A GIF decoder interprets this pixel aspect ratio byt">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-gif-decoders-read-pixel-aspect-ratio">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How GIF Decoders Read Pixel Aspect Ratio - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-gif-decoders-read-pixel-aspect-ratio" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Graphics Interchange Format (GIF) specification includes a dedicated byte in its header to define the shape of individual pixels, enabling displays with non-square pixels to render images correctly. A GIF decoder interprets this pixel aspect ratio byt" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-gif-decoders-read-pixel-aspect-ratio">How GIF Decoders Read
+Pixel Aspect Ratio</h1>
+<p>The Graphics Interchange Format (GIF) specification includes a
+dedicated byte in its header to define the shape of individual pixels,
+enabling displays with non-square pixels to render images correctly. A
+GIF decoder interprets this pixel aspect ratio byte located in the
+Logical Screen Descriptor by applying a specific mathematical formula to
+calculate the intended physical proportion of the pixels. While defined
+primarily in the GIF89a standard, modern software decoders often handle
+this field with varying degrees of compliance, frequently defaulting to
+square pixels due to contemporary display standards.</p>
+<h3 id="location-in-the-gif-stream">Location in the GIF Stream</h3>
+<p>The Pixel Aspect Ratio (PAR) is stored within the <strong>Logical
+Screen Descriptor</strong>, which immediately follows the 6-byte GIF
+file signature (<code>GIF87a</code> or <code>GIF89a</code>). The
+descriptor spans 7 bytes:</p>
+<ul>
+<li><strong>Bytes 1–2:</strong> Logical Screen Width</li>
+<li><strong>Bytes 3–4:</strong> Logical Screen Height</li>
+<li><strong>Byte 5:</strong> Packed Fields (color table flags and
+resolution)</li>
+<li><strong>Byte 6:</strong> Background Color Index</li>
+<li><strong>Byte 7:</strong> Pixel Aspect Ratio</li>
+</ul>
+<p>The 7th byte is an unsigned 8-bit integer with an absolute value
+ranging from 0 to 255.</p>
+<h3 id="the-interpretation-formula">The Interpretation Formula</h3>
+<p>According to the GIF89a specification, the value of the Pixel Aspect
+Ratio byte is interpreted as follows:</p>
+<ol type="1">
+<li><strong>Zero Value (0):</strong> If the value is <code>0</code>, the
+encoder did not specify an aspect ratio. The decoder assumes standard
+square pixels (a 1:1 aspect ratio).</li>
+<li><strong>Non-Zero Value (1 to 255):</strong> If the value is
+non-zero, the decoder calculates the actual aspect ratio using the
+standard formula:</li>
+</ol>
+<p><span class="math display">\[\text{Actual Aspect Ratio} =
+\frac{\text{Pixel Aspect Ratio Value} + 15}{64}\]</span></p>
+<p>In this formula, the resulting aspect ratio represents the quotient
+of the pixel's width over its height (<span
+class="math inline">\(\text{Width} / \text{Height}\)</span>):</p>
+<ul>
+<li>A value of <strong>49</strong> yields: <span
+class="math inline">\((49 + 15) / 64 = 64 / 64 = 1.0\)</span> (square
+pixels).</li>
+<li>Values <strong>less than 49</strong> describe pixels that are taller
+than they are wide (tall pixels).</li>
+<li>Values <strong>greater than 49</strong> describe pixels that are
+wider than they are tall (wide pixels).</li>
+</ul>
+<p>The formula allows representation of pixel aspect ratios ranging from
+<span class="math inline">\(16/64\)</span> (<span
+class="math inline">\(0.25\)</span>) up to <span
+class="math inline">\(270/64\)</span> (<span
+class="math inline">\(4.21875\)</span>) in increments of <span
+class="math inline">\(1/64\)</span>.</p>
+<h3 id="how-decoders-apply-the-value">How Decoders Apply the Value</h3>
+<p>When rendering the image, a fully compliant decoder adjusts the
+displayed dimensions of the canvas rather than modifying the raw pixel
+grid:</p>
+<ul>
+<li><strong>Scaling the Output:</strong> The decoder maps the raw pixel
+data onto a display grid scaled by the computed ratio. If the actual
+aspect ratio is greater than 1.0, the decoder stretches the image
+horizontally or compresses it vertically by that factor.</li>
+<li><strong>Historical Hardware Compatibility:</strong> This mechanism
+originally allowed images authored on non-square pixel displays (such as
+CGA, EGA, or early Macintosh modes) to render with correct proportions
+on different hardware.</li>
+</ul>
+<h3 id="modern-decoder-implementation">Modern Decoder
+Implementation</h3>
+<p>In modern implementations, including major web browsers and image
+viewers, the pixel aspect ratio byte is almost universally ignored.
+Because modern displays use square pixels, decoders typically treat any
+non-zero value as if it were <code>0</code>, rendering the image using a
+strict 1:1 pixel grid to prevent distortion and unexpected layout
+shifts.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

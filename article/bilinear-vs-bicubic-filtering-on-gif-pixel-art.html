@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilinear vs Bicubic Filtering on GIF Pixel Art - gif</title>
+    <meta name="description" content="Scaling pixel art stored in the GIF format using bilinear or bicubic interpolation dramatically alters its visual integrity, replacing sharp, intentional pixel boundaries with unwanted blurriness, color bleeding, and ringing artifacts. While these algorit">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/bilinear-vs-bicubic-filtering-on-gif-pixel-art">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Bilinear vs Bicubic Filtering on GIF Pixel Art - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/bilinear-vs-bicubic-filtering-on-gif-pixel-art" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Scaling pixel art stored in the GIF format using bilinear or bicubic interpolation dramatically alters its visual integrity, replacing sharp, intentional pixel boundaries with unwanted blurriness, color bleeding, and ringing artifacts. While these algorit" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="bilinear-vs-bicubic-filtering-on-gif-pixel-art">Bilinear vs
+Bicubic Filtering on GIF Pixel Art</h1>
+<p>Scaling pixel art stored in the GIF format using bilinear or bicubic
+interpolation dramatically alters its visual integrity, replacing sharp,
+intentional pixel boundaries with unwanted blurriness, color bleeding,
+and ringing artifacts. While these algorithms are engineered to smooth
+continuous-tone photographs, applying them to low-resolution,
+indexed-color graphics fundamentally degrades the crisp, grid-based
+aesthetic that defines pixel art. This article explores how these
+filtering techniques mathematically transform pixel art, the specific
+distortions they cause to GIF assets, and why nearest-neighbor scaling
+remains the proper standard.</p>
+<h3 id="the-construction-of-gif-pixel-art">The Construction of GIF Pixel
+Art</h3>
+<p>Pixel art relies on the precise, deliberate placement of individual
+color values across a low-resolution grid. When stored in the Graphics
+Interchange Format (GIF), the image uses an indexed color palette
+containing a maximum of 256 discrete colors. Every pixel references an
+exact entry in this palette, ensuring zero unwanted color blending and
+preserving high-contrast transitions between neighboring pixels.</p>
+<h3 id="how-bilinear-filtering-affects-pixel-art">How Bilinear Filtering
+Affects Pixel Art</h3>
+<p>Bilinear filtering calculates new pixel values by performing a
+weighted linear interpolation across a 2×2 grid of adjacent source
+pixels. When applied to an upscaled GIF:</p>
+<ul>
+<li><strong>Edge Softening:</strong> Sharp, single-pixel borders are
+replaced by transitional gradients, creating a persistent, out-of-focus
+blur.</li>
+<li><strong>Loss of Contrast:</strong> Distinct separation between
+elements—such as black outlines against bright sprites—dissolves into
+murky, intermediate shades.</li>
+<li><strong>Feature Erasure:</strong> Micro-details, such as
+single-pixel eyes or individual highlights, lose their definition and
+blend into the surrounding background.</li>
+</ul>
+<h3 id="how-bicubic-filtering-affects-pixel-art">How Bicubic Filtering
+Affects Pixel Art</h3>
+<p>Bicubic filtering is more computationally complex, sampling a 4×4
+area of surrounding pixels and using cubic splines to produce smoother
+transitions. On pixel art, its effects are even more disruptive:</p>
+<ul>
+<li><strong>Ringing and Halo Artifacts:</strong> Because bicubic
+equations account for the rate of change across pixels, high-contrast
+edges trigger an "overshoot." This manifests as unnatural dark or
+glowing halos immediately adjacent to sharp transitions.</li>
+<li><strong>Muddy Textures:</strong> The broader sample area blends
+colors across multiple pixels, completely eliminating the intentional,
+crisp geometry of the sprite.</li>
+<li><strong>Distorted Proportions:</strong> The algorithm attempts to
+interpret stepped pixel diagonals as continuous curves, warping straight
+lines and deliberate angles into warped, soft shapes.</li>
+</ul>
+<h3 id="color-palette-disruption">Color Palette Disruption</h3>
+<p>GIF files rely strictly on an indexed palette, but bilinear and
+bicubic calculations compute colors in continuous RGB space. This
+introduces hundreds of intermediary colors that did not exist in the
+artist's original palette.</p>
+<p>If this filtered image is rendered in real time, the artwork loses
+its carefully chosen limited-color aesthetic. If the filtered image is
+re-encoded into a new GIF file, the encoder must compress these new
+blended gradients back down into a 256-color palette. This quantization
+process introduces heavy dithering noise, color banding, and visual
+grain across what were once solid, clean fields of color.</p>
+<h3 id="the-nearest-neighbor-alternative">The Nearest-Neighbor
+Alternative</h3>
+<p>To preserve the appearance of pixel art stored in GIF format,
+nearest-neighbor scaling should always be used instead of bilinear or
+bicubic filtering. Nearest-neighbor simply duplicates existing pixels
+according to integer scale factors (such as 200%, 300%, or 400%) without
+calculating intermediate values. This maintains the exact palette,
+preserves razor-sharp edges, and keeps the artwork looking precisely as
+intended.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

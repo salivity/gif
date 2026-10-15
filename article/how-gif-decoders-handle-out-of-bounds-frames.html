@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How GIF Decoders Handle Out-of-Bounds Frames - gif</title>
+    <meta name="description" content="This article explains how software decoders handle GIF animation frames that extend beyond the physical dimensions defined by the Logical Screen Descriptor. While the GIF specification explicitly mandates that frame boundaries must remain within the logic">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-gif-decoders-handle-out-of-bounds-frames">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How GIF Decoders Handle Out-of-Bounds Frames - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-gif-decoders-handle-out-of-bounds-frames" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how software decoders handle GIF animation frames that extend beyond the physical dimensions defined by the Logical Screen Descriptor. While the GIF specification explicitly mandates that frame boundaries must remain within the logic" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-gif-decoders-handle-out-of-bounds-frames">How GIF Decoders
+Handle Out-of-Bounds Frames</h1>
+<p>This article explains how software decoders handle GIF animation
+frames that extend beyond the physical dimensions defined by the Logical
+Screen Descriptor. While the GIF specification explicitly mandates that
+frame boundaries must remain within the logical canvas, real-world files
+frequently violate this rule due to encoding bugs or deliberate
+malformation. Below is an overview of the core specification
+requirements, the technical implementations decoders use to manage these
+out-of-bounds frames—including clipping, rejection, and canvas
+expansion—and the security implications associated with boundary
+validation.</p>
+<h3 id="the-specification-rule">The Specification Rule</h3>
+<p>In the GIF89a specification, the Logical Screen Descriptor defines
+the global canvas using two 16-bit fields:
+<code>Logical Screen Width</code> and
+<code>Logical Screen Height</code>. Subsequent individual frames define
+their placement using the Image Descriptor, which specifies
+<code>Image Left Position</code>, <code>Image Top Position</code>,
+<code>Image Width</code>, and <code>Image Height</code>.</p>
+<p>According to the official standard, the image boundary must not
+extend beyond the edges of the logical screen:</p>
+<p><span class="math display">\[\text{Image Left} + \text{Image Width}
+\le \text{Logical Screen Width}\]</span> <span
+class="math display">\[\text{Image Top} + \text{Image Height} \le
+\text{Logical Screen Height}\]</span></p>
+<p>Any file where the sum of the offset and dimension exceeds the
+logical screen dimensions violates the standard. Because the format
+specification does not define a formal recovery mechanism for this
+violation, handling depends entirely on decoder design.</p>
+<h3 id="common-decoder-strategies">Common Decoder Strategies</h3>
+<p>Modern GIF parsers and rendering engines generally implement one of
+three strategies when encountering an out-of-bounds frame:</p>
+<h4 id="1-hardware-and-software-clipping-standard-behavior">1. Hardware
+and Software Clipping (Standard Behavior)</h4>
+<p>The most common approach in web browsers (such as Chromium and Gecko)
+and graphics libraries (like <code>libpng</code>,
+<code>stb_image</code>, or Skia) is pixel clipping.</p>
+<ul>
+<li>The decoder maintains the fixed global canvas size defined by the
+Logical Screen Descriptor.</li>
+<li>During the LZW decompression and blitting phases, the decoder checks
+destination coordinates for every pixel.</li>
+<li>Any pixel whose calculated coordinates fall outside the range <span
+class="math inline">\([0, \text{Width} - 1]\)</span> or <span
+class="math inline">\([0, \text{Height} - 1]\)</span> is simply ignored
+and not written to the display buffer.</li>
+<li>The remaining pixels inside the logical boundaries are rendered
+normally according to the frame's disposal method.</li>
+</ul>
+<h4 id="2-strict-rejection-and-error-termination">2. Strict Rejection
+and Error Termination</h4>
+<p>Decoders that prioritize security, conformance, or lightweight
+resource usage may treat boundary violations as fatal errors.</p>
+<ul>
+<li>When parsing the Image Descriptor, the decoder performs an initial
+bounds check prior to allocating memory or running the LZW
+decompressor.</li>
+<li>If a frame exceeds the canvas bounds, the decoder terminates
+processing immediately and returns an error (e.g.,
+<code>GIF_ERR_BAD_FRAME_SIZE</code>).</li>
+<li>Depending on the implementation, the decoder may display the frames
+decoded up to that point or fail the entire image load completely.</li>
+</ul>
+<h4 id="3-dynamic-canvas-expansion">3. Dynamic Canvas Expansion</h4>
+<p>A minority of dedicated image viewers alter the canvas dimensions
+dynamically to prevent visual data loss.</p>
+<ul>
+<li>If a frame’s extent exceeds the initial
+<code>Logical Screen Width</code> or <code>Height</code>, the decoder
+reallocates the global compositing buffer to match the maximum extent of
+the bounding box.</li>
+<li>The initial frames are retroactively aligned or padded, usually
+using the background color index.</li>
+<li>While this preserves all visual information encoded in the file, it
+violates the GIF specification and can cause visual artifacts or layout
+shifts in applications expecting fixed-dimension assets.</li>
+</ul>
+<h3 id="security-and-memory-considerations">Security and Memory
+Considerations</h3>
+<p>Handling out-of-bounds frames safely is a critical security concern
+for decoder developers. In naive implementations:</p>
+<ul>
+<li><strong>Buffer Overflows:</strong> If a decoder allocates a pixel
+buffer strictly based on the <code>Logical Screen Descriptor</code> but
+writes pixel data using raw <code>Image Left</code> and
+<code>Image Top</code> offsets without bounds verification, it risks
+writing past the allocated heap memory. This has historically been a
+common vector for remote code execution vulnerabilities via malformed
+image files.</li>
+<li><strong>Integer Overflows:</strong> In 16-bit environments or poorly
+typed code, extremely large offsets (e.g., an <code>Image Left</code> of
+<code>65535</code> combined with an <code>Image Width</code> of
+<code>100</code>) can wrap around to small numbers, bypassing simple
+boundary checks if arithmetic is not checked for overflow.</li>
+</ul>
+<p>Robust decoders compute the intersection between the logical screen
+rectangle and the frame rectangle before decompressing pixels. If the
+intersection is empty, the entire frame decompression is skipped to save
+processing cycles and prevent unauthorized memory access.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

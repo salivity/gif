@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is the GIF Image Separator Byte Value? - gif</title>
+    <meta name="description" content="This article covers the exact byte value used as the Image Separator in the Graphics Interchange Format (GIF) file specification. It details the hexadecimal, decimal, and ASCII representations of this marker, explains its functional role in signaling an I">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/what-is-the-gif-image-separator-byte-value">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What is the GIF Image Separator Byte Value? - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/what-is-the-gif-image-separator-byte-value" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article covers the exact byte value used as the Image Separator in the Graphics Interchange Format (GIF) file specification. It details the hexadecimal, decimal, and ASCII representations of this marker, explains its functional role in signaling an I" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-the-gif-image-separator-byte-value">What is the GIF
+Image Separator Byte Value?</h1>
+<p>This article covers the exact byte value used as the Image Separator
+in the Graphics Interchange Format (GIF) file specification. It details
+the hexadecimal, decimal, and ASCII representations of this marker,
+explains its functional role in signaling an Image Descriptor block, and
+provides a breakdown of how decoders interpret this byte within animated
+and static GIF structures.</p>
+<h2 id="the-image-separator-byte-value">The Image Separator Byte
+Value</h2>
+<p>In both the GIF87a and GIF89a specifications, the byte value that
+serves as the Image Separator is <strong><code>0x2C</code></strong> in
+hexadecimal notation.</p>
+<p>In other formats, this value is represented as:</p>
+<ul>
+<li><strong>Decimal:</strong> <code>44</code></li>
+<li><strong>ASCII:</strong> The comma character (<code>,</code>)</li>
+<li><strong>Binary:</strong> <code>00101100</code></li>
+</ul>
+<p>Whenever a GIF decoder encounters the byte value <code>0x2C</code> in
+the primary data stream, it identifies the boundary where an individual
+image or animation frame begins.</p>
+<h2 id="function-in-the-gif-file-format">Function in the GIF File
+Format</h2>
+<p>A GIF file consists of a stream of data blocks. After the file header
+and the Logical Screen Descriptor, the file can contain various
+extensions, graphic blocks, and metadata. To navigate this stream, a
+decoder watches for specific sentinel bytes:</p>
+<ul>
+<li><code>0x21</code> – Extension Introducer (marks graphic control,
+comments, plain text, or application extensions)</li>
+<li><code>0x2C</code> – Image Separator (marks the start of an Image
+Descriptor)</li>
+<li><code>0x3B</code> – GIF Trailer (marks the end of the entire
+file)</li>
+</ul>
+<p>The <code>0x2C</code> byte ensures that the parser correctly
+transitions from reading global headers or extension blocks to reading
+visual raster data.</p>
+<h2 id="anatomy-of-the-image-descriptor">Anatomy of the Image
+Descriptor</h2>
+<p>The Image Separator is the very first byte of the standard 10-byte
+<strong>Image Descriptor</strong> block. The full structure of this
+block is defined as follows:</p>
+<ol type="1">
+<li><strong>Image Separator (1 byte):</strong> Fixed value of
+<code>0x2C</code>.</li>
+<li><strong>Image Left Position (2 bytes):</strong> Column number, in
+pixels, of the left edge of the image relative to the screen.</li>
+<li><strong>Image Top Position (2 bytes):</strong> Row number, in
+pixels, of the top edge of the image relative to the screen.</li>
+<li><strong>Image Width (2 bytes):</strong> Width of the image in
+pixels.</li>
+<li><strong>Image Height (2 bytes):</strong> Height of the image in
+pixels.</li>
+<li><strong>Packed Fields (1 byte):</strong> Contains flags for the
+Local Color Table (presence, interlace flag, sort flag, and size of the
+local table).</li>
+</ol>
+<h2 id="role-in-animated-gifs">Role in Animated GIFs</h2>
+<p>In an animated GIF, each frame contains its own Image Descriptor and
+corresponding image data. As a result, the byte value <code>0x2C</code>
+appears repeatedly throughout the file—once at the start of every single
+visual frame. Decoders iterate through the file by reading the image
+data that follows each <code>0x2C</code> marker until reaching the final
+trailer byte (<code>0x3B</code>).</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

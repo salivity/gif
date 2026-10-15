@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How CDNs Dynamically Convert GIF to WebP or AVIF - gif</title>
+    <meta name="description" content="Content Delivery Networks (CDNs) dramatically reduce bandwidth and improve page load times by automatically intercepting requests for legacy GIF assets and serving modern, highly compressed formats like animated WebP or AVIF. This process occurs seamlessl">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-cd-ns-dynamically-convert-gif-to-web-p-or-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How CDNs Dynamically Convert GIF to WebP or AVIF - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-cd-ns-dynamically-convert-gif-to-web-p-or-avif" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Content Delivery Networks (CDNs) dramatically reduce bandwidth and improve page load times by automatically intercepting requests for legacy GIF assets and serving modern, highly compressed formats like animated WebP or AVIF. This process occurs seamlessl" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-cdns-dynamically-convert-gif-to-webp-or-avif">How CDNs
+Dynamically Convert GIF to WebP or AVIF</h1>
+<p>Content Delivery Networks (CDNs) dramatically reduce bandwidth and
+improve page load times by automatically intercepting requests for
+legacy GIF assets and serving modern, highly compressed formats like
+animated WebP or AVIF. This process occurs seamlessly at the network
+edge through HTTP content negotiation, edge-based media transcoding, and
+format-aware caching strategies, delivering superior compression without
+changing the image source URL on the website.</p>
+<h3 id="1-client-capability-detection-content-negotiation">1. Client
+Capability Detection (Content Negotiation)</h3>
+<p>When a web browser requests an image asset (for example,
+<code>animation.gif</code>), it transmits an HTTP <code>Accept</code>
+request header indicating which MIME types it can decode. Modern
+browsers typically send:</p>
+<p><code>Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8</code></p>
+<p>The CDN edge server receives this request and evaluates the supported
+formats in order of efficiency—usually prioritizing AVIF first, WebP
+second, and falling back to the original GIF format if neither modern
+standard is supported.</p>
+<h3 id="2-cache-inspection-using-the-vary-header">2. Cache Inspection
+Using the Vary Header</h3>
+<p>Before performing any conversions, the edge server checks its local
+cache. Because multiple representations of the same URL can exist
+simultaneously (e.g., AVIF for Chrome, WebP for older Safari versions,
+and GIF for legacy systems), the CDN relies on the
+<code>Vary: Accept</code> HTTP response header.</p>
+<p>The edge key is dynamically altered to include the target format
+variant alongside the URL. If the edge finds a valid, cached version
+matching the negotiated format, it serves that file immediately with
+minimal latency.</p>
+<h3 id="3-edge-transcoding-and-optimization-engines">3. Edge Transcoding
+and Optimization Engines</h3>
+<p>If the requested asset is not yet cached in the target format (a
+cache miss), the CDN processes the image through an automated
+transformation pipeline:</p>
+<ol type="1">
+<li><strong>Origin Retrieval:</strong> The CDN fetches the source
+<code>animation.gif</code> from the origin storage or origin
+shield.</li>
+<li><strong>Analysis:</strong> The transcoding engine parses the GIF to
+extract frame rates, color palettes, and frame dimensions.</li>
+<li><strong>Conversion:</strong> Dedicated edge microservices or image
+processors convert the multi-frame sequence into an animated WebP or
+animated AVIF container. Animated AVIF uses the AV1 video codec, often
+reducing file sizes by 80% to 90% compared to GIF, while animated WebP
+reduces sizes by roughly 60% to 70%.</li>
+<li><strong>Cache Population:</strong> The newly generated file is
+stored in the edge cache under the appropriate variant key to satisfy
+future identical requests instantly.</li>
+</ol>
+<h3 id="4-delivery-and-header-modification">4. Delivery and Header
+Modification</h3>
+<p>The converted media is returned to the client using the original
+<code>.gif</code> URL, but the CDN overrides key response headers:</p>
+<ul>
+<li><strong>Content-Type:</strong> Changed from <code>image/gif</code>
+to <code>image/webp</code> or <code>image/avif</code>. Browsers render
+images based on the declared MIME type in this header rather than the
+URL file extension.</li>
+<li><strong>Content-Length:</strong> Updated to match the significantly
+smaller payload size.</li>
+<li><strong>Vary:</strong> Set to <code>Accept</code> to inform
+downstream browser caches and intermediate proxies that the response
+varies depending on the client’s format capabilities.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

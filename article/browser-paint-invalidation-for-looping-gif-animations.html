@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Paint Invalidation for Looping GIF Animations - gif</title>
+    <meta name="description" content="This article explains how modern browser rendering engines compute paint invalidation regions for small looping GIF animations. When a GIF loops, the engine avoids repainting the entire viewport by decoding localized frame metadata, calculating the precis">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/browser-paint-invalidation-for-looping-gif-animations">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Browser Paint Invalidation for Looping GIF Animations - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/browser-paint-invalidation-for-looping-gif-animations" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how modern browser rendering engines compute paint invalidation regions for small looping GIF animations. When a GIF loops, the engine avoids repainting the entire viewport by decoding localized frame metadata, calculating the precis" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="browser-paint-invalidation-for-looping-gif-animations">Browser
+Paint Invalidation for Looping GIF Animations</h1>
+<p>This article explains how modern browser rendering engines compute
+paint invalidation regions for small looping GIF animations. When a GIF
+loops, the engine avoids repainting the entire viewport by decoding
+localized frame metadata, calculating the precise dirty region across
+successive frames, mapping these coordinates through layout and CSS
+transforms, and restricting rasterization to the minimal bounding
+rectangle on the relevant graphics layer.</p>
+<h3 id="frame-decoding-and-frame-delta-computation">Frame Decoding and
+Frame Delta Computation</h3>
+<p>When a GIF animates, the browser's image decoding pipeline processes
+the binary stream into distinct bitmap frames. The GIF specification
+(GIF89a) allows individual frames to be smaller than the logical screen
+descriptor of the image; each frame contains its own offset
+(<code>x, y</code>) and dimensions (<code>width, height</code>), along
+with a specific "disposal method" (such as <em>Do Not Dispose</em>,
+<em>Restore to Background</em>, or <em>Restore to Previous</em>).</p>
+<p>To determine the initial dirty area:</p>
+<ol type="1">
+<li><strong>Disposal Area:</strong> The engine tracks the area cleared
+by the previous frame according to its disposal method.</li>
+<li><strong>New Frame Bounds:</strong> The engine reads the incoming
+frame's local bounding rectangle.</li>
+<li><strong>Delta Union:</strong> The engine computes the mathematical
+union of the region vacated by the old frame and the region occupied by
+the new frame. This union represents the intrinsic damage rect within
+the image's coordinate space.</li>
+</ol>
+<h3 id="mapping-to-the-layout-tree-and-coordinate-spaces">Mapping to the
+Layout Tree and Coordinate Spaces</h3>
+<p>Once the damage rect is determined within the raw image data, the
+rendering engine maps it to the DOM and CSS layout tree. An
+<code>&lt;img&gt;</code> element or background image rarely maps 1:1 to
+pixel dimensions due to CSS properties such as <code>width</code>,
+<code>height</code>, <code>object-fit</code>,
+<code>object-position</code>, or background tiling.</p>
+<ol type="1">
+<li><strong>Local Box Mapping:</strong> The image's intrinsic dirty rect
+is scaled and positioned relative to the element's layout box (the
+<code>LayoutObject</code> in Blink/Chromium or <code>nsIFrame</code> in
+Gecko).</li>
+<li><strong>Visual Rect Transforms:</strong> The paint invalidation
+subsystem projects this local rect up the layout hierarchy. It applies
+CSS transforms (such as <code>scale</code>, <code>rotate</code>, or
+<code>translate</code>), border-radius clipping, parent overflow
+clipping, and visual effects like CSS filters.</li>
+<li><strong>Culling:</strong> If the calculated region falls outside the
+current viewport or an ancestor element's scroll container clip, the
+engine clips or discards the invalidation entirely to prevent
+unnecessary processing.</li>
+</ol>
+<h3 id="layer-compositing-and-raster-invalidation">Layer Compositing and
+Raster Invalidation</h3>
+<p>Modern browsers divide a webpage into separate composited graphics
+layers managed by the GPU. How the invalidation rect is handled depends
+on the element's layer promotion status:</p>
+<ul>
+<li><strong>Non-Composited (Shared Layer):</strong> If the GIF shares a
+compositing layer with other static elements, the calculated dirty
+rectangle is added to that shared layer's damage list. During the paint
+phase, the engine records display items and triggers software or GPU
+rasterization only for the tiles intersecting that damage rect, leaving
+adjacent elements untouched.</li>
+<li><strong>Composited (Dedicated Layer):</strong> If the GIF resides on
+its own composited layer (promoted via properties like
+<code>will-change: transform</code> or 3D transforms), the invalidation
+occurs strictly within that layer's local coordinate system. The browser
+updates only that layer's texture, and the GPU compositor updates the
+screen without triggering paint invalidation in adjacent DOM
+elements.</li>
+</ul>
+<h3 id="size-thresholds-and-heuristic-optimizations">Size Thresholds and
+Heuristic Optimizations</h3>
+<p>Computing precise pixel-level sub-rect deltas for every single frame
+can sometimes introduce more CPU overhead than simply repainting the
+image container. For small GIFs, browser engines employ internal
+optimization heuristics. If the GIF's overall rendered dimensions fall
+below a specific size threshold, the engine frequently invalidates the
+entire layout bounding box of the element rather than computing granular
+intra-frame deltas. This trades a negligible amount of raster work for a
+measurable reduction in coordinate transformation and layout tree
+traversal overhead.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

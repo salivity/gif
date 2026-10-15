@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endianness of 16-Bit Integers in GIF Headers - gif</title>
+    <meta name="description" content="This article explains the byte order used for 16-bit integer values in Graphics Interchange Format (GIF) file headers and descriptors. It covers the specific endianness mandated by the GIF specification, highlights the exact header fields affected, provid">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/endianness-of-16-bit-integers-in-gif-headers">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Endianness of 16-Bit Integers in GIF Headers - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/endianness-of-16-bit-integers-in-gif-headers" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains the byte order used for 16-bit integer values in Graphics Interchange Format (GIF) file headers and descriptors. It covers the specific endianness mandated by the GIF specification, highlights the exact header fields affected, provid" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="endianness-of-16-bit-integers-in-gif-headers">Endianness of
+16-Bit Integers in GIF Headers</h1>
+<p>This article explains the byte order used for 16-bit integer values
+in Graphics Interchange Format (GIF) file headers and descriptors. It
+covers the specific endianness mandated by the GIF specification,
+highlights the exact header fields affected, provides a byte-level
+example of how dimensions are stored, and details the implications for
+software developers parsing GIF files on different CPU
+architectures.</p>
+<p>The GIF specification—encompassing both the original GIF87a and the
+updated GIF89a standards—explicitly dictates that all multi-byte
+numerical values are stored in <strong>little-endian</strong> byte
+order. In a little-endian format, the least significant byte (LSB) is
+stored at the lowest memory address (first in the byte stream), followed
+by the most significant byte (MSB).</p>
+<p>In a GIF file, 16-bit unsigned integers appear immediately following
+the 6-byte signature and version header (<code>GIF87a</code> or
+<code>GIF89a</code>) within the Logical Screen Descriptor:</p>
+<ul>
+<li><strong>Logical Screen Width (2 bytes):</strong> Bytes 6 and 7 of
+the file.</li>
+<li><strong>Logical Screen Height (2 bytes):</strong> Bytes 8 and 9 of
+the file.</li>
+</ul>
+<p>Similar 16-bit integers are also used later in the file within each
+local Image Descriptor:</p>
+<ul>
+<li><strong>Image Left Position (2 bytes)</strong></li>
+<li><strong>Image Top Position (2 bytes)</strong></li>
+<li><strong>Image Width (2 bytes)</strong></li>
+<li><strong>Image Height (2 bytes)</strong></li>
+</ul>
+<h3 id="byte-level-example">Byte-Level Example</h3>
+<p>Consider an image with a width of 800 pixels and a height of 600
+pixels:</p>
+<ul>
+<li><strong>Width (800):</strong> In hexadecimal, 800 is
+<code>0x0320</code>. In little-endian order, the least significant byte
+(<code>0x20</code>) is written first, followed by the most significant
+byte (<code>0x03</code>). The resulting byte sequence in the file is
+<code>20 03</code>.</li>
+<li><strong>Height (600):</strong> In hexadecimal, 600 is
+<code>0x0258</code>. Stored in little-endian order, the least
+significant byte (<code>0x58</code>) comes first, followed by the most
+significant byte (<code>0x02</code>). The resulting byte sequence is
+<code>58 02</code>.</li>
+</ul>
+<p>In the raw binary stream of the Logical Screen Descriptor, these
+dimensions appear sequentially as:</p>
+<pre class="text"><code>20 03 58 02</code></pre>
+<h3 id="implementation-considerations">Implementation
+Considerations</h3>
+<p>Because GIF was developed by CompuServe primarily for x86-based
+personal computers, its native little-endian layout matches the native
+memory layout of x86 and modern ARM architectures.</p>
+<p>When writing a GIF parser or decoder:</p>
+<ul>
+<li>On <strong>little-endian systems</strong> (such as x86, x64, and
+most ARM configurations), reading these 16-bit fields directly into
+standard 16-bit integer types requires no byte-swapping.</li>
+<li>On <strong>big-endian systems</strong> (such as legacy PowerPC,
+SPARC, or specific network processors), developers must swap the byte
+order (e.g., using functions like <code>ntohs</code> or bitwise shift
+operations <code>(byte1 | (byte2 &lt;&lt; 8))</code>) to reconstruct the
+correct numerical values.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

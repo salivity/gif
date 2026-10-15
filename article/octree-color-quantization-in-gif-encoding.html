@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Octree Color Quantization in GIF Encoding - gif</title>
+    <meta name="description" content="Octree color quantization is an essential algorithmic method used by GIF encoding tools to reduce the millions of potential colors in true-color source images down to the strictly limited 256-color palette required by the GIF format. By organizing color d">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/octree-color-quantization-in-gif-encoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Octree Color Quantization in GIF Encoding - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/octree-color-quantization-in-gif-encoding" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Octree color quantization is an essential algorithmic method used by GIF encoding tools to reduce the millions of potential colors in true-color source images down to the strictly limited 256-color palette required by the GIF format. By organizing color d" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="octree-color-quantization-in-gif-encoding">Octree Color
+Quantization in GIF Encoding</h1>
+<p>Octree color quantization is an essential algorithmic method used by
+GIF encoding tools to reduce the millions of potential colors in
+true-color source images down to the strictly limited 256-color palette
+required by the GIF format. By organizing color data into an
+eight-branched hierarchical tree structure, this technique enables
+encoders to efficiently identify the most visually significant colors,
+discard redundant chromatic information, and map pixels rapidly with
+minimal memory consumption.</p>
+<h3 id="the-256-color-constraint-of-gif">The 256-Color Constraint of
+GIF</h3>
+<p>The Graphics Interchange Format (GIF) relies on an indexed color
+system. Each frame can only reference a Color Lookup Table (CLUT)
+containing a maximum of 256 distinct colors (8-bit color depth). Because
+modern source videos and still images typically feature 24-bit true
+color (over 16.7 million variations of red, green, and blue), GIF
+encoders require a quantization algorithm to intelligently select a
+compact palette that best approximates the original visual quality.</p>
+<h3 id="how-the-octree-structure-represents-color">How the Octree
+Structure Represents Color</h3>
+<p>An octree is a tree data structure in which each internal node has up
+to eight children. In color processing, the octree represents the
+three-dimensional RGB color cube:</p>
+<ol type="1">
+<li><strong>Tree Depth:</strong> The tree typically has a maximum depth
+of eight levels, corresponding to the 8 bits used per RGB color
+channel.</li>
+<li><strong>Branching:</strong> At each level, the algorithm inspects
+the corresponding bit from the red, green, and blue components of a
+pixel to choose one of eight possible child branches (<span
+class="math inline">\(2^3 = 8\)</span>).</li>
+<li><strong>Leaf Nodes:</strong> Pixels terminate at leaf nodes, which
+accumulate the color counts and running sums of the red, green, and blue
+values mapped to that branch.</li>
+</ol>
+<h3 id="the-quantization-process-in-gif-encoders">The Quantization
+Process in GIF Encoders</h3>
+<p>GIF encoders implement octree color quantization through a systematic
+four-step workflow:</p>
+<ul>
+<li><strong>Building the Tree:</strong> The encoder scans the input
+frame pixel by pixel, inserting each color into the octree. If a color
+path already exists, the encoder increments that node's pixel counter;
+if not, it creates new nodes along the path.</li>
+<li><strong>Pruning and Node Reduction:</strong> If the number of leaf
+nodes exceeds 256, the encoder prunes the tree. It identifies the
+deepest leaves with the smallest pixel counts and collapses them into
+their parent node. The parent calculates an average RGB value weighted
+by the counts of its merged children. This reduction repeats until
+exactly 256 (or fewer) leaves remain.</li>
+<li><strong>Palette Construction:</strong> The surviving leaf nodes
+become the official entries in the GIF’s 256-color palette.</li>
+<li><strong>Pixel Remapping and Dithering:</strong> The encoder matches
+every original pixel to the nearest corresponding leaf node in the
+pruned octree to assign its palette index. Encoders often pair this step
+with error-diffusion algorithms (such as Floyd-Steinberg dithering) to
+soften harsh boundaries between quantized color regions.</li>
+</ul>
+<h3 id="advantages-of-octree-quantization-for-gif-tools">Advantages of
+Octree Quantization for GIF Tools</h3>
+<p>Octree quantization is widely adopted in GIF software because it
+balances visual accuracy with processing speed. Unlike median-cut
+quantization, which requires sorting large arrays of color values, an
+octree can be constructed and reduced in a single linear pass over the
+image data (<span class="math inline">\(O(N)\)</span> time complexity
+relative to the number of pixels). Additionally, the memory footprint of
+the octree is tightly bounded because pruning can occur dynamically
+during insertion, preventing memory spikes when processing
+high-resolution animated sequences.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

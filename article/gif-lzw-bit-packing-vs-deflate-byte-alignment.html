@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF LZW Bit Packing vs Deflate Byte Alignment - gif</title>
+    <meta name="description" content="This article compares the bit-level serialization of LZW compression in GIF files with the byte-alignment and bit-packing mechanisms utilized by the Deflate algorithm. While both formats compress data using variable-length codes packed into 8-bit bytes, t">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-lzw-bit-packing-vs-deflate-byte-alignment">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF LZW Bit Packing vs Deflate Byte Alignment - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-lzw-bit-packing-vs-deflate-byte-alignment" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article compares the bit-level serialization of LZW compression in GIF files with the byte-alignment and bit-packing mechanisms utilized by the Deflate algorithm. While both formats compress data using variable-length codes packed into 8-bit bytes, t" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-lzw-bit-packing-vs-deflate-byte-alignment">GIF LZW Bit
+Packing vs Deflate Byte Alignment</h1>
+<p>This article compares the bit-level serialization of LZW compression
+in GIF files with the byte-alignment and bit-packing mechanisms utilized
+by the Deflate algorithm. While both formats compress data using
+variable-length codes packed into 8-bit bytes, they differ significantly
+in code length variability, bit ordering within byte buffers, sub-block
+framing, and explicit alignment to byte boundaries.</p>
+<h2 id="bit-packing-in-gif-lzw">Bit Packing in GIF LZW</h2>
+<p>GIF uses the Lempel-Ziv-Welch (LZW) algorithm to compress image pixel
+indices. LZW outputs variable-length integer codes rather than bytes.
+The bit-packing mechanism handles these codes through dynamic bit widths
+and sequential byte filling.</p>
+<ul>
+<li><strong>Dynamic Code Sizes:</strong> GIF LZW starts with a code size
+equal to the color depth plus one bit (for instance, 9-bit codes for an
+8-bit palette to accommodate Clear and End-of-Information markers). As
+the string table fills, the code size increases by one bit whenever a
+new code exceeds the current maximum bit representation, up to a maximum
+limit of 12 bits.</li>
+<li><strong>Bit Ordering:</strong> Codes are packed into bytes using a
+Least Significant Bit (LSB) first scheme. When a code is written, its
+lowest-order bits fill the remaining lower-order bits of the current
+byte. Any overflow spills into the LSB of the subsequent byte.</li>
+<li><strong>Sub-Block Framing:</strong> The packed bitstream in GIF does
+not flow continuously without structural boundaries. Instead, GIF
+partitions the packed bytes into discrete sub-blocks. Each sub-block
+begins with a single byte indicating the payload length (up to 255
+bytes), followed by the packed LZW data bytes, terminating with a 0x00
+block terminator byte after the End-of-Information (EOI) code.</li>
+</ul>
+<h2 id="bit-packing-and-byte-alignment-in-deflate">Bit Packing and Byte
+Alignment in Deflate</h2>
+<p>Deflate (RFC 1951) combines LZ77 dictionary matching with Huffman
+coding. It processes two separate layers of bit manipulation:
+variable-length prefix codes and explicit byte-boundary alignment.</p>
+<ul>
+<li><strong>Huffman Bit Ordering:</strong> Deflate packs variable-length
+Huffman codes into bytes starting from the least significant bit (LSB)
+to the most significant bit (MSB), identical to GIF's byte-filling
+direction. However, the Huffman codes themselves are constructed such
+that the most significant bit of the code is transmitted first,
+requiring bit-reversal during bitstream emission.</li>
+<li><strong>Explicit Byte Alignment:</strong> Deflate supports three
+block types: uncompressed (<code>BTYPE=00</code>), fixed Huffman
+(<code>BTYPE=01</code>), and dynamic Huffman (<code>BTYPE=10</code>).
+When an uncompressed block is encountered, Deflate mandates immediate
+byte alignment. Any remaining unused bits in the current byte are
+discarded, padding the stream to the next byte boundary before reading
+the 16-bit length (<code>LEN</code>) and one's complement
+(<code>NLEN</code>) headers.</li>
+<li><strong>Stream Continuity:</strong> Unlike GIF, Deflate does not use
+length-prefixed sub-blocks to chunk its bitstream. It remains a
+continuous bit-level stream until an end-of-block marker is reached or
+the stream concludes, at which point the final byte is zero-padded to
+reach the nearest byte boundary.</li>
+</ul>
+<h2 id="key-differences-between-the-two-approaches">Key Differences
+Between the Two Approaches</h2>
+<h3 id="alignment-mid-stream">Alignment Mid-Stream</h3>
+<p>GIF never aligns to a byte boundary during active compression. The
+LZW code size increases dynamically across arbitrary bit boundaries, and
+codes span continuously across byte boundaries until the EOI code is
+encountered. Deflate, conversely, deliberately drops padding bits to
+realign with 8-bit boundaries whenever switching to uncompressed data
+chunks.</p>
+<h3 id="stream-partitioning">Stream Partitioning</h3>
+<p>GIF overlays an external container requirement onto its bit packing:
+the bitstream must be broken every 1 to 255 bytes to inject a
+length-indicator byte. A single LZW code can logically span across a
+sub-block boundary, meaning the bit-packing engine must pause, emit the
+next sub-block length byte, and resume packing bits into the next block
+payload. Deflate manages block headers at the bit level within the
+stream itself, avoiding intermediate byte-count wrappers.</p>
+<h3 id="code-growth-vs-static-trees">Code Growth vs. Static Trees</h3>
+<p>In GIF LZW, the reader and writer synchronize bit sizes implicitly
+based on code index increments. In Deflate, code sizes vary on a
+per-symbol basis dictated by Huffman tree representations transmitted in
+the dynamic block headers, rather than predictably widening bit-by-bit
+as the dictionary grows.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

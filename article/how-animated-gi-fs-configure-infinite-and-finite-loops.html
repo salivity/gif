@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Animated GIFs Configure Infinite and Finite Loops - gif</title>
+    <meta name="description" content="Animated GIFs manage playback repetition through an embedded metadata structure known as the Netscape Application Extension block. While the standard GIF89a specification does not natively include loop controls, modern software uses this specific extensio">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-animated-gi-fs-configure-infinite-and-finite-loops">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Animated GIFs Configure Infinite and Finite Loops - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-animated-gi-fs-configure-infinite-and-finite-loops" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs manage playback repetition through an embedded metadata structure known as the Netscape Application Extension block. While the standard GIF89a specification does not natively include loop controls, modern software uses this specific extensio" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-animated-gifs-configure-infinite-and-finite-loops">How
+Animated GIFs Configure Infinite and Finite Loops</h1>
+<p>Animated GIFs manage playback repetition through an embedded metadata
+structure known as the Netscape Application Extension block. While the
+standard GIF89a specification does not natively include loop controls,
+modern software uses this specific extension block to define whether an
+animation plays once, repeats continuously in an infinite loop, or
+cycles through a predetermined, finite number of iterations.</p>
+<h3 id="the-default-gif-behavior">The Default GIF Behavior</h3>
+<p>Under the standard GIF89a specification, an animated image does not
+loop at all. A decoder simply renders each frame sequentially from the
+first to the last and stops at the final frame. Because native looping
+was never written into the official GIF standard, any file lacking
+dedicated looping metadata is interpreted by web browsers and image
+viewers as a single-play animation.</p>
+<h3 id="the-netscape-20-application-extension">The Netscape 2.0
+Application Extension</h3>
+<p>To enable looping, Netscape introduced a proprietary Application
+Extension in 1995 that quickly became the universal industry standard.
+Decoders scan the raw file structure for this specific data block,
+positioned before the image descriptor data of the individual
+frames.</p>
+<p>The extension block consists of several components:</p>
+<ul>
+<li><strong>Extension Introducer:</strong> The byte <code>0x21</code>,
+indicating the start of an extension.</li>
+<li><strong>Application Extension Label:</strong> The byte
+<code>0xFF</code>, identifying the block as an application-specific
+extension.</li>
+<li><strong>Block Size:</strong> The byte <code>0x0B</code> (11 in
+decimal), representing the length of the authentication code.</li>
+<li><strong>Application Identifier:</strong> An 11-byte ASCII string
+typically written as <code>NETSCAPE2.0</code> (or occasionally
+<code>ANIMEXTS1.0</code>).</li>
+<li><strong>Sub-block Identifier:</strong> A 3-byte sub-block starting
+with <code>0x03 0x01</code>.</li>
+<li><strong>Loop Count Data:</strong> A 2-byte, unsigned 16-bit integer
+written in little-endian byte order.</li>
+<li><strong>Block Terminator:</strong> The byte <code>0x00</code>,
+signaling the end of the extension.</li>
+</ul>
+<h3 id="configuring-infinite-loops">Configuring Infinite Loops</h3>
+<p>To configure an infinite loop, the 2-byte loop count field is set to
+zero (<code>0x0000</code>). When a compliant image decoder reads
+<code>0x00 0x00</code> within the Netscape extension, it interprets the
+value as an instruction to restart playback from the first frame
+immediately after the final frame finishes, continuing indefinitely
+until the user navigates away or manually pauses the graphic.</p>
+<h3 id="configuring-finite-loop-counts">Configuring Finite Loop
+Counts</h3>
+<p>For finite playback, the 2-byte field stores a non-zero integer
+between 1 and 65,535 (<code>0x0001</code> through
+<code>0xFFFF</code>).</p>
+<p>Because bytes are stored in little-endian format, the least
+significant byte appears first:</p>
+<ul>
+<li><strong>Three Loops:</strong> Written as
+<code>0x03 0x00</code>.</li>
+<li><strong>Ten Loops:</strong> Written as <code>0x0A 0x00</code>.</li>
+<li><strong>256 Loops:</strong> Written as <code>0x00 0x01</code>.</li>
+</ul>
+<p>When encountering a non-zero integer, the rendering engine
+initializes a counter. Each time the animation completes all frame
+sequences, the counter decrements until it reaches zero, at which point
+playback permanently halts on the final frame.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

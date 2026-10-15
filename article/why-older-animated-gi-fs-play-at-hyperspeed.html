@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Older Animated GIFs Play at Hyperspeed - gif</title>
+    <meta name="description" content="Certain older animated GIF files play at hyperactive, uncontrollable speeds in modern software because of a clash between historical browser quirks and modern timing precision. In the early days of the web, creators frequently set frame delays to zero or">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-older-animated-gi-fs-play-at-hyperspeed">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Older Animated GIFs Play at Hyperspeed - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-older-animated-gi-fs-play-at-hyperspeed" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Certain older animated GIF files play at hyperactive, uncontrollable speeds in modern software because of a clash between historical browser quirks and modern timing precision. In the early days of the web, creators frequently set frame delays to zero or" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-older-animated-gifs-play-at-hyperspeed">Why Older Animated
+GIFs Play at Hyperspeed</h1>
+<p>Certain older animated GIF files play at hyperactive, uncontrollable
+speeds in modern software because of a clash between historical browser
+quirks and modern timing precision. In the early days of the web,
+creators frequently set frame delays to zero or near-zero values because
+dominant browsers like Internet Explorer automatically enforced a
+minimum delay, rendering the animations at a normal pace. When modern
+software strictly follows the file's encoded instructions without
+applying legacy browser workarounds, it displays those frames as fast as
+hardware allows, resulting in hyperspeed playback.</p>
+<h2 id="the-gif89a-specification-and-centiseconds">The GIF89a
+Specification and Centiseconds</h2>
+<p>The GIF format relies on the GIF89a specification, which dictates
+that animation frame delays are stored as integers in units of
+hundredths of a second (centiseconds, or 10 milliseconds per unit).
+Under this standard:</p>
+<ul>
+<li>A value of <code>10</code> represents a 100-millisecond delay (10
+frames per second).</li>
+<li>A value of <code>1</code> represents a 10-millisecond delay (100
+frames per second).</li>
+<li>A value of <code>0</code> explicitly commands the software to
+advance to the next frame immediately.</li>
+</ul>
+<h2 id="the-legacy-browser-flaw">The Legacy Browser Flaw</h2>
+<p>During the late 1990s and early 2000s, operating system timers and
+computer hardware were incapable of rendering images reliably at 100
+frames per second. When early web browsers—most notably Internet
+Explorer—encountered a frame delay of <code>0</code> or <code>1</code>,
+they failed to handle the rapid refresh rate.</p>
+<p>To prevent systems from freezing, browser developers implemented an
+internal safeguard: any frame delay set to zero or below a specific
+threshold (typically 10 to 50 milliseconds) was automatically rounded up
+to a default speed, usually around 100 milliseconds (0.10 seconds).</p>
+<p>Because Internet Explorer held a monopoly over the browser market,
+many GIF creation tools capitalized on this behavior. Tool developers
+and digital artists frequently set the delay parameter to <code>0</code>
+or <code>1</code> by default, knowing that the browser would clamp the
+speed to an aesthetically pleasing 10 frames per second anyway.</p>
+<h2 id="why-modern-software-breaks-old-gifs">Why Modern Software Breaks
+Old GIFs</h2>
+<p>Modern computing environments possess high-precision timers,
+high-refresh-rate displays, and powerful processors capable of executing
+thousands of operations per second.</p>
+<p>The hyperspeed phenomenon occurs primarily in two scenarios:</p>
+<ol type="1">
+<li><strong>Non-Browser Decoders:</strong> While modern web browsers
+still retain legacy clamping logic (usually forcing delays under 20
+milliseconds to default to 100 milliseconds), standalone media players,
+image viewers, video transcoders, and messaging apps often rely on
+modern, standards-compliant decoding libraries. These libraries attempt
+to follow the GIF89a specification literally. If the file requests a
+delay of <code>0</code> or <code>1</code>, the decoder attempts to
+render frames as quickly as the CPU or monitor refresh rate
+permits.</li>
+<li><strong>Inconsistent Clamping Thresholds:</strong> Different
+software environments use different thresholds for legacy fallbacks. A
+file that specifies a 20-millisecond delay (50 frames per second) might
+be clamped to 100 milliseconds in one application but permitted to run
+at full speed in another, creating drastic speed discrepancies across
+platforms.</li>
+</ol>
+<p>Ultimately, these runaway animations are the result of legacy files
+encoded with invalid or shortcut timing metadata that modern, highly
+capable software interprets literally.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

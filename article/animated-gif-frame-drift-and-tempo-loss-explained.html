@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated GIF Frame Drift and Tempo Loss Explained - gif</title>
+    <meta name="description" content="Animated GIF frame drift and tempo loss occur primarily due to a mathematical quantization constraint built into the GIF89a specification. Because the format stores frame display times as integer multiples of hundredths of a second (centiseconds), it cann">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/animated-gif-frame-drift-and-tempo-loss-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Animated GIF Frame Drift and Tempo Loss Explained - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/animated-gif-frame-drift-and-tempo-loss-explained" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIF frame drift and tempo loss occur primarily due to a mathematical quantization constraint built into the GIF89a specification. Because the format stores frame display times as integer multiples of hundredths of a second (centiseconds), it cann" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="animated-gif-frame-drift-and-tempo-loss-explained">Animated GIF
+Frame Drift and Tempo Loss Explained</h1>
+<p>Animated GIF frame drift and tempo loss occur primarily due to a
+mathematical quantization constraint built into the GIF89a
+specification. Because the format stores frame display times as integer
+multiples of hundredths of a second (centiseconds), it cannot natively
+represent most standard video and audio framerates without rounding.
+Over time, this discrepancy between the intended frame interval and the
+quantized file interval accumulates, resulting in noticeable phase
+drift, desynchronization from external audio tracks, and tempo
+degradation.</p>
+<h2 id="the-mathematical-constraint-of-gif89a">The Mathematical
+Constraint of GIF89a</h2>
+<p>Under the GIF89a specification, frame durations are controlled by the
+Graphic Control Extension block. The delay time field in this block is
+an unsigned 16-bit integer, defined strictly in units of centiseconds
+(1/100th of a second, or 10 milliseconds).</p>
+<p>A frame delay must be represented as:</p>
+<p><span class="math display">\[D = \frac{N}{100} \text{ seconds} \quad
+(N \in \mathbb{Z}^+)\]</span></p>
+<p>For an animation targeting a constant framerate <span
+class="math inline">\(F\)</span> (in frames per second), the required
+duration per frame is:</p>
+<p><span class="math display">\[T = \frac{1}{F} \text{
+seconds}\]</span></p>
+<p>An animated GIF can achieve an exact, drift-free playback rate if and
+only if the target framerate satisfies:</p>
+<p><span class="math display">\[\frac{100}{F} \in
+\mathbb{Z}^+\]</span></p>
+<p>This limits zero-drift framerates strictly to integer divisors of
+100: 100 fps (<span class="math inline">\(N=1\)</span>), 50 fps (<span
+class="math inline">\(N=2\)</span>), 33.33... fps (<span
+class="math inline">\(N=3\)</span>), 25 fps (<span
+class="math inline">\(N=4\)</span>), 20 fps (<span
+class="math inline">\(N=5\)</span>), 16.66... fps (<span
+class="math inline">\(N=6\)</span>), 10 fps (<span
+class="math inline">\(N=10\)</span>), and so on.</p>
+<h2 id="quantization-error-and-cumulative-drift">Quantization Error and
+Cumulative Drift</h2>
+<p>When an animation targets standard production framerates—such as 24
+fps, 29.97 fps, 30 fps, or 60 fps—the value <span
+class="math inline">\(\frac{100}{F}\)</span> is not an integer. Encoding
+software must round or truncate the frame delay to the nearest integer
+<span class="math inline">\(N\)</span>.</p>
+<p>The quantization error per frame, <span
+class="math inline">\(\epsilon\)</span>, is given by:</p>
+<p><span class="math display">\[\epsilon = \frac{N}{100} -
+\frac{1}{F}\]</span></p>
+<p>Over a sequence of <span class="math inline">\(k\)</span> frames, the
+total temporal drift <span class="math inline">\(\Delta(k)\)</span>
+accumulates linearly:</p>
+<p><span class="math display">\[\Delta(k) = \sum_{i=1}^{k}
+\epsilon_i\]</span></p>
+<p>If a constant integer delay <span class="math inline">\(N\)</span> is
+used for every frame, the formula simplifies to:</p>
+<p><span class="math display">\[\Delta(k) = k \cdot \left( \frac{N}{100}
+- \frac{1}{F} \right)\]</span></p>
+<h3 id="practical-examples-of-common-framerates">Practical Examples of
+Common Framerates</h3>
+<ul>
+<li><strong>24 fps (<span class="math inline">\(T \approx 41.67\text{
+ms}\)</span>):</strong>
+<ul>
+<li>Rounding down to <span class="math inline">\(N = 4\)</span> (<span
+class="math inline">\(40\text{ ms}\)</span>, or 25 fps) creates an error
+of <span class="math inline">\(-1.67\text{ ms}\)</span> per frame. The
+animation plays too fast, drifting ahead by approximately 40
+milliseconds every second (one full frame of drift every second).</li>
+<li>Rounding up to <span class="math inline">\(N = 5\)</span> (<span
+class="math inline">\(50\text{ ms}\)</span>, or 20 fps) creates an error
+of <span class="math inline">\(+8.33\text{ ms}\)</span> per frame. The
+animation plays too slowly, losing 200 milliseconds of tempo every
+second.</li>
+</ul></li>
+<li><strong>30 fps (<span class="math inline">\(T \approx 33.33\text{
+ms}\)</span>):</strong>
+<ul>
+<li>Rounding to <span class="math inline">\(N = 3\)</span> (<span
+class="math inline">\(30\text{ ms}\)</span>) yields 33.33 fps, drifting
+ahead by <span class="math inline">\(3.33\text{ ms}\)</span> per frame
+(100 ms every second).</li>
+<li>Rounding to <span class="math inline">\(N = 4\)</span> (<span
+class="math inline">\(40\text{ ms}\)</span>) yields 25 fps, drifting
+behind by <span class="math inline">\(6.67\text{ ms}\)</span> per frame
+(200 ms every second).</li>
+</ul></li>
+<li><strong>60 fps (<span class="math inline">\(T \approx 16.67\text{
+ms}\)</span>):</strong>
+<ul>
+<li>Rounding to <span class="math inline">\(N = 2\)</span> (<span
+class="math inline">\(20\text{ ms}\)</span>) yields 50 fps, causing an
+immediate 16.7% slowdown.</li>
+<li>Rounding to <span class="math inline">\(N = 1\)</span> (<span
+class="math inline">\(10\text{ ms}\)</span>) yields 100 fps, causing a
+66.7% speedup.</li>
+</ul></li>
+</ul>
+<h2 id="delay-dithering-limitations">Delay Dithering Limitations</h2>
+<p>To counteract cumulative drift, some encoders use temporal dithering
+by alternating delays between consecutive frames (for example,
+interleaving <span class="math inline">\(N=4\)</span> and <span
+class="math inline">\(N=5\)</span> to approximate 24 fps). While this
+keeps the mean drift bounded near zero (<span
+class="math inline">\(\Delta(k) \approx 0\)</span> over large
+intervals), it introduces periodic frame jitter:</p>
+<p><span class="math display">\[\sigma^2 = \frac{1}{k} \sum_{i=1}^{k}
+\left( D_i - \frac{1}{F} \right)^2\]</span></p>
+<p>This variance causes localized tempo instability, manifesting as
+micro-stutter rather than smooth playback.</p>
+<h2 id="decoder-clamping-artifacts">Decoder Clamping Artifacts</h2>
+<p>The drift problem is further compounded by software rendering engines
+and web browsers. Historically, many browsers imposed a minimum delay
+clamp: any frame with <span class="math inline">\(N = 0\)</span> or
+<span class="math inline">\(N = 1\)</span> was automatically rewritten
+by the decoder to <span class="math inline">\(N = 10\)</span> (<span
+class="math inline">\(100\text{ ms}\)</span> or 10 fps) to prevent CPU
+starvation. While modern browsers have lowered this threshold to enforce
+minimum delays typically around <span class="math inline">\(N =
+2\)</span> (<span class="math inline">\(20\text{ ms}\)</span>), any GIF
+relying on sub-20ms frame intervals will encounter deterministic tempo
+collapse across standard viewing environments.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

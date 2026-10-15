@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding GIF Header Color Resolution Bit Depth - gif</title>
+    <meta name="description" content="This article explains how the Graphics Interchange Format (GIF) specifies the color resolution bit depth inside the packed fields byte of its Logical Screen Descriptor. It covers the specific bitwise layout defined in the GIF87a and GIF89a specifications,">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/understanding-gif-header-color-resolution-bit-depth">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Understanding GIF Header Color Resolution Bit Depth - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/understanding-gif-header-color-resolution-bit-depth" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how the Graphics Interchange Format (GIF) specifies the color resolution bit depth inside the packed fields byte of its Logical Screen Descriptor. It covers the specific bitwise layout defined in the GIF87a and GIF89a specifications," />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1
+id="understanding-gif-header-color-resolution-bit-depth">Understanding
+GIF Header Color Resolution Bit Depth</h1>
+<p>This article explains how the Graphics Interchange Format (GIF)
+specifies the color resolution bit depth inside the packed fields byte
+of its Logical Screen Descriptor. It covers the specific bitwise layout
+defined in the GIF87a and GIF89a specifications, details the
+mathematical formula used to determine bits per color channel, and
+clarifies how this field differs from the actual size of the Global
+Color Table.</p>
+<h3 id="the-logical-screen-descriptor">The Logical Screen
+Descriptor</h3>
+<p>In the GIF file format, the Logical Screen Descriptor immediately
+follows the 6-byte header signature (<code>GIF87a</code> or
+<code>GIF89a</code>) and the screen dimensions. Located at byte offset
+10 (the eleventh byte of the file), there is a single byte designated as
+the <strong>Packed Fields</strong>. This byte consolidates multiple
+configuration flags and values into individual bit ranges to conserve
+space.</p>
+<h3 id="bit-allocation-of-the-packed-fields-byte">Bit Allocation of the
+Packed Fields Byte</h3>
+<p>The Packed Fields byte is mapped from Most Significant Bit (MSB, Bit
+7) to Least Significant Bit (LSB, Bit 0) as follows:</p>
+<ul>
+<li><strong>Bit 7:</strong> Global Color Table Flag (1 bit)</li>
+<li><strong>Bits 6, 5, 4:</strong> Color Resolution (3 bits)</li>
+<li><strong>Bit 3:</strong> Sort Flag (1 bit)</li>
+<li><strong>Bits 2, 1, 0:</strong> Size of Global Color Table (3
+bits)</li>
+</ul>
+<h3 id="extracting-and-calculating-color-resolution">Extracting and
+Calculating Color Resolution</h3>
+<p>The color resolution occupies bits 4 through 6. To extract this 3-bit
+value programmatically, shift the packed byte right by 4 bits and apply
+a bitwise AND mask with <code>0x07</code> (binary
+<code>00000111</code>):</p>
+<p><span class="math display">\[\text{Raw Value} = (\text{Packed Byte}
+\gg 4) \ \&amp; \ 0x07\]</span></p>
+<p>The 3-bit binary value yields an integer ranging from <code>0</code>
+to <code>7</code>. According to the official GIF specification, this raw
+value does not represent the literal bit depth directly; instead, it is
+an index where the actual color resolution in bits per primary color is
+computed as:</p>
+<p><span class="math display">\[\text{Bits Per Color} = \text{Raw Value}
++ 1\]</span></p>
+<p>Because the field can store values from 0 to 7, the calculated bit
+depth ranges from 1 to 8 bits per primary color component (Red, Green,
+Blue):</p>
+<ul>
+<li><code>000</code> (0) <span
+class="math inline">\(\rightarrow\)</span> 1 bit per primary color (2
+shades per channel)</li>
+<li><code>001</code> (1) <span
+class="math inline">\(\rightarrow\)</span> 2 bits per primary color (4
+shades per channel)</li>
+<li><code>010</code> (2) <span
+class="math inline">\(\rightarrow\)</span> 3 bits per primary color (8
+shades per channel)</li>
+<li><code>011</code> (3) <span
+class="math inline">\(\rightarrow\)</span> 4 bits per primary color (16
+shades per channel)</li>
+<li><code>100</code> (4) <span
+class="math inline">\(\rightarrow\)</span> 5 bits per primary color (32
+shades per channel)</li>
+<li><code>101</code> (5) <span
+class="math inline">\(\rightarrow\)</span> 6 bits per primary color (64
+shades per channel)</li>
+<li><code>110</code> (6) <span
+class="math inline">\(\rightarrow\)</span> 7 bits per primary color (128
+shades per channel)</li>
+<li><code>111</code> (7) <span
+class="math inline">\(\rightarrow\)</span> 8 bits per primary color (256
+shades per channel, standard 24-bit RGB)</li>
+</ul>
+<h3 id="purpose-and-distinction-from-the-color-table-size">Purpose and
+Distinction from the Color Table Size</h3>
+<p>The Color Resolution field describes the capabilities of the original
+source hardware or color palette used to create the image, indicating
+how many bits of color precision were available per RGB channel before
+quantization.</p>
+<p>It is functionally independent of Bits 0–2, which dictate the
+<strong>Size of the Global Color Table</strong>. While Bits 0–2 specify
+the total number of colors actually present in the palette (<span
+class="math inline">\(2^{\text{Size} + 1}\)</span>, up to 256 palette
+entries), the Color Resolution field in Bits 4–6 informs the decoder of
+the color depth of the primary colors used to render that palette. In
+modern decoders, this field is largely informational and rarely affects
+the rendering pipeline, as nearly all contemporary systems default to 8
+bits per channel (24-bit true color).</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

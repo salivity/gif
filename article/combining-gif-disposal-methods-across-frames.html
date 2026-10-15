@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combining GIF Disposal Methods Across Frames - gif</title>
+    <meta name="description" content="Animated GIFs can combine different frame disposal methods across sequential frames. In the GIF89a specification, frame disposal instructions are assigned per frame via individual Graphic Control Extension (GCE) blocks rather than globally for the entire">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/combining-gif-disposal-methods-across-frames">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Combining GIF Disposal Methods Across Frames - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/combining-gif-disposal-methods-across-frames" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs can combine different frame disposal methods across sequential frames. In the GIF89a specification, frame disposal instructions are assigned per frame via individual Graphic Control Extension (GCE) blocks rather than globally for the entire" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="combining-gif-disposal-methods-across-frames">Combining GIF
+Disposal Methods Across Frames</h1>
+<p>Animated GIFs can combine different frame disposal methods across
+sequential frames. In the GIF89a specification, frame disposal
+instructions are assigned per frame via individual Graphic Control
+Extension (GCE) blocks rather than globally for the entire file. This
+modularity allows developers and animators to vary disposal behavior
+dynamically between frames to optimize file size, manage transparency,
+and control rendering performance.</p>
+<h3 id="how-frame-disposal-works-in-gif89a">How Frame Disposal Works in
+GIF89a</h3>
+<p>Every individual graphic frame in an animated GIF can be preceded by
+its own Graphic Control Extension. Within this 4-byte extension block, a
+3-bit field defines the disposal method for that specific frame. The
+disposal method dictates what rendering engines should do with the
+current frame's pixels before drawing the subsequent frame.</p>
+<p>Because this instruction is local to each frame, a GIF file can
+sequence any combination of the four standard disposal methods:</p>
+<ul>
+<li><strong>Disposal Method 0 (Not Specified):</strong> The decoder
+replaces the entire canvas or leaves the graphic in place depending on
+its default handling.</li>
+<li><strong>Disposal Method 1 (Do Not Dispose):</strong> The pixels of
+the current frame remain on the canvas. The next frame renders directly
+on top of the existing pixels.</li>
+<li><strong>Disposal Method 2 (Restore to Background):</strong> The area
+occupied by the current frame is cleared back to the background color or
+transparent canvas before the next frame is rendered.</li>
+<li><strong>Disposal Method 3 (Restore to Previous):</strong> The canvas
+reverts to the state it was in prior to the current frame being
+rendered, effectively undoing the changes introduced by that frame.</li>
+</ul>
+<h3 id="benefits-of-combining-disposal-methods">Benefits of Combining
+Disposal Methods</h3>
+<p>Mixing disposal methods across sequential frames is a standard
+optimization strategy in animated GIF authoring.</p>
+<ol type="1">
+<li><strong>Differential Frame Compression:</strong> A common scenario
+involves keeping a complex background static using Method 1 (Do Not
+Dispose) on the initial frame, while subsequent frames animate small
+foreground elements using Method 2 (Restore to Background) or Method 3
+(Restore to Previous). This eliminates the need to duplicate static
+background pixels across multiple frames, drastically reducing the file
+size.</li>
+<li><strong>Complex Multi-Layer Movements:</strong> Animators can cycle
+through methods to handle layered movement. For instance, an object can
+move across a canvas and persist using Method 1, followed by a transient
+effect—such as a flash or spark—that uses Method 3 to quickly appear and
+vanish without wiping the underlying graphic.</li>
+</ol>
+<p>Modern image decoders, web browsers, and media frameworks strictly
+adhere to the GIF89a standard and reliably execute varying disposal
+methods from one frame to the next.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

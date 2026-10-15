@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Animated GIFs Cannot Scale Canvas Resolution - gif</title>
+    <meta name="description" content="Animated GIFs cannot dynamically change or scale their master canvas resolution across sequential frames due to architectural constraints defined in the GIF specification. The format relies on a fixed global canvas size declared once in the file header, r">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-animated-gi-fs-cannot-scale-canvas-resolution">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Animated GIFs Cannot Scale Canvas Resolution - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-animated-gi-fs-cannot-scale-canvas-resolution" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs cannot dynamically change or scale their master canvas resolution across sequential frames due to architectural constraints defined in the GIF specification. The format relies on a fixed global canvas size declared once in the file header, r" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-animated-gifs-cannot-scale-canvas-resolution">Why Animated
+GIFs Cannot Scale Canvas Resolution</h1>
+<p>Animated GIFs cannot dynamically change or scale their master canvas
+resolution across sequential frames due to architectural constraints
+defined in the GIF specification. The format relies on a fixed global
+canvas size declared once in the file header, restricting all subsequent
+frames to render within those pre-allocated dimensions. While individual
+frames can be smaller than the master canvas to optimize file size, the
+overall viewport resolution cannot expand, shrink, or adapt mid-stream
+without violating the specification.</p>
+<h3 id="the-logical-screen-descriptor">The Logical Screen
+Descriptor</h3>
+<p>At the beginning of every GIF file (governed by the GIF89a
+specification), a data block known as the Logical Screen Descriptor is
+defined. This block sets two critical 16-bit integer values: the Logical
+Screen Width and Logical Screen Height.</p>
+<p>These values define the absolute boundaries of the canvas for the
+entire animation. Because this descriptor exists exclusively in the file
+header and cannot be redefined between frame data blocks, every frame
+must conform to this single, immutable resolution.</p>
+<h3 id="local-frame-dimensions-vs-canvas-dimensions">Local Frame
+Dimensions vs. Canvas Dimensions</h3>
+<p>GIF does support variable dimensions for individual frames via local
+Image Descriptors. An individual frame can specify:</p>
+<ul>
+<li>An independent width and height.</li>
+<li>Horizontal and vertical offsets (<code>Image Left Position</code>
+and <code>Image Top Position</code>).</li>
+<li>Disposal methods that determine how the previous frame is
+handled.</li>
+</ul>
+<p>This mechanism allows decoders to update only the specific region of
+the screen that changes from one frame to the next, saving bandwidth.
+However, these local coordinates are strictly bounded by the Logical
+Screen dimensions. A frame cannot exceed the global boundaries, nor can
+it instruct the decoder to scale or resize the master canvas.</p>
+<h3 id="decoder-memory-allocation-and-compatibility">Decoder Memory
+Allocation and Compatibility</h3>
+<p>From a software perspective, standard GIF decoders allocate a single
+frame buffer in memory based on the dimensions read from the Logical
+Screen Descriptor before decoding the image data.</p>
+<p>Allowing dynamic canvas scaling would require the decoder to
+continually reallocate memory buffers, recompute scaling transforms, and
+handle coordinate transformations on the fly. The GIF specification was
+finalized in 1989 for low-powered hardware and simple graphical
+interchange, intentionally avoiding the complexity of dynamic viewport
+resizing. Because the specification is frozen, introducing dynamic
+canvas scaling would break backward compatibility across virtually all
+legacy and modern image rendering engines.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

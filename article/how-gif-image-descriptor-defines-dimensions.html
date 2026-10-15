@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How GIF Image Descriptor Defines Dimensions - gif</title>
+    <meta name="description" content="This article explains how individual frame dimensions and spatial coordinates are structured inside the Image Descriptor block of a GIF file. Readers will learn the exact byte offsets, data types, and endianness used to define an image&#39;s width and height,">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-gif-image-descriptor-defines-dimensions">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How GIF Image Descriptor Defines Dimensions - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-gif-image-descriptor-defines-dimensions" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how individual frame dimensions and spatial coordinates are structured inside the Image Descriptor block of a GIF file. Readers will learn the exact byte offsets, data types, and endianness used to define an image&#39;s width and height," />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-gif-image-descriptor-defines-dimensions">How GIF Image
+Descriptor Defines Dimensions</h1>
+<p>This article explains how individual frame dimensions and spatial
+coordinates are structured inside the Image Descriptor block of a GIF
+file. Readers will learn the exact byte offsets, data types, and
+endianness used to define an image's width and height, as well as how
+these parameters correlate with the overall canvas size defined in the
+Logical Screen Descriptor.</p>
+<p>The GIF specification (both GIF87a and GIF89a) uses the Image
+Descriptor block to introduce the rendering parameters for an individual
+image or animation frame. Every Image Descriptor is exactly 10 bytes
+long and begins with the Image Separator byte, defined as hexadecimal
+<code>0x2C</code> (ASCII comma <code>,</code>).</p>
+<h3 id="the-byte-layout-of-the-image-descriptor">The Byte Layout of the
+Image Descriptor</h3>
+<p>The 10 bytes of the Image Descriptor are allocated as follows:</p>
+<ul>
+<li><strong>Byte 0:</strong> Image Separator (<code>0x2C</code>)</li>
+<li><strong>Bytes 1–2:</strong> Image Left Position</li>
+<li><strong>Bytes 3–4:</strong> Image Top Position</li>
+<li><strong>Bytes 5–6:</strong> Image Width</li>
+<li><strong>Bytes 7–8:</strong> Image Height</li>
+<li><strong>Byte 9:</strong> Packed Fields (Local Color Table
+configuration and interlacing)</li>
+</ul>
+<h3 id="encoding-width-and-height">Encoding Width and Height</h3>
+<p>Image dimensions are defined across four contiguous bytes, from Byte
+5 through Byte 8:</p>
+<ul>
+<li><strong>Image Width (Bytes 5 and 6):</strong> Specifies the width of
+the image in pixels.</li>
+<li><strong>Image Height (Bytes 7 and 8):</strong> Specifies the height
+of the image in pixels.</li>
+</ul>
+<p>Both values are stored as unsigned 16-bit integers (words). This
+allows for a theoretical maximum resolution of 65,535 × 65,535 pixels
+per image block.</p>
+<h3 id="endianness-little-endian-format">Endianness: Little-Endian
+Format</h3>
+<p>The GIF specification mandates <strong>little-endian</strong> byte
+ordering for all multi-byte values. This means the least significant
+byte (LSB) precedes the most significant byte (MSB).</p>
+<p>To decode the dimension value: <span
+class="math display">\[\text{Dimension} = \text{Byte}_1 + (\text{Byte}_2
+\times 256)\]</span></p>
+<p><strong>Example:</strong> If an image frame has a width of 800
+pixels:</p>
+<ol type="1">
+<li>The decimal value <code>800</code> is represented in hexadecimal as
+<code>0x0320</code>.</li>
+<li>The least significant byte is <code>0x20</code>.</li>
+<li>The most significant byte is <code>0x03</code>.</li>
+<li>In the file stream at Bytes 5 and 6, the width is written as
+<code>20 03</code>.</li>
+</ol>
+<h3 id="spatial-placement-and-offsets">Spatial Placement and
+Offsets</h3>
+<p>Before the width and height fields, Bytes 1 through 4 define the
+frame's origin point relative to the global canvas:</p>
+<ul>
+<li><strong>Image Left Position (Bytes 1–2):</strong> The column number,
+in pixels, of the left edge of the image relative to the left edge of
+the Logical Screen.</li>
+<li><strong>Image Top Position (Bytes 3–4):</strong> The row number, in
+pixels, of the top edge of the image relative to the top edge of the
+Logical Screen.</li>
+</ul>
+<p>Like the dimensions, these offsets are 16-bit unsigned little-endian
+integers.</p>
+<h3 id="relation-to-the-logical-screen-descriptor">Relation to the
+Logical Screen Descriptor</h3>
+<p>The Image Descriptor dimensions do not necessarily equal the
+dimensions of the entire GIF. The canvas boundary is defined earlier in
+the file within the Logical Screen Descriptor.</p>
+<p>In single-frame images, the Image Descriptor's width and height
+usually match the Logical Screen's dimensions, with the left and top
+positions set to <code>0</code>. However, in animated GIFs, individual
+frames can be smaller than the overall canvas. Sub-frame dimensions
+allow the file to update only the specific region of the screen that
+changes from one frame to the next, reducing the overall file size. The
+boundaries defined by the Image Descriptor (Left + Width, Top + Height)
+must not exceed the dimensions established by the Logical Screen
+Descriptor.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

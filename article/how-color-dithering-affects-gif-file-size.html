@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Color Dithering Affects GIF File Size - gif</title>
+    <meta name="description" content="Color dithering significantly increases the final file size of an animated GIF, and reducing or eliminating it is one of the most effective ways to optimize GIF storage. GIF files rely on the LZW compression algorithm, which shrinks file sizes by identify">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-color-dithering-affects-gif-file-size">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Color Dithering Affects GIF File Size - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-color-dithering-affects-gif-file-size" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Color dithering significantly increases the final file size of an animated GIF, and reducing or eliminating it is one of the most effective ways to optimize GIF storage. GIF files rely on the LZW compression algorithm, which shrinks file sizes by identify" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-color-dithering-affects-gif-file-size">How Color Dithering
+Affects GIF File Size</h1>
+<p>Color dithering significantly increases the final file size of an
+animated GIF, and reducing or eliminating it is one of the most
+effective ways to optimize GIF storage. GIF files rely on the LZW
+compression algorithm, which shrinks file sizes by identifying repeated
+sequences of identical pixels. Dithering intentionally introduces pixel
+noise and alternating patterns to simulate missing colors within a
+256-color palette, disrupting these uniform sequences and crippling
+compression efficiency. Reducing dithering restores uniform pixel runs,
+leading to substantial reductions in output file size at the cost of
+minor visual banding.</p>
+<h2 id="the-relationship-between-lzw-compression-and-dithering">The
+Relationship Between LZW Compression and Dithering</h2>
+<p>The GIF format uses LZW (Lempel-Ziv-Welch) lossless data compression.
+LZW searches for horizontal patterns of pixel color indexes and replaces
+repeated patterns with shorter reference codes. When an image contains
+large blocks of flat, identical color, LZW compresses the data
+efficiently because the horizontal scanlines repeat the same values over
+and over.</p>
+<p>Dithering algorithms, such as Floyd-Steinberg or error diffusion,
+attempt to eliminate visual color banding across gradients by scattering
+individual pixels of varying colors in complex, pseudo-random
+arrangements. While this creates the illusion of smooth color
+transitions, it destroys the horizontal repetition that LZW relies on.
+Instead of compressing long strings of identical color codes, the
+encoder must store constantly shifting sequences, resulting in a
+drastically larger file.</p>
+<h2 id="measurable-impact-on-file-size">Measurable Impact on File
+Size</h2>
+<p>Reducing color dithering often yields dramatic results:</p>
+<ul>
+<li><strong>File Size Reduction:</strong> Lowering the dithering level
+from 100% to 0% (no dithering) can reduce the total file size of a
+photographic or gradient-heavy GIF by 30% to 70%.</li>
+<li><strong>Frame-to-Frame Difference Optimization:</strong> Animated
+GIFs often use transparency optimization, where only pixels that change
+from one frame to the next are encoded. Dithering causes pixels to
+flicker and shift slightly between frames even in static areas of the
+scene. Disabling or reducing dithering stabilizes these pixels, allowing
+subsequent frames to store more transparent areas and drastically
+decreasing the payload per frame.</li>
+</ul>
+<h2 id="visual-trade-offs">Visual Trade-offs</h2>
+<p>The primary cost of reducing dithering is visual degradation,
+specifically posterization and color banding. Without dithering:</p>
+<ul>
+<li><strong>Gradients:</strong> Smooth transitions (such as skies,
+shadows, or soft lighting) break down into distinct, noticeable bands of
+solid color.</li>
+<li><strong>Complex Textures:</strong> Subtle textures may flatten out
+into solid shapes.</li>
+<li><strong>Flat Art and Screencasts:</strong> Graphics that already
+feature solid color palettes (such as vector illustrations, pixel art,
+or UI screen recordings) show virtually no visual degradation when
+dithering is reduced to zero, making them ideal candidates for maximum
+compression.</li>
+</ul>
+<h2 id="best-practices-for-balancing-quality-and-size">Best Practices
+for Balancing Quality and Size</h2>
+<p>To achieve the optimal balance between visual quality and file size,
+consider the following encoding strategies:</p>
+<ul>
+<li><strong>Partial Dithering:</strong> Many encoders (such as Adobe
+Photoshop or FFmpeg) allow you to specify a dithering percentage.
+Reducing dithering to between 40% and 75% often eliminates the worst
+color banding while still providing significant file size savings
+compared to 100% dithering.</li>
+<li><strong>Ordered Dithering:</strong> Unlike error diffusion methods
+that produce pseudo-random noise, ordered dithering applies a repeating
+grid pattern (such as Bayer dithering). Because the pattern is
+predictable and repetitive, LZW compresses it far better than random
+diffusion patterns.</li>
+<li><strong>Palette Tuning First:</strong> Expanding or customizing the
+color palette to closely match the image's dominant tones can reduce the
+need for dithering entirely, allowing for smooth gradients without the
+overhead of heavy dithering noise.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

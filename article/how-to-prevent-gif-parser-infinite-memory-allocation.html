@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Prevent GIF Parser Infinite Memory Allocation - gif</title>
+    <meta name="description" content="Parsing animated GIFs safely requires strict input validation because corrupted headers, malicious frame counts, and recursive loops can cause excessive or infinite memory allocation. This article outlines the essential programmatic checks—ranging from di">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-to-prevent-gif-parser-infinite-memory-allocation">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Prevent GIF Parser Infinite Memory Allocation - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-to-prevent-gif-parser-infinite-memory-allocation" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Parsing animated GIFs safely requires strict input validation because corrupted headers, malicious frame counts, and recursive loops can cause excessive or infinite memory allocation. This article outlines the essential programmatic checks—ranging from di" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-prevent-gif-parser-infinite-memory-allocation">How to
+Prevent GIF Parser Infinite Memory Allocation</h1>
+<p>Parsing animated GIFs safely requires strict input validation because
+corrupted headers, malicious frame counts, and recursive loops can cause
+excessive or infinite memory allocation. This article outlines the
+essential programmatic checks—ranging from dimension limits and frame
+count ceilings to streaming decompression and strict block
+validation—required to harden a GIF parser against denial-of-service
+(DoS) and memory exhaustion attacks.</p>
+<h3 id="enforce-maximum-canvas-and-frame-dimensions">Enforce Maximum
+Canvas and Frame Dimensions</h3>
+<p>Malicious GIF files can declare dimensions up to 65,535 × 65,535
+pixels in both the Logical Screen Descriptor and individual Image
+Descriptors.</p>
+<ul>
+<li><strong>Cap Dimensions:</strong> Reject any canvas or frame where
+the width or height exceeds a sensible application-defined limit (e.g.,
+4,096 × 4,096 or 8,192 × 8,192).</li>
+<li><strong>Prevent Integer Overflows:</strong> Calculate the required
+buffer size using safe arithmetic checks (such as checking if
+<code>width &gt; SIZE_MAX / height / bytes_per_pixel</code>) before
+calling allocation functions.</li>
+<li><strong>Validate Frame Bounds:</strong> Ensure that for each
+individual frame,
+<code>frame_left + frame_width &lt;= canvas_width</code> and
+<code>frame_top + frame_height &lt;= canvas_height</code>. Reject or
+clamp out-of-bounds frames instead of allocating auxiliary buffers.</li>
+</ul>
+<h3 id="bound-maximum-frame-counts">Bound Maximum Frame Counts</h3>
+<p>The GIF format allows an arbitrary number of image frames without
+declaring a total count in the header.</p>
+<ul>
+<li><strong>Set a Hard Frame Limit:</strong> Enforce a maximum allowable
+frame count (e.g., 500 or 1,000 frames). Stop parsing or reject the
+image if the frame count exceeds this ceiling.</li>
+<li><strong>Avoid Pre-allocation:</strong> Never pre-allocate storage
+arrays based on expected frames. Grow frame collections incrementally or
+process frames on-demand.</li>
+<li><strong>Ignore Loop Counters for Allocation:</strong> The
+Application Extension block (frequently the Netscape 2.0 extension)
+specifies loop counts, which may indicate infinite looping. Use this
+value strictly for playback logic, never for allocating repeated frames
+into memory.</li>
+</ul>
+<h3 id="implement-global-memory-budgeting">Implement Global Memory
+Budgeting</h3>
+<p>Relying solely on local checks can fail if an attacker sends an image
+with many moderately sized frames that collectively consume gigabytes of
+RAM.</p>
+<ul>
+<li><strong>Cumulative Memory Tracking:</strong> Maintain a per-decode
+memory counter. Add the byte requirements of each frame’s uncompressed
+pixel buffer and color table to this counter.</li>
+<li><strong>Enforce an Absolute Budget:</strong> Terminate decoding
+immediately with an error if total allocated memory crosses a
+predetermined threshold (such as 50 MB to 100 MB per image).</li>
+</ul>
+<h3 id="safeguard-lzw-decompression">Safeguard LZW Decompression</h3>
+<p>The LZW algorithm used in GIF can be exploited as a decompression
+bomb, generating massive pixel outputs from tiny byte streams or
+entering infinite loops via circular dictionary trees.</p>
+<ul>
+<li><strong>Expected Output Limits:</strong> Calculate the exact number
+of pixels expected for a given frame (<code>width × height</code>). The
+decompressor must stop immediately once this number of pixels is
+decoded. If the sub-block stream provides more data, abort
+decoding.</li>
+<li><strong>Dictionary Reset Checks:</strong> The LZW code table has a
+maximum size of 4,096 entries (12-bit codes). Ensure that the code table
+cannot expand beyond this boundary. Reject or gracefully handle streams
+that reference undefined or out-of-range codes.</li>
+<li><strong>Cycle Detection:</strong> Prevent cyclic references within
+the LZW string table by ensuring that each newly added entry only
+references valid, previously established prefixes of strictly lower
+indices.</li>
+</ul>
+<h3 id="validate-data-blocks-and-file-progress">Validate Data Blocks and
+File Progress</h3>
+<p>Infinite memory and CPU hangs can occur if a parser repeatedly
+re-allocates memory or loops while failing to advance the input read
+pointer.</p>
+<ul>
+<li><strong>Track Sub-block Consumptions:</strong> GIF image data and
+extension blocks are divided into sub-blocks prefixed by a 1-byte length
+(0 to 255). Ensure that every iteration of the parsing loop consumes the
+specified block length plus the length byte.</li>
+<li><strong>Explicit EOF Verification:</strong> Immediately terminate
+the parsing loop if an end-of-file (EOF) state is reached before finding
+the GIF trailer byte (<code>0x3B</code>). Never allow the parser to loop
+indefinitely on missing termination bytes.</li>
+</ul>
+<h3 id="reuse-buffers-across-frames">Reuse Buffers Across Frames</h3>
+<p>Storing an entire uncompressed video sequence of frames in RAM is the
+primary driver of high memory usage.</p>
+<ul>
+<li><strong>Double Buffering:</strong> Maintain only two canvas-sized
+buffers: one for the current canvas state and one for the active frame
+composition.</li>
+<li><strong>Process Disposal Methods In-Place:</strong> Apply GIF
+disposal methods (such as "Restore to Background" or "Do Not Dispose")
+directly onto the active canvas rather than keeping unique historical
+frame copies in memory. Convert frames to a streaming representation or
+render them on-the-fly to keep the memory footprint constant regardless
+of animation duration.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

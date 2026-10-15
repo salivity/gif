@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF LZW Minimum and Maximum Code Sizes Explained - gif</title>
+    <meta name="description" content="In the Graphics Interchange Format (GIF) specification, image data is compressed using a modified version of the Lempel-Ziv-Welch (LZW) algorithm that utilizes variable-length codes. The minimum initial code size parameter defined in a GIF data stream is">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-lzw-minimum-and-maximum-code-sizes-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF LZW Minimum and Maximum Code Sizes Explained - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-lzw-minimum-and-maximum-code-sizes-explained" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In the Graphics Interchange Format (GIF) specification, image data is compressed using a modified version of the Lempel-Ziv-Welch (LZW) algorithm that utilizes variable-length codes. The minimum initial code size parameter defined in a GIF data stream is" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-lzw-minimum-and-maximum-code-sizes-explained">GIF LZW
+Minimum and Maximum Code Sizes Explained</h1>
+<p>In the Graphics Interchange Format (GIF) specification, image data is
+compressed using a modified version of the Lempel-Ziv-Welch (LZW)
+algorithm that utilizes variable-length codes. The minimum initial code
+size parameter defined in a GIF data stream is 2 bits, which results in
+an initial reading code length of 3 bits, while the maximum code size
+allowed during processing is strictly capped at 12 bits. This article
+explains the technical mechanics behind these boundaries, how the bit
+lengths scale during compression, and why these limits exist.</p>
+<h2 id="the-minimum-code-size">The Minimum Code Size</h2>
+<p>Before compressed image data begins, a GIF image data block contains
+a 1-byte value known as the <strong>LZW Minimum Code Size</strong>.</p>
+<ul>
+<li><strong>The Parameter Range:</strong> The GIF specification defines
+that this value must match the color depth of the image, with an
+enforced lower limit. For images with a color palette of 2 to 4 colors
+(1 or 2 bits per pixel), the minimum code size parameter must be at
+least <strong>2</strong>. For higher color depths (up to 8 bits per
+pixel, or 256 colors), the parameter corresponds directly to the bit
+depth, reaching up to <strong>8</strong>.</li>
+<li><strong>Starting Bit Length:</strong> The actual bit length used by
+the decoder to read the first codes is always calculated as
+<code>LZW Minimum Code Size + 1</code>. Because the smallest permissible
+minimum code size is 2, the absolute minimum bit length read from the
+LZW stream is <strong>3 bits</strong>.</li>
+</ul>
+<p>The extra bit accommodates two mandatory control codes embedded into
+the dictionary:</p>
+<ol type="1">
+<li><strong>Clear Code (<span class="math inline">\(2^{\text{code
+size}}\)</span>):</strong> Reinitializes the dictionary.</li>
+<li><strong>End of Information (EOI) Code (<span
+class="math inline">\(2^{\text{code size}} + 1\)</span>):</strong> Marks
+the end of the raster data.</li>
+</ol>
+<p>For a 1-bit monochrome image (2 colors), the minimum code size is set
+to 2. Codes 0 and 1 represent pixel values, code 4 is the Clear Code,
+and code 5 is the EOI code. Representing a value of 5 requires at least
+3 bits (<span class="math inline">\(2^3 = 8\)</span> maximum value).</p>
+<h2 id="the-maximum-code-size">The Maximum Code Size</h2>
+<p>The maximum code size used by GIF LZW compression is <strong>12
+bits</strong>.</p>
+<p>As the compression algorithm processes pixel sequences, new entries
+are dynamically added to the string table (dictionary). When the number
+of entries exceeds the capacity of the current bit length, the code size
+increases by 1 bit:</p>
+<ul>
+<li>A 3-bit size expands to 4 bits once code 7 is reached.</li>
+<li>A 4-bit size expands to 5 bits at code 15, continuing upward
+sequentially.</li>
+</ul>
+<p>This expansion continues until the code size reaches the hard maximum
+limit of <strong>12 bits</strong>, which corresponds to code 4095 (<span
+class="math inline">\(2^{12} - 1\)</span>). The dictionary cannot exceed
+4,096 total entries.</p>
+<h2 id="handling-the-12-bit-limit">Handling the 12-Bit Limit</h2>
+<p>Once the dictionary is full at 4,096 entries (12 bits), the encoder
+cannot increase the code size any further. At this stage, the encoder
+has two options depending on compression efficiency:</p>
+<ol type="1">
+<li><strong>Continue using 12-bit codes:</strong> The encoder stops
+adding new sequences to the dictionary and emits existing 12-bit codes
+for recognized patterns.</li>
+<li><strong>Emit a Clear Code:</strong> The encoder outputs the Clear
+Code to wipe the string table back to its initial state. The bit length
+immediately resets back to <code>LZW Minimum Code Size + 1</code>, and
+the dictionary rebuilding process begins again.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

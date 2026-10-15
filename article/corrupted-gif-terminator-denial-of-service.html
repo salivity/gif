@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrupted GIF Terminator Denial of Service - gif</title>
+    <meta name="description" content="A corrupted or missing terminator byte in a GIF file can trigger a denial-of-service (DoS) condition in vulnerable image parsers by inducing infinite loops, memory exhaustion, or out-of-bounds read violations. According to the standard GIF specification,">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/corrupted-gif-terminator-denial-of-service">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Corrupted GIF Terminator Denial of Service - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/corrupted-gif-terminator-denial-of-service" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="A corrupted or missing terminator byte in a GIF file can trigger a denial-of-service (DoS) condition in vulnerable image parsers by inducing infinite loops, memory exhaustion, or out-of-bounds read violations. According to the standard GIF specification," />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="corrupted-gif-terminator-denial-of-service">Corrupted GIF
+Terminator Denial of Service</h1>
+<p>A corrupted or missing terminator byte in a GIF file can trigger a
+denial-of-service (DoS) condition in vulnerable image parsers by
+inducing infinite loops, memory exhaustion, or out-of-bounds read
+violations. According to the standard GIF specification, an image data
+stream must conclude with a specific trailer byte—hexadecimal
+<code>0x3B</code> (ASCII semicolon)—which signals the parser that all
+image blocks and extensions have ended. When a parser is implemented
+without robust boundary checking, the absence or misplacement of this
+terminator disrupts the decoding loop, causing the host application to
+hang or crash entirely.</p>
+<h3 id="the-role-of-the-gif-terminator-byte">The Role of the GIF
+Terminator Byte</h3>
+<p>In both the GIF87a and GIF89a specifications, the file structure
+consists of a fixed header, a logical screen descriptor, optional color
+tables, and a sequence of data blocks (such as Graphic Control
+Extensions or Image Descriptors). The standard mandates that the very
+last byte of the entire file must be the trailer: <code>0x3B</code>.</p>
+<p>Well-designed parsers use this byte as a structural sanity check to
+confirm that the file is complete and intact before finalizing the
+decoded raster in memory.</p>
+<h3 id="how-vulnerable-parsers-fail">How Vulnerable Parsers Fail</h3>
+<p>Denial-of-service vulnerabilities occur when parser routines rely too
+heavily on the presence of the <code>0x3B</code> byte to govern their
+control flow, failing to validate the file pointer against actual buffer
+lengths or end-of-file (EOF) states. This poor design generally
+manifests in two primary ways:</p>
+<h4 id="1-infinite-loops-and-cpu-exhaustion">1. Infinite Loops and CPU
+Exhaustion</h4>
+<p>Many simplistic decoders process GIF blocks using a
+<code>while</code> loop structured around block markers:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">((</span>block_type <span class="op">=</span> read_byte<span class="op">(</span>stream<span class="op">))</span> <span class="op">!=</span> <span class="bn">0x3B</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    process_block<span class="op">(</span>block_type<span class="op">,</span> stream<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>If the <code>0x3B</code> byte is altered, omitted, or replaced with
+an unrecognized byte, a poorly written <code>read_byte</code> function
+may repeatedly return an error code or an EOF flag (often
+<code>-1</code>). If the parser does not explicitly break on EOF or
+unexpected block identifiers, it treats the error flag as another block
+type. The decoder enters an unconstrained loop, consuming 100% of
+available CPU resources and freezing the parent process or thread.</p>
+<h4 id="2-out-of-bounds-memory-reads">2. Out-of-Bounds Memory Reads</h4>
+<p>A corrupted terminator can also cause out-of-bounds read access
+violations. When a parser does not encounter the expected
+<code>0x3B</code>, it assumes additional data blocks must follow.</p>
+<p>GIF data sub-blocks begin with a length byte (ranging from 0 to 255)
+indicating how many bytes follow. If the parser interprets garbage
+trailing data past the expected terminator as a block length, it may
+attempt to read that number of bytes directly from an already exhausted
+memory-mapped buffer. This triggers a segmentation fault (SIGSEGV) or an
+access violation, terminating the application immediately.</p>
+<h3 id="prevention-and-proper-implementation">Prevention and Proper
+Implementation</h3>
+<p>Preventing terminator-induced DoS attacks requires defensive parsing
+techniques:</p>
+<ul>
+<li><strong>Strict EOF Handling:</strong> Every read operation within
+the parser loop must verify that the current pointer is strictly within
+file boundaries. If EOF is reached before encountering
+<code>0x3B</code>, the parser should abort gracefully and return a
+corrupt file error.</li>
+<li><strong>Bounded Block Seeking:</strong> Never read block sizes
+without first verifying that the requested byte count exists between the
+current offset and the physical end of the file.</li>
+<li><strong>Loop Iteration Limits:</strong> Implement execution timeouts
+or hard limits on the number of block parsing iterations allowed per
+file to mitigate algorithmic complexity and infinite-loop risks.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

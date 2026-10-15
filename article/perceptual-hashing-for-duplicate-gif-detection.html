@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perceptual Hashing for Duplicate GIF Detection - gif</title>
+    <meta name="description" content="Perceptual image hashing detects duplicate GIFs by translating visual features and temporal movement into a compact binary sequence, often called a perceptual fingerprint. Unlike cryptographic hash functions (such as MD5 or SHA-256) where altering a singl">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/perceptual-hashing-for-duplicate-gif-detection">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Perceptual Hashing for Duplicate GIF Detection - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/perceptual-hashing-for-duplicate-gif-detection" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Perceptual image hashing detects duplicate GIFs by translating visual features and temporal movement into a compact binary sequence, often called a perceptual fingerprint. Unlike cryptographic hash functions (such as MD5 or SHA-256) where altering a singl" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="perceptual-hashing-for-duplicate-gif-detection">Perceptual
+Hashing for Duplicate GIF Detection</h1>
+<p>Perceptual image hashing detects duplicate GIFs by translating visual
+features and temporal movement into a compact binary sequence, often
+called a perceptual fingerprint. Unlike cryptographic hash functions
+(such as MD5 or SHA-256) where altering a single pixel completely
+changes the hash, perceptual hashing ensures that visually similar
+content yields mathematically similar hashes. To fingerprint a GIF, the
+algorithm must process both the spatial data of individual frames and
+the temporal sequence across time, enabling accurate duplicate detection
+despite variations in compression, resolution, frame rate, or color
+palette.</p>
+<h3 id="1-frame-extraction-and-temporal-sampling">1. Frame Extraction
+and Temporal Sampling</h3>
+<p>Because a GIF is an animated sequence of still images, the process
+begins by extracting its constituent frames. Hashing every frame in a
+high-frame-rate animation is computationally expensive and often
+redundant. Consequently, algorithms sample frames at consistent
+intervals (e.g., four to eight frames per second) or select keyframes
+based on significant visual changes. This step normalizes the playback
+duration and ensures that minor alterations to frame delays do not
+prevent duplicate detection.</p>
+<h3 id="2-spatial-normalization">2. Spatial Normalization</h3>
+<p>Each sampled frame undergoes a standard pre-processing pipeline to
+remove high-frequency noise and cosmetic differences:</p>
+<ul>
+<li><strong>Color Flattening:</strong> The frame is converted to
+grayscale to eliminate variations in color quantization or palette
+optimization.</li>
+<li><strong>Downscaling:</strong> The frame is resized to a small, fixed
+dimension (typically 8x8 or 32x32 pixels). This discards fine details
+while preserving dominant structural forms.</li>
+</ul>
+<h3 id="3-perceptual-hash-generation-per-frame">3. Perceptual Hash
+Generation per Frame</h3>
+<p>Once normalized, an image hashing algorithm computes a spatial hash
+for each sampled frame. Common approaches include:</p>
+<ul>
+<li><strong>Average Hash (aHash):</strong> Computes the average pixel
+value and sets bits to <code>1</code> or <code>0</code> depending on
+whether each pixel is above or below that mean.</li>
+<li><strong>Difference Hash (dHash):</strong> Compares adjacent pixels
+horizontally to track gradients and brightness shifts.</li>
+<li><strong>Perceptual Hash (pHash):</strong> Applies a Discrete Cosine
+Transform (DCT) to convert the pixel grid into frequency components. The
+lowest frequencies (which represent the basic shapes and gradients the
+human eye notices most) are compared against the median frequency value
+to generate the bit string.</li>
+</ul>
+<h3 id="4-temporal-aggregation">4. Temporal Aggregation</h3>
+<p>To represent the entire animation as a single fingerprint, the
+spatial hashes must be combined across the time axis. There are two
+primary methods for this:</p>
+<ul>
+<li><strong>Concatenation:</strong> The binary hashes of the sampled
+frames are strung together in chronological order, producing a
+multi-block fingerprint representing visual state changes over
+time.</li>
+<li><strong>3D Discrete Cosine Transform (3D-DCT):</strong> Advanced
+systems treat the GIF as a three-dimensional volume (width, height, and
+time). A 3D-DCT measures frequencies across both space and time
+simultaneously, capturing motion trajectories as low-frequency temporal
+components.</li>
+</ul>
+<h3 id="5-similarity-matching-via-hamming-distance">5. Similarity
+Matching via Hamming Distance</h3>
+<p>To detect duplicates, two GIF fingerprints are compared using the
+Hamming distance, which counts the number of bit positions in which the
+two binary strings differ.</p>
+<p>If the Hamming distance falls below a predetermined threshold, the
+system flags the GIFs as duplicates. Because the fingerprint is derived
+purely from structural luminance and temporal progression, the
+comparison remains robust against common modifications such as
+watermarking, re-encoding, minor cropping, and frame-rate
+adjustment.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

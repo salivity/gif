@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Corrupted GIFs Only Show the First Frame - gif</title>
+    <meta name="description" content="When an image viewer opens a corrupted or incomplete GIF, it frequently displays the static first frame while completely failing to animate. This phenomenon occurs because of the sequential structure of the GIF file format, how image decoders process imag">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-corrupted-gi-fs-only-show-the-first-frame">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Corrupted GIFs Only Show the First Frame - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-corrupted-gi-fs-only-show-the-first-frame" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When an image viewer opens a corrupted or incomplete GIF, it frequently displays the static first frame while completely failing to animate. This phenomenon occurs because of the sequential structure of the GIF file format, how image decoders process imag" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-corrupted-gifs-only-show-the-first-frame">Why Corrupted GIFs
+Only Show the First Frame</h1>
+<p>When an image viewer opens a corrupted or incomplete GIF, it
+frequently displays the static first frame while completely failing to
+animate. This phenomenon occurs because of the sequential structure of
+the GIF file format, how image decoders process image streams, and how
+software balances error tolerance against application crashes. If the
+file header and the primary image block are intact, the viewer can
+easily render the initial frame, but any subsequent data corruption
+halts the animation pipeline before subsequent frames can be parsed.</p>
+<h3 id="the-sequential-structure-of-gif-files">The Sequential Structure
+of GIF Files</h3>
+<p>A GIF (Graphics Interchange Format) file is structured as a linear,
+streamable series of data blocks. It begins with a Header and a Logical
+Screen Descriptor, followed by a Global Color Table. Immediately after
+this metadata comes the first image block, which contains a Graphic
+Control Extension (defining delay and disposal methods), a Local Image
+Descriptor, and the actual pixel data compressed via the LZW algorithm.
+Subsequent frames follow this same pattern in a continuous sequence
+until the file terminates with a specific trailer byte
+(<code>0x3B</code>).</p>
+<p>Because the format is organized sequentially, a decoder processes the
+file from top to bottom. It does not need to load the entire file into
+memory to begin rendering. Once the parser reads the global metadata and
+the first complete LZW-compressed frame, it possesses everything
+required to display a static image on the screen.</p>
+<h3 id="truncation-and-data-corruption">Truncation and Data
+Corruption</h3>
+<p>In most real-world scenarios involving corrupted GIFs—such as
+interrupted downloads, improper file transfers, or truncated saves—the
+corruption is located toward the middle or end of the file.</p>
+<p>If a download cuts off at 30% completion, the file still contains the
+valid header, color table, and the entirety of frame one. The decoder
+successfully constructs this first frame without error. However, when it
+attempts to read the Graphic Control Extension or LZW stream for the
+second frame, it encounters an unexpected End-of-File (EOF) marker or
+invalid, nonsensical byte sequences.</p>
+<h3 id="decoder-fallbacks-and-error-handling">Decoder Fallbacks and
+Error Handling</h3>
+<p>Image viewers generally employ two distinct decoder passes: one for
+static previewing and another for the animation loop.</p>
+<ol type="1">
+<li><strong>Static Rendering (Graceful Degradation):</strong> To
+maintain compatibility with older standards and static image pipelines,
+many image rendering engines treat the first frame of any GIF as a
+fallback image. If the decoder successfully parses Frame 1, it satisfies
+the requirement to display an image to the user.</li>
+<li><strong>Animation Engine Abort:</strong> Playing an animation
+requires a continuous, valid sequence of frames and timing instructions.
+If the animation engine encounters an LZW decompression error, an
+invalid frame coordinate, or a missing block terminator in frame two, it
+faces an unrecoverable syntax error. Rather than guessing the missing
+data, rendering visual artifacts, or crashing the application, the
+viewer simply aborts the animation thread.</li>
+</ol>
+<p>When the animation engine halts, the viewer retains the last
+successfully decoded frame in its display buffer. As a result, the user
+sees a perfectly normal, static image—the first frame—while the
+animation controls and playback engine remain completely inactive.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

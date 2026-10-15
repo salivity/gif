@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Transparency in Graphic Control Extension - gif</title>
+    <meta name="description" content="In the GIF89a specification, transparency is handled per frame using the Graphic Control Extension (GCE), an optional metadata block that precedes an image descriptor. This extension designates transparency through a two-part mechanism: a single-bit flag">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-transparency-in-graphic-control-extension">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF Transparency in Graphic Control Extension - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-transparency-in-graphic-control-extension" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In the GIF89a specification, transparency is handled per frame using the Graphic Control Extension (GCE), an optional metadata block that precedes an image descriptor. This extension designates transparency through a two-part mechanism: a single-bit flag" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-transparency-in-graphic-control-extension">GIF Transparency
+in Graphic Control Extension</h1>
+<p>In the GIF89a specification, transparency is handled per frame using
+the Graphic Control Extension (GCE), an optional metadata block that
+precedes an image descriptor. This extension designates transparency
+through a two-part mechanism: a single-bit flag within a packed byte
+that activates the feature, followed by a dedicated byte that specifies
+the exact palette index to be rendered as transparent. This approach
+allows decoders to treat specific pixels as see-through without altering
+the underlying RGB values stored in the palette.</p>
+<h3 id="the-graphic-control-extension-structure">The Graphic Control
+Extension Structure</h3>
+<p>The Graphic Control Extension consists of an 8-byte block formatted
+as follows:</p>
+<ol type="1">
+<li><strong>Extension Introducer (1 byte):</strong> Always
+<code>0x21</code>.</li>
+<li><strong>Graphic Control Label (1 byte):</strong> Always
+<code>0xF9</code>, identifying the block as a Graphic Control
+Extension.</li>
+<li><strong>Block Size (1 byte):</strong> Fixed value of
+<code>0x04</code>, indicating four bytes of payload data follow.</li>
+<li><strong>Packed Fields (1 byte):</strong> Bit field containing
+control flags.</li>
+<li><strong>Delay Time (2 bytes):</strong> Frame duration in hundredths
+of a second.</li>
+<li><strong>Transparent Color Index (1 byte):</strong> The target
+palette index.</li>
+<li><strong>Block Terminator (1 byte):</strong> Always
+<code>0x00</code>.</li>
+</ol>
+<h3 id="the-packed-fields-byte">The Packed Fields Byte</h3>
+<p>The Packed Fields byte (Byte 4 of the extension) contains several
+sub-fields:</p>
+<ul>
+<li><strong>Reserved (Bits 7–5):</strong> Three unused bits.</li>
+<li><strong>Disposal Method (Bits 4–2):</strong> Determines what happens
+to the frame after display.</li>
+<li><strong>User Input Flag (Bit 1):</strong> Indicates whether user
+input is expected before continuing.</li>
+<li><strong>Transparent Color Flag (Bit 0):</strong> The least
+significant bit.</li>
+</ul>
+<p>To enable transparency, Bit 0 must be set to <code>1</code>. If this
+bit is set to <code>0</code>, transparency is disabled for that graphic,
+and the decoder ignores the value in the Transparent Color Index byte
+entirely.</p>
+<h3 id="the-transparent-color-index-byte">The Transparent Color Index
+Byte</h3>
+<p>When the Transparent Color Flag is set to <code>1</code>, the decoder
+evaluates Byte 7 of the extension, designated as the <strong>Transparent
+Color Index</strong>.</p>
+<p>This byte stores an unsigned 8-bit integer (ranging from 0 to 255)
+pointing directly to a specific slot in the active color table. The
+active table is the Local Color Table for the immediately following
+image descriptor if present; otherwise, it is the Global Color Table
+defined in the GIF header.</p>
+<h3 id="rendering-behavior">Rendering Behavior</h3>
+<p>During decompression, the raster data consists of a stream of index
+values referencing the color palette. When the decoder processes a
+pixel:</p>
+<ul>
+<li>If the pixel's palette index matches the Transparent Color Index
+(and the Transparent Color Flag is active), the decoder does not draw
+that pixel to the canvas, leaving the underlying background or previous
+frame visible.</li>
+<li>If the index does not match, the decoder maps the index to the
+corresponding RGB triplet in the active color table and renders the
+pixel as opaque.</li>
+</ul>
+<p>GIF transparency is strictly binary (1-bit alpha); a pixel is either
+completely opaque or completely transparent, with no support for
+semi-transparency or alpha blending.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

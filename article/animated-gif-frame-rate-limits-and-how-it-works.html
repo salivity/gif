@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated GIF Frame Rate: Limits and How It Works - gif</title>
+    <meta name="description" content="The frame rate of an animated GIF is determined by the frame delay values encoded into the file according to the GIF89a specification, alongside web browser rendering constraints and client-side processing power. Unlike standard video files that use a sin">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/animated-gif-frame-rate-limits-and-how-it-works">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Animated GIF Frame Rate: Limits and How It Works - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/animated-gif-frame-rate-limits-and-how-it-works" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The frame rate of an animated GIF is determined by the frame delay values encoded into the file according to the GIF89a specification, alongside web browser rendering constraints and client-side processing power. Unlike standard video files that use a sin" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="animated-gif-frame-rate-limits-and-how-it-works">Animated GIF
+Frame Rate: Limits and How It Works</h1>
+<p>The frame rate of an animated GIF is determined by the frame delay
+values encoded into the file according to the GIF89a specification,
+alongside web browser rendering constraints and client-side processing
+power. Unlike standard video files that use a single global
+frames-per-second (FPS) setting, GIFs store timing as an individual
+delay value for each frame. While the format theoretically supports up
+to 100 FPS, browser-enforced minimum delay limits and file size
+constraints establish a practical ceiling of 50 FPS for smooth
+playback.</p>
+<h3 id="the-gif89a-specification-and-centiseconds">The GIF89a
+Specification and Centiseconds</h3>
+<p>The animated GIF format relies on the GIF89a specification, which
+introduces the Graphic Control Extension block before each image frame.
+This block contains a parameter known as the "Delay Time."</p>
+<p>GIF delay time is measured in hundredths of a second (centiseconds,
+or units of 10 milliseconds). Because the delay must be an integer:</p>
+<ul>
+<li>A delay of 10 centiseconds equals 100 milliseconds, resulting in 10
+FPS.</li>
+<li>A delay of 5 centiseconds equals 50 milliseconds, resulting in 20
+FPS.</li>
+<li>A delay of 2 centiseconds equals 20 milliseconds, resulting in 50
+FPS.</li>
+<li>A delay of 1 centisecond equals 10 milliseconds, resulting in the
+theoretical maximum of 100 FPS.</li>
+</ul>
+<p>Because frame delays can only be whole numbers of centiseconds,
+intermediate frame rates like 24 FPS, 29.97 FPS, or 60 FPS cannot be
+evenly represented in a standard GIF. Creators must either vary the
+delay across individual frames or round to the nearest compatible
+centisecond value.</p>
+<h3 id="browser-clamping-and-the-50-fps-limit">Browser Clamping and the
+50 FPS Limit</h3>
+<p>Although a 1-centisecond delay theoretically permits 100 FPS, web
+browsers universally override very small delay values to prevent
+excessive CPU usage and rendering freezes. This behavior is called
+"delay clamping."</p>
+<p>Historically, browsers treated a delay of 0 or 1 centisecond as
+broken or unoptimized and automatically replaced it with a default
+delay—often 10 centiseconds (10 FPS). Modern browser engines (including
+Chromium, Gecko, and WebKit) typically clamp any delay value under 2
+centiseconds (20 milliseconds) up to 10 centiseconds.</p>
+<p>Because of this clamping:</p>
+<ul>
+<li><strong>Theoretical maximum:</strong> 100 FPS (10ms delay)</li>
+<li><strong>Practical browser maximum:</strong> 50 FPS (20ms delay)</li>
+</ul>
+<p>Setting a frame delay lower than 2 centiseconds in an attempt to
+exceed 50 FPS will typically cause the browser to throttle playback down
+to 10 FPS.</p>
+<h3 id="decoding-overhead-and-performance-bottlenecks">Decoding Overhead
+and Performance Bottlenecks</h3>
+<p>Even when set to 50 FPS, hardware limitations can lower the actual
+playback rate. GIF uses LZW compression, which compresses each frame as
+a standalone or partially updated bitmap rather than utilizing modern
+temporal inter-frame compression techniques found in MP4 or WebM
+containers.</p>
+<p>High-frame-rate GIFs generate massive file sizes and require the
+browser to decompress and paint large amounts of pixel data in rapid
+succession. On mobile devices or systems with limited memory, the
+rendering engine may drop frames or stutter, resulting in an effective
+frame rate significantly lower than the encoded delay specifies.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

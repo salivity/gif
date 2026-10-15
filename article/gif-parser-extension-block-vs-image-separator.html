@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Parser: Extension Block vs Image Separator - gif</title>
+    <meta name="description" content="This article explains how a Graphics Interchange Format (GIF) parser distinguishes between an extension block marker and an image separator byte. It covers the stream-level sentinel byte values defined in the GIF specifications (GIF87a and GIF89a), the se">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-parser-extension-block-vs-image-separator">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF Parser: Extension Block vs Image Separator - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-parser-extension-block-vs-image-separator" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how a Graphics Interchange Format (GIF) parser distinguishes between an extension block marker and an image separator byte. It covers the stream-level sentinel byte values defined in the GIF specifications (GIF87a and GIF89a), the se" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-parser-extension-block-vs-image-separator">GIF Parser:
+Extension Block vs Image Separator</h1>
+<p>This article explains how a Graphics Interchange Format (GIF) parser
+distinguishes between an extension block marker and an image separator
+byte. It covers the stream-level sentinel byte values defined in the GIF
+specifications (GIF87a and GIF89a), the sequential state machine used
+during parsing, and how the parser maintains byte alignment across
+variable-length sub-blocks to prevent misinterpreting data payloads as
+block markers.</p>
+<p>A GIF parser distinguishes between an extension block and an image
+block by reading a single-byte sentinel value at the root level of the
+data stream. After reading the file header, the Logical Screen
+Descriptor, and any optional Global Color Table, the parser enters a
+loop expecting one of three valid structural markers:</p>
+<ul>
+<li><strong><code>0x21</code> (ASCII <code>!</code>): Extension
+Introducer.</strong> This value explicitly signals the start of an
+extension block (such as Graphic Control, Plain Text, Application, or
+Comment extensions).</li>
+<li><strong><code>0x2C</code> (ASCII <code>,</code>): Image
+Separator.</strong> This value explicitly signals the beginning of a
+Table-Based Image Descriptor.</li>
+<li><strong><code>0x3B</code> (ASCII <code>;</code>): Trailer.</strong>
+This value indicates the end of the GIF data stream.</li>
+</ul>
+<p>Because <code>0x21</code> and <code>0x2C</code> are distinct binary
+values, the parser identifies the incoming block type through a
+straightforward conditional check on this single byte.</p>
+<h3 id="state-tracking-and-stream-synchronization">State Tracking and
+Stream Synchronization</h3>
+<p>Distinguishing these markers relies on parser state synchronization.
+The parser only evaluates sentinel bytes when it is outside of any
+encapsulated data block. Once a sentinel is encountered, the parser
+follows specific structural rules defined for that block before looking
+for the next sentinel:</p>
+<h4 id="when-0x21-extension-introducer-is-read">When <code>0x21</code>
+(Extension Introducer) Is Read:</h4>
+<ol type="1">
+<li>The parser reads the very next byte, which is the <strong>Extension
+Label</strong> (for example, <code>0xF9</code> for Graphic Control or
+<code>0xFF</code> for Application).</li>
+<li>The parser then processes the extension payload, which is structured
+as a series of <strong>data sub-blocks</strong>. Each sub-block begins
+with a length byte (1 to 255) specifying the size of that chunk.</li>
+<li>The parser consumes data chunks sequentially until it encounters a
+<strong>Block Terminator</strong> byte of value <code>0x00</code> (a
+sub-block of length zero).</li>
+<li>Once the terminator is read, the extension is complete, and the
+parser returns to the root state, ready to read the next marker
+byte.</li>
+</ol>
+<h4 id="when-0x2c-image-separator-is-read">When <code>0x2C</code> (Image
+Separator) Is Read:</h4>
+<ol type="1">
+<li>The parser reads the fixed 9-byte <strong>Image Descriptor</strong>
+containing boundary coordinates (Left, Top, Width, Height) and packed
+field flags.</li>
+<li>If the packed field indicates a Local Color Table, the parser reads
+the specified number of RGB palette bytes.</li>
+<li>The parser reads one byte representing the <strong>LZW Minimum Code
+Size</strong>.</li>
+<li>The parser then reads the image raster data, which is also organized
+as length-prefixed data sub-blocks ending with a <code>0x00</code> Block
+Terminator.</li>
+<li>Once the zero-byte terminator is consumed, the image block is fully
+processed, returning the parser to the root state to look for the next
+marker.</li>
+</ol>
+<p>By enforcing length-based sub-block encapsulation, image data and
+extension metadata—even if they contain the raw byte values
+<code>0x21</code> or <code>0x2C</code>—are skipped as raw payload. The
+parser only interprets <code>0x21</code> and <code>0x2C</code> as
+structural indicators when it has cleanly exited the previous block's
+terminating sequence.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

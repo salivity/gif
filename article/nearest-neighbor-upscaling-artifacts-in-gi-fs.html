@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearest-Neighbor Upscaling Artifacts in GIFs - gif</title>
+    <meta name="description" content="Upscaling an animated GIF using naive nearest-neighbor interpolation often introduces severe visual degradation, including blockiness, harsh edge aliasing, magnified dithering noise, and temporal flickering. Because this method simply duplicates the close">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/nearest-neighbor-upscaling-artifacts-in-gi-fs">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nearest-Neighbor Upscaling Artifacts in GIFs - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/nearest-neighbor-upscaling-artifacts-in-gi-fs" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Upscaling an animated GIF using naive nearest-neighbor interpolation often introduces severe visual degradation, including blockiness, harsh edge aliasing, magnified dithering noise, and temporal flickering. Because this method simply duplicates the close" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="nearest-neighbor-upscaling-artifacts-in-gifs">Nearest-Neighbor
+Upscaling Artifacts in GIFs</h1>
+<p>Upscaling an animated GIF using naive nearest-neighbor interpolation
+often introduces severe visual degradation, including blockiness, harsh
+edge aliasing, magnified dithering noise, and temporal flickering.
+Because this method simply duplicates the closest existing pixel without
+calculating intermediate values, it preserves raw data at the expense of
+visual coherence, especially across animated frames where fluid motion
+is expected.</p>
+<h2 id="exaggerated-pixelation-and-edge-aliasing">Exaggerated Pixelation
+and Edge Aliasing</h2>
+<p>Nearest-neighbor interpolation maps every original pixel to a larger
+grid of identical pixels. When applied to low-resolution GIFs, smooth
+curves and subtle gradients instantly turn into rigid stair-step
+patterns, known as "jaggies." While this preserves hard edges—a trait
+desirable in retro pixel art—it strips natural imagery, illustrations,
+and anti-aliased text of their intended smoothness, leaving diagonal
+lines and soft contours looking jagged and unnatural.</p>
+<h2 id="magnified-dithering-patterns">Magnified Dithering Patterns</h2>
+<p>The GIF format is constrained to a maximum palette of 256 colors per
+frame. To compensate for this limitation, encoders frequently apply
+dithering algorithms (such as Floyd-Steinberg or Bayer matrix dithering)
+to simulate gradients and missing tones through interspersed,
+high-frequency dot patterns. Naive upscaling enlarges each individual
+dithered dot into large, solid squares. As a result, subtle optical
+blending fails, and the image is overwhelmed by harsh checkerboards and
+distracting speckles.</p>
+<h2 id="temporal-crawling-and-edge-boiling">Temporal Crawling and Edge
+Boiling</h2>
+<p>In animated media, subtle movements between frames often rely on
+sub-pixel positioning or anti-aliasing shifts to imply continuous
+motion. When an animation is upscaled with nearest-neighbor
+interpolation, these fine adjustments are snapped aggressively to the
+nearest enlarged pixel boundaries. This produces temporal aliasing,
+where borders and lines appear to "boil," crawl, or jitter chaotically
+from one frame to the next, destroying the illusion of fluid
+animation.</p>
+<h2 id="grid-distortion-from-non-integer-scaling">Grid Distortion from
+Non-Integer Scaling</h2>
+<p>The visual defects become significantly worse when scaling by a
+non-integer factor (such as 1.5x or 2.3x). Because the source pixels
+cannot be mapped evenly to the destination canvas, the algorithm
+alternates the width or height of duplicate pixels. This uneven
+replication causes:</p>
+<ul>
+<li><strong>Inconsistent Line Widths:</strong> Outlines and strokes
+fluctuate in thickness across the image.</li>
+<li><strong>Geometric Warping:</strong> Objects distort asymmetrically
+as they translate across the frame.</li>
+<li><strong>Stuttering Motion:</strong> Animation paths lose their
+uniform pacing because objects advance by varying pixel increments
+between frames.</li>
+</ul>
+<h2 id="loss-of-text-legibility">Loss of Text Legibility</h2>
+<p>Sub-pixel rendering and font smoothing depend heavily on subtle color
+transitions around character glyphs. Nearest-neighbor upscaling sharpens
+these transition zones into harsh color steps. In smaller animated GIFs,
+captions and subtitles frequently become completely illegible, as text
+characters warp into disjointed blocks or merge into adjacent background
+elements.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

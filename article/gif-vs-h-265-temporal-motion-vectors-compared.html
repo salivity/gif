@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF vs H.265: Temporal Motion Vectors Compared - gif</title>
+    <meta name="description" content="This article examines how the presence or absence of temporal motion vectors creates a massive technological divide between legacy animated GIF files and modern H.265 (HEVC) video streams. While animated GIFs rely on static, flipbook-style frame updates t">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-vs-h-265-temporal-motion-vectors-compared">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF vs H.265: Temporal Motion Vectors Compared - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-vs-h-265-temporal-motion-vectors-compared" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines how the presence or absence of temporal motion vectors creates a massive technological divide between legacy animated GIF files and modern H.265 (HEVC) video streams. While animated GIFs rely on static, flipbook-style frame updates t" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-vs-h265-temporal-motion-vectors-compared">GIF vs H.265:
+Temporal Motion Vectors Compared</h1>
+<p>This article examines how the presence or absence of temporal motion
+vectors creates a massive technological divide between legacy animated
+GIF files and modern H.265 (HEVC) video streams. While animated GIFs
+rely on static, flipbook-style frame updates that store raw pixel data
+for every moving element, H.265 uses complex temporal motion estimation
+to track and predict pixel movement across time. Understanding this core
+architectural difference explains why H.265 achieves vastly superior
+compression ratios, smoother framerates, and better visual fidelity
+compared to the antiquated GIF format.</p>
+<h3 id="the-role-of-temporal-motion-vectors">The Role of Temporal Motion
+Vectors</h3>
+<p>Temporal motion vectors are mathematical offsets used in video
+compression to describe the displacement of a visual element from one
+frame to another. Instead of redrawing an object that shifts across the
+screen, an encoder using motion vectors simply tells the decoder: "take
+this block of pixels from the previous frame and shift it by X and Y
+coordinates."</p>
+<p>This process, known as motion-compensated inter-frame prediction,
+separates video encoding from simple static image sequencing. By
+recording only the direction of movement and small error corrections
+(residuals), codecs eliminate redundant spatial data across consecutive
+frames.</p>
+<h3 id="how-animated-gifs-handle-motion">How Animated GIFs Handle
+Motion</h3>
+<p>The GIF (Graphics Interchange Format) specification, standardized in
+1989, was never designed to be a modern video codec. It lacks any
+mechanism for motion estimation or vector calculation:</p>
+<ul>
+<li><strong>Flipbook Mechanism:</strong> An animated GIF is essentially
+an archive of discrete, indexed-color images displayed sequentially at a
+predetermined interval.</li>
+<li><strong>Basic Delta Encoding:</strong> GIF supports a rudimentary
+optimization where it can restrict an update to a specific rectangular
+bounding box or retain unchanged pixels via a transparency index.
+However, this is purely static replacement.</li>
+<li><strong>Cost of Movement:</strong> If an object moves across a
+background, a GIF must store the pixels that reveal the background where
+the object used to be, as well as the newly positioned object pixels.
+Because the format cannot register that the object is identical to one
+in the previous frame, it recalculates and stores every shifted pixel as
+brand-new data.</li>
+</ul>
+<h3 id="how-h265-utilizes-temporal-motion-estimation">How H.265 Utilizes
+Temporal Motion Estimation</h3>
+<p>Modern video standards like H.265 (High Efficiency Video Coding) rely
+heavily on advanced temporal processing to maximize data efficiency:</p>
+<ul>
+<li><strong>Coding Tree Units (CTUs):</strong> H.265 divides frames into
+dynamic blocks ranging from 4x4 up to 64x64 pixels, allowing the encoder
+to isolate moving objects with high precision.</li>
+<li><strong>Temporal Motion Vector Prediction (TMVP):</strong> H.265
+evaluates motion vectors not only from adjacent blocks in the current
+frame (spatial) but also from co-located blocks in previously decoded
+reference frames (temporal). It builds lists of candidate motion vectors
+to predict future trajectory with minimal bit overhead.</li>
+<li><strong>Bi-Directional Prediction:</strong> H.265 utilizes B-frames,
+meaning it can reference both past and future frames simultaneously to
+calculate motion trajectories, resolving occlusions and complex pans
+effortlessly.</li>
+<li><strong>Sub-Pixel Accuracy:</strong> H.265 calculates motion down to
+quarter-pixel precision through interpolation filters, ensuring fluid
+tracking of real-world motion without introducing blocky artifacts.</li>
+</ul>
+<h3 id="the-impact-on-efficiency-and-performance">The Impact on
+Efficiency and Performance</h3>
+<p>The technical divergence between raw pixel replacement and
+vector-based prediction results in massive operational differences:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Metric</th>
+<th style="text-align: left;">Animated GIF</th>
+<th style="text-align: left;">H.265 (HEVC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Motion Handling</strong></td>
+<td style="text-align: left;">Full-pixel redrawing per frame</td>
+<td style="text-align: left;">Directional vectors with error
+residuals</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Compression Ratio</strong></td>
+<td style="text-align: left;">Extremely poor for complex motion</td>
+<td style="text-align: left;">Extremely high (often 80–95% smaller than
+GIF)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Color Support</strong></td>
+<td style="text-align: left;">8-bit (256 colors per frame)</td>
+<td style="text-align: left;">8-bit, 10-bit, or 12-bit wide color
+gamuts</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Frame Rates</strong></td>
+<td style="text-align: left;">Low (typically 10–15 fps to limit
+bloat)</td>
+<td style="text-align: left;">High (60+ fps at fraction of file
+size)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Processing Target</strong></td>
+<td style="text-align: left;">Low CPU decode, high memory bandwidth</td>
+<td style="text-align: left;">Dedicated hardware decoders
+(ASICs/GPUs)</td>
+</tr>
+</tbody>
+</table>
+<p>Because GIFs lack temporal motion vectors, complex scenes with camera
+pans, zooms, or film grain cause their file sizes to expand
+exponentially. In contrast, H.265 processes the same scene by generating
+a stream of directional coordinate changes and lightweight residual
+data, delivering high-definition video at a fraction of the
+bandwidth.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

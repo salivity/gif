@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why GIF Color Depth Is Capped at 8 Bits - gif</title>
+    <meta name="description" content="When CompuServe released the Graphics Interchange Format (GIF) in 1987, severe computational, storage, and networking limits governed personal computing. This article explores how late-1980s display adapter standards, restricted video and system RAM, slug">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-gif-color-depth-is-capped-at-8-bits">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why GIF Color Depth Is Capped at 8 Bits - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-gif-color-depth-is-capped-at-8-bits" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When CompuServe released the Graphics Interchange Format (GIF) in 1987, severe computational, storage, and networking limits governed personal computing. This article explores how late-1980s display adapter standards, restricted video and system RAM, slug" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-gif-color-depth-is-capped-at-8-bits">Why GIF Color Depth Is
+Capped at 8 Bits</h1>
+<p>When CompuServe released the Graphics Interchange Format (GIF) in
+1987, severe computational, storage, and networking limits governed
+personal computing. This article explores how late-1980s display adapter
+standards, restricted video and system RAM, sluggish dial-up modem
+bandwidth, and 16-bit processor architectures collectively mandated the
+decision to cap GIF color depth at 8 bits per pixel (256 colors).</p>
+<h3 id="the-rise-of-the-vga-standard">The Rise of the VGA Standard</h3>
+<p>In 1987, IBM introduced the Video Graphics Array (VGA) standard
+alongside the PS/2 line of computers. VGA revolutionized consumer
+graphics by offering Mode 13h, an all-points-addressable display mode
+capable of rendering 256 distinct colors simultaneously at a resolution
+of 320x200 pixels. These 256 colors were selected from an 18-bit master
+palette of 262,144 shades.</p>
+<p>Because standard consumer hardware could not display "true color"
+(24-bit, 16.7 million colors), building an image format that supported
+more than 8 bits per pixel would have served no practical purpose for
+the vast majority of end users. Pre-VGA systems—such as those with EGA
+(16 colors) or CGA (4 colors)—were even more constrained. The 8-bit
+ceiling matched the highest-tier consumer display capabilities of the
+time.</p>
+<h3 id="video-memory-vram-and-system-ram-constraints">Video Memory
+(VRAM) and System RAM Constraints</h3>
+<p>Memory in the late 1980s was an expensive and scarce resource. A
+typical high-end PC shipped with 640 KB to 1 MB of system RAM, while
+standard VGA graphics cards came equipped with only 256 KB of dedicated
+video memory (VRAM).</p>
+<p>An 8-bit pixel maps directly to a single byte of memory. A full
+320x200 image at 8 bits per pixel required exactly 64,000 bytes
+(approximately 62.5 KB) of memory to store in the frame buffer, fitting
+comfortably within the 256 KB VRAM limit with room for multiple video
+pages. In contrast, a 24-bit true-color image of the same resolution
+would have required 192 KB for a single frame, severely taxing system
+resources, while higher resolutions like 640x480 in 24-bit color
+(requiring nearly 1 MB) were impossible for contemporary consumer
+hardware to buffer.</p>
+<h3 id="modem-bandwidth-and-online-costs">Modem Bandwidth and Online
+Costs</h3>
+<p>CompuServe was an online service provider operating over dial-up
+telephone lines. In 1987, standard connection speeds ranged from 300 to
+1200 baud, with 2400 baud representing the high end. Users paid for
+CompuServe access through hourly connection rates, making fast data
+transfer essential for economic viability.</p>
+<p>Transmitting uncompressed or high-bit-depth graphical data across
+copper phone lines was painfully slow. By capping the color depth at 8
+bits, the raw data payload was reduced by two-thirds compared to a
+24-bit image. Combined with the Lempel-Ziv-Welch (LZW) compression
+algorithm, 8-bit indexed files were small enough to download in minutes
+rather than hours, making online image sharing commercially viable.</p>
+<h3 id="cpu-throughput-and-byte-alignment">CPU Throughput and Byte
+Alignment</h3>
+<p>The microprocessors of the era, such as the Intel 8086, 8088, and
+80286, operated at clock speeds between 4.77 MHz and 12 MHz. These chips
+struggled with computationally expensive graphics manipulation.</p>
+<p>An 8-bit color depth provided an architectural advantage: byte
+alignment. Because one pixel corresponded directly to one 8-bit byte,
+processors did not need to perform complex bit-shifting operations to
+extract color data from memory, which was necessary for 1-bit, 2-bit, or
+4-bit formats. Handling 24-bit color would have required reading and
+writing three separate bytes per pixel across a 16-bit data bus,
+creating heavy memory bus contention and dragging down rendering
+performance.</p>
+<h3 id="the-indexed-color-compromise">The Indexed Color Compromise</h3>
+<p>To balance visual quality with these strict technical constraints,
+GIF employed an indexed color model. Instead of storing explicit red,
+green, and blue values for every individual pixel, the file stored a
+color look-up table (CLUT) containing up to 256 RGB values, each defined
+with 24-bit precision. Each pixel in the raster grid then contained only
+an 8-bit index (from 0 to 255) referencing an entry in that table. This
+enabled images to present smooth gradients and realistic photographic
+approximations while maintaining the strict hardware and bandwidth
+efficiency required in 1987.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

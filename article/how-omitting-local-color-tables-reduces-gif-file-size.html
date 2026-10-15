@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Omitting Local Color Tables Reduces GIF File Size - gif</title>
+    <meta name="description" content="Animated GIFs rely on indexed color palettes to display visual data, utilizing either a single Global Color Table (GCT) or individual Local Color Tables (LCT) for each frame. When individual frames redundantly declare their own palettes instead of referen">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-omitting-local-color-tables-reduces-gif-file-size">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Omitting Local Color Tables Reduces GIF File Size - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-omitting-local-color-tables-reduces-gif-file-size" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs rely on indexed color palettes to display visual data, utilizing either a single Global Color Table (GCT) or individual Local Color Tables (LCT) for each frame. When individual frames redundantly declare their own palettes instead of referen" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-omitting-local-color-tables-reduces-gif-file-size">How
+Omitting Local Color Tables Reduces GIF File Size</h1>
+<p>Animated GIFs rely on indexed color palettes to display visual data,
+utilizing either a single Global Color Table (GCT) or individual Local
+Color Tables (LCT) for each frame. When individual frames redundantly
+declare their own palettes instead of referencing the global palette,
+file sizes swell unnecessarily. Omitting an unused or redundant Local
+Color Table directly reduces GIF file size by stripping out raw byte
+overhead from each frame's header and relying on the shared global
+palette instead.</p>
+<h3 id="the-anatomy-of-gif-color-tables">The Anatomy of GIF Color
+Tables</h3>
+<p>In the GIF89a specification, any given frame can display a maximum of
+256 distinct colors chosen from a 24-bit RGB space. The file handles
+this via two structures:</p>
+<ul>
+<li><strong>Global Color Table (GCT):</strong> Defined once in the
+Logical Screen Descriptor and shared across all frames.</li>
+<li><strong>Local Color Table (LCT):</strong> Defined immediately before
+an individual frame's image data inside the Image Descriptor,
+temporarily overriding the GCT for that specific frame.</li>
+</ul>
+<p>A full 256-color palette requires 768 bytes of uncompressed data,
+calculated as 256 entries multiplied by 3 bytes (one byte each for Red,
+Green, and Blue channels).</p>
+<h3 id="the-math-behind-the-savings">The Math Behind the Savings</h3>
+<p>When an encoder erroneously generates an LCT for every frame, the
+byte cost scales linearly with the frame count:</p>
+<ol type="1">
+<li><strong>Direct Palette Data:</strong> Each uncompressed 256-color
+LCT adds exactly 768 bytes. For a 100-frame animation, redundant local
+tables add 76,800 bytes (roughly 75 KB) of pure palette overhead.</li>
+<li><strong>Descriptor Flags:</strong> In the 1-byte Image Descriptor
+field, the "Local Color Table Flag" bit must be set to <code>1</code>
+when an LCT is present. When omitted, this bit is set to <code>0</code>,
+instructing the decoder to bypass reading local palette bytes
+entirely.</li>
+</ol>
+<p>If the colors required by a frame are already present in the Global
+Color Table, the local table serves no functional purpose. Omitting it
+completely removes that 768-byte payload from the frame block.</p>
+<h3 id="fallback-to-the-global-color-table">Fallback to the Global Color
+Table</h3>
+<p>When the Local Color Table Flag is set to <code>0</code>:</p>
+<ul>
+<li>The GIF parser immediately proceeds from the Image Descriptor to the
+image data (specifically the LZW minimum code size byte).</li>
+<li>The decoder maps the frame’s pixel indices directly to the entries
+in the Global Color Table.</li>
+</ul>
+<p>By ensuring that frames with identical or subset palettes rely on the
+GCT, the file sheds hundreds of bytes per frame without any loss in
+visual fidelity or color precision.</p>
+<h3 id="optimization-in-frame-differencing">Optimization in Frame
+Differencing</h3>
+<p>Modern GIF optimization often combines palette consolidation with
+frame differencing (cropping frames down to only the rectangular area
+that changes). When an encoder isolates small moving elements, those
+smaller regions rarely introduce new colors. Omitting the LCT on these
+cropped sub-frames ensures that the physical dimensions of the frame
+decrease along with the total data stream, preventing small 10x10 pixel
+updates from carrying a disproportionate 768-byte palette penalty.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

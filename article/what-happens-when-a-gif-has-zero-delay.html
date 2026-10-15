@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Happens When a GIF Has Zero Delay - gif</title>
+    <meta name="description" content="When an animated GIF contains a frame delay value of zero, modern decoders and web browsers do not display the frames instantaneously. Instead, they override the zero value and enforce a fallback delay—most commonly 100 milliseconds (0.1 seconds)—to preve">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/what-happens-when-a-gif-has-zero-delay">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What Happens When a GIF Has Zero Delay - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/what-happens-when-a-gif-has-zero-delay" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When an animated GIF contains a frame delay value of zero, modern decoders and web browsers do not display the frames instantaneously. Instead, they override the zero value and enforce a fallback delay—most commonly 100 milliseconds (0.1 seconds)—to preve" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-happens-when-a-gif-has-zero-delay">What Happens When a GIF
+Has Zero Delay</h1>
+<p>When an animated GIF contains a frame delay value of zero, modern
+decoders and web browsers do not display the frames instantaneously.
+Instead, they override the zero value and enforce a fallback delay—most
+commonly 100 milliseconds (0.1 seconds)—to prevent severe CPU spikes,
+system freezing, and imperceptible visual flashing.</p>
+<h3 id="the-gif89a-specification">The GIF89a Specification</h3>
+<p>The GIF format relies on the GIF89a specification, which handles
+animation timing through the Graphic Control Extension. Inside this
+block, frame duration is stored in the "Delay Time" field, measured in
+hundredths of a second (centiseconds).</p>
+<p>A value of 1 represents a delay of 10 milliseconds, while a value of
+0 mathematically indicates that the next frame should render immediately
+without waiting. The original specification did not define how decoders
+should handle a zero delay, leaving the implementation up to individual
+software developers.</p>
+<h3 id="the-problem-with-zero-delay">The Problem with Zero Delay</h3>
+<p>If a rendering engine attempts to execute a true zero-delay
+animation, it creates two major problems:</p>
+<ol type="1">
+<li><strong>Hardware Exhaustion:</strong> The rendering thread attempts
+an infinite frame rate, pushing CPU and GPU usage to 100% as it renders
+hundreds or thousands of frames per second.</li>
+<li><strong>Visual Degradation:</strong> Frames cycle too quickly for
+the human eye to process, resulting in severe visual stuttering, screen
+tearing, or an illegible blur.</li>
+</ol>
+<h3 id="modern-browser-clamping">Modern Browser Clamping</h3>
+<p>To protect user systems and ensure uniform rendering across
+platforms, modern web browsers (including Google Chrome, Mozilla
+Firefox, Apple Safari, and Microsoft Edge) implement delay clamping.</p>
+<p>When a browser decoder encounters a delay of 0, or any value below an
+established minimum threshold (typically anything less than 2
+centiseconds, or 20 milliseconds), it automatically adjusts the delay.
+In almost all modern rendering engines (Blink, Gecko, and WebKit), this
+value is clamped to <strong>100 milliseconds (10 frames per
+second)</strong>.</p>
+<h3 id="legacy-implementations">Legacy Implementations</h3>
+<p>Behavior has not always been uniform:</p>
+<ul>
+<li><strong>Early Internet Explorer:</strong> Older versions of Internet
+Explorer strictly enforced a 100 ms minimum for any delay under 60
+ms.</li>
+<li><strong>Early Netscape Navigator:</strong> Early versions attempted
+to render frames as fast as the host processor allowed, frequently
+causing system instability on faster machines.</li>
+<li><strong>Standalone Image Viewers:</strong> Some dedicated image
+utilities and command-line decoders still adhere to literal
+interpretations, either dropping frames entirely, skipping directly to
+the final frame, or rendering at the monitor's maximum refresh
+rate.</li>
+</ul>
+<h3 id="practical-impact-on-content-creation">Practical Impact on
+Content Creation</h3>
+<p>When creators export animated GIFs with a delay set to zero—often in
+an attempt to make the animation play as fast as possible—the clamping
+mechanism produces the opposite effect. Because the decoder resets the
+delay to 100 milliseconds, the animation ends up running significantly
+slower than if the creator had deliberately chosen a supported fast
+delay, such as 20 or 30 milliseconds (33 to 50 frames per second).</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

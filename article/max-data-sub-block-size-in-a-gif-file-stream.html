@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Data Sub-Block Size in a GIF File Stream - gif</title>
+    <meta name="description" content="In a GIF file stream, graphic and extension data are broken down into sequential units called data sub-blocks. This article explains the maximum allowed byte size for a single GIF data sub-block, details the structural specification defining this limit, a">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/max-data-sub-block-size-in-a-gif-file-stream">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Max Data Sub-Block Size in a GIF File Stream - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/max-data-sub-block-size-in-a-gif-file-stream" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In a GIF file stream, graphic and extension data are broken down into sequential units called data sub-blocks. This article explains the maximum allowed byte size for a single GIF data sub-block, details the structural specification defining this limit, a" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="max-data-sub-block-size-in-a-gif-file-stream">Max Data Sub-Block
+Size in a GIF File Stream</h1>
+<p>In a GIF file stream, graphic and extension data are broken down into
+sequential units called data sub-blocks. This article explains the
+maximum allowed byte size for a single GIF data sub-block, details the
+structural specification defining this limit, and explains how these
+blocks function within the GIF87a and GIF89a standards.</p>
+<h2 id="the-maximum-sub-block-size">The Maximum Sub-Block Size</h2>
+<p>The maximum allowed data payload for a single data sub-block in a GIF
+file stream is <strong>255 bytes</strong>. If you include the
+single-byte size header that precedes the data, the total maximum size
+of the block structure is <strong>256 bytes</strong>.</p>
+<h2 id="structural-definition-in-the-gif-specification">Structural
+Definition in the GIF Specification</h2>
+<p>According to the official Graphics Interchange Format specifications
+(both GIF87a and GIF89a), data streams—such as LZW-compressed image
+data, application extensions, and comment blocks—are organized into
+series of sub-blocks.</p>
+<p>A data sub-block consists of two parts:</p>
+<ol type="1">
+<li><strong>Block Size (1 byte):</strong> An unsigned 8-bit integer
+indicating the count of payload bytes that immediately follow. Because
+it is an 8-bit value, its range spans from <code>0</code> to
+<code>255</code> (<code>0x00</code> to <code>0xFF</code>).</li>
+<li><strong>Data Values (Variable length):</strong> The sequence of raw
+data bytes, matching the count specified in the Block Size field.</li>
+</ol>
+<p>Because the byte counter cannot exceed the capacity of a single byte
+(<code>255</code>), the maximum payload cannot exceed 255 bytes.</p>
+<h2 id="the-role-of-the-block-terminator">The Role of the Block
+Terminator</h2>
+<p>While a single sub-block can hold between 1 and 255 bytes, a byte
+count of <code>0</code> (<code>0x00</code>) is reserved as a special
+marker known as the <strong>Block Terminator</strong>. When a decoder
+encounters a block size of zero, it signals the completion of the
+current data stream (such as the end of an image data sequence or an
+extension block). Consequently, valid data sub-blocks carrying
+information strictly measure between 1 and 255 bytes in length.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

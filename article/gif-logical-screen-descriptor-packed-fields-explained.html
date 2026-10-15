@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Logical Screen Descriptor Packed Fields Explained - gif</title>
+    <meta name="description" content="In the GIF file format, the packed fields byte within the Logical Screen Descriptor is a single, multi-functional byte that dictates how a decoder handles global color information. By packing multiple configuration flags into 8 individual bits, this byte">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-logical-screen-descriptor-packed-fields-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF Logical Screen Descriptor Packed Fields Explained - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-logical-screen-descriptor-packed-fields-explained" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In the GIF file format, the packed fields byte within the Logical Screen Descriptor is a single, multi-functional byte that dictates how a decoder handles global color information. By packing multiple configuration flags into 8 individual bits, this byte" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-logical-screen-descriptor-packed-fields-explained">GIF
+Logical Screen Descriptor Packed Fields Explained</h1>
+<p>In the GIF file format, the packed fields byte within the Logical
+Screen Descriptor is a single, multi-functional byte that dictates how a
+decoder handles global color information. By packing multiple
+configuration flags into 8 individual bits, this byte instructs the
+rendering engine whether a Global Color Table exists, how many colors it
+contains, the original color depth of the source image, and whether the
+palette entries are sorted by frequency of use.</p>
+<p>The Logical Screen Descriptor appears immediately after the GIF file
+header, defining the canvas dimensions and primary display parameters.
+The packed fields byte sits at offset 10 of the file and is divided into
+four distinct components across its 8 bits:</p>
+<ul>
+<li><strong>Global Color Table Flag (Bit 7):</strong> This single most
+significant bit indicates the presence of a Global Color Table. When set
+to <code>1</code>, a global palette immediately follows the Logical
+Screen Descriptor. If set to <code>0</code>, no global palette is
+present, meaning individual image frames must supply their own Local
+Color Tables to render properly.</li>
+<li><strong>Color Resolution (Bits 6–4):</strong> These three bits
+represent the color resolution of the original image minus one. This
+value does not define the actual number of colors in the current GIF
+palette, but rather the color depth of the original source device
+(ranging from 1 to 8 bits per primary color channel).</li>
+<li><strong>Sort Flag (Bit 3):</strong> Introduced in the GIF89a
+standard, this bit indicates whether the colors in the Global Color
+Table are ordered by decreasing importance. A value of <code>1</code>
+signals that the most frequently used colors appear first, allowing
+legacy hardware or low-color displays to select the first few palette
+entries and discard the rest without completely ruining the image
+appearance.</li>
+<li><strong>Size of the Global Color Table (Bits 2–0):</strong> These
+three least significant bits define the total number of colors in the
+Global Color Table. The actual palette size is calculated using the
+formula <span class="math inline">\(2^{(N + 1)}\)</span>, where <span
+class="math inline">\(N\)</span> is the 3-bit numerical value. Because
+the 3-bit value ranges from 0 to 7, the calculated palette size ranges
+from 2 colors (<span class="math inline">\(2^1\)</span>) up to a maximum
+of 256 colors (<span class="math inline">\(2^8\)</span>). Each color in
+the table consumes 3 bytes (Red, Green, Blue), meaning this field
+directly informs the decoder how many bytes of palette data to read from
+the byte stream before reaching image data or extension blocks.</li>
+</ul>
+<p>The packed fields byte is critical for stream parsing and memory
+allocation. Without correctly decoding this single byte, a GIF parser
+cannot determine the byte offset where the pixel stream or extension
+blocks begin, rendering the file unreadable.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offscreen Animated GIF Decoding in Modern Browsers - gif</title>
+    <meta name="description" content="Modern web browsers optimize performance and conserve system resources by dynamically throttling or completely pausing the decoding of offscreen animated GIF files. Rather than treating all graphical assets equally, browser rendering engines use visibilit">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/offscreen-animated-gif-decoding-in-modern-browsers">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Offscreen Animated GIF Decoding in Modern Browsers - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/offscreen-animated-gif-decoding-in-modern-browsers" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern web browsers optimize performance and conserve system resources by dynamically throttling or completely pausing the decoding of offscreen animated GIF files. Rather than treating all graphical assets equally, browser rendering engines use visibilit" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="offscreen-animated-gif-decoding-in-modern-browsers">Offscreen
+Animated GIF Decoding in Modern Browsers</h1>
+<p>Modern web browsers optimize performance and conserve system
+resources by dynamically throttling or completely pausing the decoding
+of offscreen animated GIF files. Rather than treating all graphical
+assets equally, browser rendering engines use visibility heuristics,
+multi-threaded decode queues, and cooperative scheduling to deprioritize
+images that do not immediately affect the user's active viewport. This
+article examines the internal mechanisms—such as thread scheduling,
+compositor visibility tracking, and memory caching strategies—that
+browsers employ to manage offscreen GIF decoding.</p>
+<h3 id="viewport-visibility-and-intersection-tracking">Viewport
+Visibility and Intersection Tracking</h3>
+<p>Before a browser can assign priority to a media asset, it must
+determine whether the asset is visible to the user. Modern engines like
+Blink (Chromium), Gecko (Firefox), and WebKit (Safari) use the
+compositor and layout engines to continuously calculate the intersection
+of elements relative to the visual viewport.</p>
+<p>When an animated GIF scrolls outside the active viewport
+boundary:</p>
+<ul>
+<li>The rendering engine flags the image as invisible or occluded.</li>
+<li>The internal presentation timer responsible for requesting the next
+frame stops scheduling invalidation events.</li>
+<li>Frame progression halts entirely or falls back to an idle state,
+preventing unnecessary CPU and GPU wake-ups.</li>
+</ul>
+<h3 id="multi-threaded-decoding-and-priority-queues">Multi-Threaded
+Decoding and Priority Queues</h3>
+<p>Modern browsers decouple image decoding from the main JavaScript and
+layout thread. Dedicated worker threads handle decoding tasks
+asynchronously.</p>
+<p>When an image requires decoding, the task is dispatched to a global
+or process-wide thread pool. Browsers manage these tasks using priority
+queues:</p>
+<ol type="1">
+<li><strong>High Priority (Immediate):</strong> Onscreen assets, hero
+images, and assets required for the upcoming display frame.</li>
+<li><strong>Medium Priority:</strong> Assets slightly outside the
+viewport (within a pre-render or overdraw margin) to ensure smooth
+scrolling.</li>
+<li><strong>Low/Idle Priority:</strong> Assets situated far
+offscreen.</li>
+</ol>
+<p>If a GIF is offscreen, its decode tasks are either starved in favor
+of onscreen media or executed only during browser idle periods
+(leveraging mechanisms similar to <code>requestIdleCallback</code> at
+the C++ engine level). This architecture ensures that intensive GIF
+decompression algorithms (such as LZW decompression) do not contend with
+high-priority tasks like user input handling or CSS animations.</p>
+<h3 id="synchronization-and-catch-up-logic">Synchronization and Catch-Up
+Logic</h3>
+<p>Animated GIFs operate on metadata-defined frame delays. A challenge
+arises when an offscreen animated GIF returns to the viewport after
+being paused. Browsers handle synchronization through two primary
+techniques:</p>
+<ul>
+<li><strong>Wall-Clock Time Synchronization:</strong> The browser tracks
+the elapsed global time rather than simply incrementing frame-by-frame.
+When an offscreen GIF becomes visible again, the engine computes which
+frame <em>should</em> be active based on the elapsed duration.</li>
+<li><strong>Frame Skipping:</strong> To avoid the resource cost of
+decoding every intermediate frame that occurred while the element was
+offscreen, the decoder skips directly to the keyframe or target frame
+corresponding to the current timestamp. If intermediate frames rely on
+incremental disposal methods (e.g., "restore to background" or "do not
+dispose"), the browser executes a fast-forward parse without triggering
+full paint invalidations.</li>
+</ul>
+<h3 id="memory-eviction-and-buffer-management">Memory Eviction and
+Buffer Management</h3>
+<p>In addition to thread throttling, browsers apply aggressive memory
+management to offscreen animated GIFs. Decoding each frame of a GIF
+produces an uncompressed bitmap buffer, which occupies significantly
+more memory than the compressed file format.</p>
+<p>To prevent high memory consumption:</p>
+<ul>
+<li>Decoded frame buffers of offscreen GIFs are among the first
+candidates for garbage collection or cache eviction.</li>
+<li>If system memory falls below a critical threshold, the engine
+discards cached frames, retaining only the raw compressed GIF bytes in
+network cache or memory.</li>
+<li>Decoding resumes on-demand only when the element intersects back
+into the active or pre-render viewport zones.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

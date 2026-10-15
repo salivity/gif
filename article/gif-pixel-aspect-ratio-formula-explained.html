@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Pixel Aspect Ratio Formula Explained - gif</title>
+    <meta name="description" content="The Graphics Interchange Format (GIF), defined in the GIF89a specification, includes an optional mechanism to handle non-square pixels on legacy displays. This article explains how the GIF specification formally defines the physical pixel aspect ratio, de">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-pixel-aspect-ratio-formula-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF Pixel Aspect Ratio Formula Explained - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-pixel-aspect-ratio-formula-explained" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Graphics Interchange Format (GIF), defined in the GIF89a specification, includes an optional mechanism to handle non-square pixels on legacy displays. This article explains how the GIF specification formally defines the physical pixel aspect ratio, de" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-pixel-aspect-ratio-formula-explained">GIF Pixel Aspect Ratio
+Formula Explained</h1>
+<p>The Graphics Interchange Format (GIF), defined in the GIF89a
+specification, includes an optional mechanism to handle non-square
+pixels on legacy displays. This article explains how the GIF
+specification formally defines the physical pixel aspect ratio, details
+the mathematical formula found in the Logical Screen Descriptor, and
+demonstrates how decoders calculate pixel dimensions.</p>
+<h2 id="the-logical-screen-descriptor-field">The Logical Screen
+Descriptor Field</h2>
+<p>In the GIF89a specification, the pixel aspect ratio is stored as a
+single byte (8 bits) located at byte offset 6 of the Logical Screen
+Descriptor block. This field represents an integer value, referred to as
+the raw <em>Pixel Aspect Ratio</em> byte (<span
+class="math inline">\(N\)</span>), ranging from 0 to 255.</p>
+<h2 id="the-specification-formula">The Specification Formula</h2>
+<p>The GIF specification defines the relationship between the raw byte
+value and the actual physical aspect ratio using a specific linear
+equation.</p>
+<p>If the value of the raw Pixel Aspect Ratio byte is non-zero, the
+formula is:</p>
+<p><span class="math display">\[\text{Aspect Ratio} = \frac{\text{Pixel
+Aspect Ratio Value} + 15}{64}\]</span></p>
+<p>In this formula:</p>
+<ul>
+<li><strong>Aspect Ratio</strong> is defined as the quotient of the
+pixel's physical width over its physical height (<span
+class="math inline">\(\frac{\text{Width}}{\text{Height}}\)</span>).</li>
+<li><strong>Pixel Aspect Ratio Value</strong> is the unsigned integer
+stored in the file (from 1 to 255).</li>
+</ul>
+<h2 id="handling-the-zero-value">Handling the Zero Value</h2>
+<p>If the raw byte value is <code>0</code>, the specification states
+that no aspect ratio information is given.</p>
+<p>In this case, decoders are instructed to assume that the pixels are
+square (<span class="math inline">\(1:1\)</span> aspect ratio) or that
+the display should render the image according to the default aspect
+ratio of the target hardware without applying any scaling
+correction.</p>
+<h2 id="range-of-values-and-examples">Range of Values and Examples</h2>
+<p>The formula allows the format to express ratios ranging from tall,
+thin pixels to wide, flat pixels with a resolution of <span
+class="math inline">\(1/64\)</span> steps:</p>
+<ul>
+<li><p><strong>Minimum Ratio (<span class="math inline">\(N =
+1\)</span>):</strong> <span class="math display">\[\frac{1 + 15}{64} =
+\frac{16}{64} = 0.25\]</span> The pixel's width is one-quarter of its
+height (a very tall, narrow pixel).</p></li>
+<li><p><strong>Square Pixels (<span class="math inline">\(N =
+49\)</span>):</strong> <span class="math display">\[\frac{49 + 15}{64} =
+\frac{64}{64} = 1.0\]</span> When the stored byte equals 49, the
+physical pixel width exactly equals the physical pixel height.</p></li>
+<li><p><strong>Maximum Ratio (<span class="math inline">\(N =
+255\)</span>):</strong> <span class="math display">\[\frac{255 + 15}{64}
+= \frac{270}{64} \approx 4.21875\]</span> The pixel's width is more than
+four times its height (a very wide, flat pixel).</p></li>
+</ul>
+<h2 id="implementation-in-modern-decoders">Implementation in Modern
+Decoders</h2>
+<p>To properly display a GIF honoring this field, a renderer must
+compute the actual display dimensions by multiplying the logical image
+width by the calculated Aspect Ratio while keeping the height constant,
+or by scaling both dimensions proportionally. However, because modern
+computer monitors universally use square pixels, many modern web
+browsers and image viewers ignore this byte entirely and render GIF
+pixels at a fixed <span class="math inline">\(1:1\)</span> ratio.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert Animated GIF to WebP: Compression and Timing - gif</title>
+    <meta name="description" content="Converting animated GIFs to the modern WebP format significantly reduces asset sizes while maintaining the original animation speed and cadence. This performance gain occurs because WebP applies modern video-grade compression algorithms, variable intra-fr">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/convert-animated-gif-to-web-p-compression-and-timing">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Convert Animated GIF to WebP: Compression and Timing - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/convert-animated-gif-to-web-p-compression-and-timing" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Converting animated GIFs to the modern WebP format significantly reduces asset sizes while maintaining the original animation speed and cadence. This performance gain occurs because WebP applies modern video-grade compression algorithms, variable intra-fr" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="convert-animated-gif-to-webp-compression-and-timing">Convert
+Animated GIF to WebP: Compression and Timing</h1>
+<p>Converting animated GIFs to the modern WebP format significantly
+reduces asset sizes while maintaining the original animation speed and
+cadence. This performance gain occurs because WebP applies modern
+video-grade compression algorithms, variable intra-frame updates, and
+24-bit color support to eliminate the overhead of legacy GIF encoding,
+all while utilizing a container specification that preserves exact
+millisecond frame-delay metadata.</p>
+<h3 id="how-webp-preserves-frame-timing">How WebP Preserves Frame
+Timing</h3>
+<p>Animated GIFs store timing information within Graphic Control
+Extension blocks, which define delays in hundredths of a second
+(centiseconds). A common issue with GIF playback across different
+browsers is the handling of very small delays; for instance, zero or
+sub-20ms values are often clamped to a default 100ms penalty by
+rendering engines to avoid locking the CPU.</p>
+<p>WebP solves this by utilizing the <code>ANMF</code> (Animation Frame)
+chunk within its RIFF container format. Each <code>ANMF</code> chunk
+defines the spatial coordinates, duration, and disposal method for that
+specific frame. Frame duration in WebP is defined explicitly in integer
+milliseconds (1/1000th of a second). When a GIF is transcoded to WebP,
+the original centisecond delays are directly converted into their exact
+millisecond equivalents. Because modern browsers parse WebP animations
+using modern media pipelines, these millisecond timestamps are rendered
+faithfully without the legacy compatibility quirks found in old GIF
+decoders.</p>
+<h3 id="why-webp-slashes-file-payload">Why WebP Slashes File
+Payload</h3>
+<p>The dramatic reduction in payload—often ranging from 60% to over
+90%—stems from the technical limitations of the GIF specification
+compared to modern compression standards.</p>
+<ul>
+<li><strong>Advanced Predictive Encoding:</strong> The GIF format uses
+LZW (Lempel-Ziv-Welch) compression, an algorithm from the 1980s that
+works strictly on simple string patterns of pixel data. WebP uses
+predictive coding derived from the VP8 video codec (for lossy WebP) or
+advanced spatial transformation and entropy coding (for lossless WebP).
+By predicting pixel values from adjacent blocks and storing only the
+difference (residual), WebP stores visual data with a fraction of the
+bits required by LZW.</li>
+<li><strong>Elimination of Dithering Noise:</strong> GIFs are limited to
+an indexed palette of 256 colors per frame. To display photographic
+content or smooth gradients, GIFs must rely on dithering—scattering
+contrasting pixels to simulate missing shades. Dithering creates
+high-frequency visual noise that completely disrupts pattern-matching
+algorithms, causing LZW file sizes to explode. WebP natively supports
+24-bit truecolor (plus an 8-bit alpha channel), eliminating the need for
+dithering and allowing the compression engine to smoothly compress flat
+areas and gradients.</li>
+<li><strong>Superior Inter-Frame Delta Encoding:</strong> While both
+formats can encode only the area that changes between frames (sub-frame
+updates), WebP's implementation is far more efficient. WebP defines the
+precise offset, width, and height of the updated sub-region and allows
+frames to either blend with or overwrite the previous canvas. Combined
+with directional spatial prediction, the static portions of an animation
+cost almost zero bytes to maintain across frames.</li>
+<li><strong>Lossy Animation Capabilities:</strong> GIFs are strictly
+lossless within their 256-color limit. WebP offers lossy animation
+modes. By discarding imperceptible visual data using discrete cosine
+transforms (DCT) similar to modern digital video, lossy animated WebP
+achieves massive size reductions while visually matching the source
+animation.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

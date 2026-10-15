@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Out of Bounds LZW Codes in GIF Streams Explained - gif</title>
+    <meta name="description" content="When an LZW (Lempel-Ziv-Welch) code in a GIF stream references an index beyond the current dictionary bounds, it signals a corrupted or malformed data stream. Because the decoder has not yet created a string entry corresponding to that index, it cannot ma">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/out-of-bounds-lzw-codes-in-gif-streams-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Out of Bounds LZW Codes in GIF Streams Explained - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/out-of-bounds-lzw-codes-in-gif-streams-explained" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When an LZW (Lempel-Ziv-Welch) code in a GIF stream references an index beyond the current dictionary bounds, it signals a corrupted or malformed data stream. Because the decoder has not yet created a string entry corresponding to that index, it cannot ma" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="out-of-bounds-lzw-codes-in-gif-streams-explained">Out of Bounds
+LZW Codes in GIF Streams Explained</h1>
+<p>When an LZW (Lempel-Ziv-Welch) code in a GIF stream references an
+index beyond the current dictionary bounds, it signals a corrupted or
+malformed data stream. Because the decoder has not yet created a string
+entry corresponding to that index, it cannot map the code to a sequence
+of pixel values. Encountering this condition halts normal decompression,
+leading to visual rendering artifacts, immediate termination of the
+decoding process, or historical memory safety vulnerabilities depending
+on the decoder's implementation.</p>
+<h3 id="the-mechanism-of-the-lzw-dictionary">The Mechanism of the LZW
+Dictionary</h3>
+<p>The GIF format initializes its LZW string table with a set of base
+codes representing individual color indices, followed by two reserved
+control codes: the Clear Code and the End of Information (EOI) code. If
+an image uses an initial code size of <span
+class="math inline">\(N\)</span> bits, the base color entries occupy
+indices <span class="math inline">\(0\)</span> through <span
+class="math inline">\(2^N - 1\)</span>. The Clear Code is assigned to
+<span class="math inline">\(2^N\)</span>, and the EOI code is assigned
+to <span class="math inline">\(2^N + 1\)</span>.</p>
+<p>As decompression proceeds, the decoder dynamically builds the
+dictionary one entry at a time by combining the previously decoded
+sequence with the first character of the current sequence. Each new
+entry is assigned sequentially to the next available index
+(<code>next_code</code>). Consequently, at any given moment during
+decoding, valid dictionary keys strictly range from <span
+class="math inline">\(0\)</span> up to <code>next_code</code>.</p>
+<h3 id="the-boundary-edge-case-vs-a-true-out-of-bounds-code">The
+Boundary Edge Case vs. A True Out-of-Bounds Code</h3>
+<p>LZW includes a specific edge case where an incoming code can
+legitimately match <code>next_code</code>—the index currently being
+defined. This occurs when the encoder encounters a pattern of the form
+<em>character-string-character</em> (commonly referred to as
+<code>cScSc</code>). In this scenario, the decoder recognizes that the
+code refers to the entry it is currently constructing and resolves it by
+taking the previous string and appending its own first character.</p>
+<p>However, if a decoded code value is strictly greater than
+<code>next_code</code>, the stream is invalid. The decoder has no
+historical context or algorithmic rule to infer what pixels that index
+represents.</p>
+<h3 id="decoder-handling-and-failure-modes">Decoder Handling and Failure
+Modes</h3>
+<p>Because the GIF89a specification does not explicitly define an
+error-recovery fallback for out-of-bounds indices, software behavior
+varies based on architecture and error handling:</p>
+<ul>
+<li><strong>Decoding Abort:</strong> Modern, robust decoders (such as
+those in web browsers and image-processing libraries) detect the invalid
+index before attempting a lookup. The decoder immediately halts
+decompression for that frame, emits an error, and displays either a
+blank image, a broken image icon, or whatever portion of the image was
+decoded prior to the error.</li>
+<li><strong>Visual Corruption:</strong> Some permissive decoders attempt
+fault tolerance by ignoring the invalid code, inserting a dummy pixel
+value (such as index 0 or transparency), or skipping to the next byte
+boundary. This invariably results in horizontal line tearing, scrambled
+palettes, or large blocks of solid color across the remainder of the
+raster scanline.</li>
+<li><strong>Stream Desynchronization:</strong> LZW uses variable-width
+bit packing (ranging from initial code size up to 12 bits). When an
+invalid code is encountered, the decoder and encoder bit-length tracking
+often falls out of alignment. Even if the decoder attempts to continue
+reading subsequent codes, the bitstream remains misaligned until a Clear
+Code is encountered to reset the state.</li>
+<li><strong>Buffer Over-reads:</strong> In legacy or naive C
+implementations that lack strict boundary checks, an out-of-bounds code
+can cause the program to read unallocated memory or arbitrary values
+from memory adjacent to the dictionary array. This can result in
+application crashes (segmentation faults) or potential information
+disclosure vulnerabilities.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

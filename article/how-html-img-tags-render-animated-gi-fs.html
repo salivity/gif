@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How HTML `&lt;img&gt;` Tags Render Animated GIFs - gif</title>
+    <meta name="description" content="This article explains how the standard HTML &lt;img&gt; element embeds, decodes, and renders animated GIFs directly within web browsers. While syntactically treated like static images, animated GIFs require the browser&#39;s rendering engine to perform continuous f">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-html-img-tags-render-animated-gi-fs">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How HTML `&lt;img&gt;` Tags Render Animated GIFs - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-html-img-tags-render-animated-gi-fs" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how the standard HTML &lt;img&gt; element embeds, decodes, and renders animated GIFs directly within web browsers. While syntactically treated like static images, animated GIFs require the browser&#39;s rendering engine to perform continuous f" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-html-img-tags-render-animated-gifs">How HTML
+<code>&lt;img&gt;</code> Tags Render Animated GIFs</h1>
+<p>This article explains how the standard HTML <code>&lt;img&gt;</code>
+element embeds, decodes, and renders animated GIFs directly within web
+browsers. While syntactically treated like static images, animated GIFs
+require the browser's rendering engine to perform continuous frame
+parsing, timing execution, and canvas repainting. Below, we examine the
+underlying mechanics of embedding, decoding, loop handling, and
+performance considerations associated with this process.</p>
+<h3 id="embedding-mechanics">Embedding Mechanics</h3>
+<p>The HTML <code>&lt;img&gt;</code> element embeds an animated GIF
+using standard image syntax:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;animation.gif&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Description of animation&quot;</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>From the perspective of the HTML parser and the Document Object Model
+(DOM), an animated GIF is treated identically to a static image format
+such as JPEG or PNG. The browser makes an HTTP request for the asset,
+determines the file type via the <code>Content-Type: image/gif</code>
+response header, and allocates an image box in the layout based on CSS
+properties or the image's intrinsic dimensions.</p>
+<h3 id="decoding-and-frame-timing">Decoding and Frame Timing</h3>
+<p>Once the GIF file is downloaded, the browser's image-decoding engine
+takes over:</p>
+<ol type="1">
+<li><strong>Header and Frame Parsing:</strong> The engine reads the
+binary stream of the GIF (GIF89a format). It identifies the global color
+table and sequentially parses each embedded frame, along with its
+specific Graphics Control Extension (GCE).</li>
+<li><strong>Timing Execution:</strong> The GCE block specifies two
+critical values: a delay time (measured in hundredths of a second) and a
+disposal method (which dictates whether to clear, keep, or restore the
+background before the next frame). The browser sets an internal timer
+based on this delay.</li>
+<li><strong>Repainting:</strong> When the timer elapses, the browser
+decodes the next frame, applies the disposal method to the previous
+frame, composits the new frame data, and invalidates that region of the
+render tree to trigger a repaint.</li>
+</ol>
+<h3 id="loop-control-and-browser-execution">Loop Control and Browser
+Execution</h3>
+<p>GIF animation loops are governed by application extension blocks
+embedded inside the file itself, most commonly the Netscape 2.0
+Application Extension:</p>
+<ul>
+<li><strong>Infinite vs. Finite Loops:</strong> If the file defines
+infinite looping, the browser resets the frame counter to zero after
+reaching the final frame and continues cycling until the page is closed,
+scrolled out of view, or discarded. If a finite loop count is defined,
+the browser stops execution on the final frame once the counter
+expires.</li>
+<li><strong>No Native DOM Controls:</strong> The
+<code>&lt;img&gt;</code> tag provides no native JavaScript API to pause,
+rewind, stop, or detect the completion of an animated GIF loop. The
+playback is entirely controlled by the browser’s internal rendering
+pipeline.</li>
+</ul>
+<h3 id="performance-and-memory-impact">Performance and Memory
+Impact</h3>
+<p>Because the <code>&lt;img&gt;</code> tag renders GIFs on the main
+thread or via a basic software rasterizer, high-resolution or
+long-running animated GIFs introduce specific performance
+challenges:</p>
+<ul>
+<li><strong>CPU Utilization:</strong> Continuous repainting demands
+consistent CPU cycles. Unlike video elements
+(<code>&lt;video&gt;</code>), animated GIFs generally do not benefit
+from modern hardware-accelerated video decoding.</li>
+<li><strong>Memory Overhead:</strong> The browser must retain decoded
+frames in an image cache or continuously decompress them in memory,
+which can lead to high memory consumption on pages with multiple
+animations.</li>
+<li><strong>Modern Alternatives:</strong> While the
+<code>&lt;img&gt;</code> tag reliably displays GIFs across all browsers
+without external dependencies, modern web standards often replace heavy
+animated GIFs with <code>&lt;video&gt;</code> tags or modern image
+formats like animated WebP or AVIF for superior compression and lower
+rendering costs.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

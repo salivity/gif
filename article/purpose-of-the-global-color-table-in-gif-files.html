@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purpose of the Global Color Table in GIF Files - gif</title>
+    <meta name="description" content="The Global Color Table (GCT) in a GIF file serves as the standardized, shared palette of colors used across the entire image or animation. Because the Graphics Interchange Format (GIF) relies on indexed color rather than true 24-bit direct color, it depen">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/purpose-of-the-global-color-table-in-gif-files">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Purpose of the Global Color Table in GIF Files - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/purpose-of-the-global-color-table-in-gif-files" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Global Color Table (GCT) in a GIF file serves as the standardized, shared palette of colors used across the entire image or animation. Because the Graphics Interchange Format (GIF) relies on indexed color rather than true 24-bit direct color, it depen" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="purpose-of-the-global-color-table-in-gif-files">Purpose of the
+Global Color Table in GIF Files</h1>
+<p>The Global Color Table (GCT) in a GIF file serves as the
+standardized, shared palette of colors used across the entire image or
+animation. Because the Graphics Interchange Format (GIF) relies on
+indexed color rather than true 24-bit direct color, it depends on color
+tables to map specific pixel values to actual red, green, and blue (RGB)
+hues. Understanding the GCT is essential to understanding how the GIF
+format manages visual fidelity, reduces redundant data, and keeps file
+sizes small.</p>
+<h3 id="defining-indexed-color-in-gifs">Defining Indexed Color in
+GIFs</h3>
+<p>GIF files do not store individual RGB values for every single pixel.
+Doing so would drastically increase the file size. Instead, the format
+uses an indexed color system limited to a maximum of 256 colors (8 bits
+per pixel). Each pixel in a frame contains merely an index number—from 0
+to 255—referencing a specific slot in a color palette. The Global Color
+Table is that master palette.</p>
+<h3 id="position-and-activation-in-the-file-structure">Position and
+Activation in the File Structure</h3>
+<p>Within the binary structure of a GIF (specifically GIF87a or GIF89a),
+the Global Color Table appears immediately after the Logical Screen
+Descriptor.</p>
+<p>Its presence is dictated by the "Global Color Table Flag," a single
+bit inside the Logical Screen Descriptor's packed fields byte:</p>
+<ul>
+<li><strong>Flag set to 1:</strong> A Global Color Table is present
+directly following the descriptor.</li>
+<li><strong>Flag set to 0:</strong> No Global Color Table is defined,
+meaning individual frames must provide their own local palettes to
+render correctly.</li>
+</ul>
+<p>The size of the table is also defined in this header, scaling
+exponentially as <span class="math inline">\(2^{(N+1)}\)</span> entries,
+where <span class="math inline">\(N\)</span> is the value of the size
+bits, resulting in palettes ranging from 2 up to 256 colors. Each color
+entry consists of exactly three consecutive bytes representing Red,
+Green, and Blue values, meaning a full 256-color GCT occupies exactly
+768 bytes of data.</p>
+<h3 id="primary-purposes-of-the-global-color-table">Primary Purposes of
+the Global Color Table</h3>
+<ol type="1">
+<li><strong>Default Color Mapping:</strong> The GCT provides the
+baseline color set for all graphic rendering blocks within the stream.
+Any image frame that does not explicitly declare a Local Color Table
+(LCT) defaults to referencing the GCT.</li>
+<li><strong>Data Compression and Efficiency:</strong> In animated GIFs
+consisting of dozens or hundreds of frames, defining a unique color
+palette for every frame causes significant file bloat. By establishing a
+single global palette at the beginning of the file, the animation can
+reuse the same color definitions continuously, drastically lowering
+total file size.</li>
+<li><strong>Optimized Decoding:</strong> A pre-loaded global table
+allows rendering engines, web browsers, and decoders to initialize the
+color space once rather than reallocating memory and regenerating color
+maps for each incoming frame.</li>
+</ol>
+<h3 id="global-color-table-vs-local-color-table">Global Color Table vs.
+Local Color Table</h3>
+<p>While the GCT is optimal for consistency and compression, it is
+limited to 256 colors across the entire graphic. If an animated scene
+changes drastically—such as transitioning from a bright daytime scene to
+a dark night scene—the 256 colors in the GCT may cause severe banding or
+color degradation.</p>
+<p>In these cases, the GIF specification allows individual frames to
+contain a Local Color Table (LCT). An LCT temporarily overrides the GCT
+exclusively for that specific frame. However, because LCTs increase
+overhead, the Global Color Table remains the primary mechanism for
+standard GIF color management.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

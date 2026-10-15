@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Animated GIFs Are Larger Than Equivalent Videos - gif</title>
+    <meta name="description" content="High-resolution animated GIFs often have file sizes ten times larger than equivalent modern video files due to a fundamental technological divide. While modern video formats like MP4 and WebM use advanced predictive algorithms to compress motion over time">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-animated-gi-fs-are-larger-than-equivalent-videos">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Animated GIFs Are Larger Than Equivalent Videos - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-animated-gi-fs-are-larger-than-equivalent-videos" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="High-resolution animated GIFs often have file sizes ten times larger than equivalent modern video files due to a fundamental technological divide. While modern video formats like MP4 and WebM use advanced predictive algorithms to compress motion over time" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-animated-gifs-are-larger-than-equivalent-videos">Why
+Animated GIFs Are Larger Than Equivalent Videos</h1>
+<p>High-resolution animated GIFs often have file sizes ten times larger
+than equivalent modern video files due to a fundamental technological
+divide. While modern video formats like MP4 and WebM use advanced
+predictive algorithms to compress motion over time, the GIF format,
+created in 1987, was never engineered for modern video playback. As a
+result, GIFs lack efficient temporal compression, rely on an outdated
+compression algorithm, and suffer massive file bloat when forced to
+display high-resolution frames.</p>
+<h3 id="lack-of-inter-frame-temporal-compression">Lack of Inter-Frame
+(Temporal) Compression</h3>
+<p>The primary reason for the size discrepancy is how each format
+handles movement across time. Modern video codecs (such as H.264, H.265,
+and AV1) use inter-frame compression. They do not save every frame as a
+complete picture; instead, they establish a "keyframe" and then store
+only the changes (vectors and pixel shifts) that occur between frames.
+If a background remains static while a character moves, the video file
+only updates the moving pixels.</p>
+<p>In contrast, the GIF specification was built to display short, simple
+graphic animations. While the format supports basic frame differencing,
+it does not support motion vectors or predictive frame generation. In
+high-resolution footage, even slight camera shakes, lighting shifts, or
+sensor noise require the GIF to redraw vast portions of the frame over
+and over again, rapidly accumulating data.</p>
+<h3 id="inefficient-compression-algorithms">Inefficient Compression
+Algorithms</h3>
+<p>Modern video formats use lossy compression algorithms designed
+specifically to mimic how the human eye perceives light and motion.
+These codecs aggressively discard imperceptible visual data, allowing
+them to shrink files dramatically while preserving perceived
+sharpness.</p>
+<p>GIF relies on LZW (Lempel-Ziv-Welch) compression, a lossless
+algorithm created in the early 1980s for basic digital images. LZW works
+well on simple illustrations with repetitive lines and solid colors, but
+it struggles with complex, high-resolution imagery. Because it cannot
+discard visual data dynamically like a video codec, it preserves every
+detail inefficiently.</p>
+<h3 id="the-penalty-of-dithering">The Penalty of Dithering</h3>
+<p>GIFs are restricted to an indexed palette of only 256 colors per
+frame. Real-world video contains millions of colors. To recreate smooth
+gradients and skin tones within this 256-color limit, GIF encoders use a
+technique called dithering.</p>
+<p>Dithering scatters contrasting colored pixels in alternating patterns
+to create the optical illusion of colors not present in the palette.
+However, this introduces high-frequency visual noise across the entire
+image. Because LZW compression relies on repeating patterns of identical
+pixels to reduce file size, the random noise created by dithering
+effectively ruins the compression, causing the file size to
+skyrocket.</p>
+<h3 id="high-resolution-multiplies-the-inefficiencies">High Resolution
+Multiplies the Inefficiencies</h3>
+<p>When resolution increases to 1080p or 4K, these structural flaws
+compound exponentially. A standard 1080p frame consists of over two
+million pixels. At a standard video playback rate of 30 frames per
+second, a GIF must manage millions of dithered pixels, inefficient color
+tables, and full-frame refreshes every second. Modern video containers
+handle this resolution easily through macroblocks, spatial transforms,
+and temporal prediction, keeping the file compact while the GIF balloons
+into tens or hundreds of megabytes.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

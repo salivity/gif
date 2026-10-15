@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Color Palette Formula for GIF Files - gif</title>
+    <meta name="description" content="Creating an optimal color palette for a GIF file involves color quantization, a process that reduces a 24-bit true-color image containing millions of colors down to a restricted 8-bit palette of at most 256 colors. To achieve the least visual distortion,">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/optimal-color-palette-formula-for-gif-files">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Optimal Color Palette Formula for GIF Files - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/optimal-color-palette-formula-for-gif-files" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Creating an optimal color palette for a GIF file involves color quantization, a process that reduces a 24-bit true-color image containing millions of colors down to a restricted 8-bit palette of at most 256 colors. To achieve the least visual distortion," />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="optimal-color-palette-formula-for-gif-files">Optimal Color
+Palette Formula for GIF Files</h1>
+<p>Creating an optimal color palette for a GIF file involves color
+quantization, a process that reduces a 24-bit true-color image
+containing millions of colors down to a restricted 8-bit palette of at
+most 256 colors. To achieve the least visual distortion, graphics
+processors rely on mathematical clustering formulas, most notably the
+Euclidean color distance metric within algorithms like K-Means
+clustering and the Median Cut method. This article breaks down the exact
+mathematical formulas used to evaluate color similarity, partition color
+spaces, and calculate the final optimal palette for GIF files.</p>
+<h3 id="the-problem-24-bit-to-8-bit-reduction">The Problem: 24-Bit to
+8-Bit Reduction</h3>
+<p>A standard digital image uses 24-bit RGB color, supporting up to
+<span class="math inline">\(16,777,216\)</span> individual colors (<span
+class="math inline">\(256 \times 256 \times 256\)</span>). The GIF
+specification restricts an image frame to an indexed palette of no more
+than <span class="math inline">\(256\)</span> colors (<span
+class="math inline">\(2^8\)</span>). The goal of color quantization is
+to find a set of 256 representative color points (<span
+class="math inline">\(C = \{c_1, c_2, \dots, c_{256}\}\)</span>) in
+three-dimensional RGB space that minimizes the total perceived
+difference between the original pixels and their palette
+approximations.</p>
+<h3 id="the-core-metric-euclidean-color-distance">The Core Metric:
+Euclidean Color Distance</h3>
+<p>To determine which palette color best represents an original pixel,
+algorithms calculate distance in a 3D coordinate space where axes
+represent Red, Green, and Blue channels. The fundamental formula used is
+the standard three-dimensional Euclidean distance:</p>
+<p><span class="math display">\[d(P_1, P_2) = \sqrt{(R_2 - R_1)^2 + (G_2
+- G_1)^2 + (B_2 - B_1)^2}\]</span></p>
+<p>Because the human eye is more sensitive to green than red, and least
+sensitive to blue, modern encoders often use a perceptually weighted
+Euclidean formula:</p>
+<p><span class="math display">\[d_w(P_1, P_2) = \sqrt{w_r(R_2 - R_1)^2 +
+w_g(G_2 - G_1)^2 + w_b(B_2 - B_1)^2}\]</span></p>
+<p>Standard weights often align closely with luminance coefficients:
+<span class="math inline">\(w_r = 0.299\)</span>, <span
+class="math inline">\(w_g = 0.587\)</span>, and <span
+class="math inline">\(w_b = 0.114\)</span>.</p>
+<h3 id="the-median-cut-algorithm">The Median Cut Algorithm</h3>
+<p>The most widespread algorithmic approach for GIF palette generation
+is the Median Cut algorithm, developed by Paul Heckbert in 1982.</p>
+<ol type="1">
+<li><strong>Bounding Box Calculation:</strong> All pixels from the
+source frame are plotted in 3D RGB space. The algorithm identifies the
+minimum and maximum values for each color component to define an
+enclosing box.</li>
+<li><strong>Dimension Sorting:</strong> It computes the range for each
+channel: <span class="math display">\[\Delta R = R_{max} - R_{min},
+\quad \Delta G = G_{max} - G_{min}, \quad \Delta B = B_{max} -
+B_{min}\]</span></li>
+<li><strong>Median Partitioning:</strong> The box is sorted along the
+color channel with the largest range, and pixels are divided into two
+equal groups at the median index: <span
+class="math display">\[\text{Median Index} = \left\lfloor \frac{N}{2}
+\right\rfloor\]</span></li>
+<li><strong>Iteration:</strong> This division repeats recursively until
+<span class="math inline">\(256\)</span> distinct sub-boxes are
+formed.</li>
+<li><strong>Centroid Averaging:</strong> For each of the 256 boxes
+containing <span class="math inline">\(k\)</span> pixels, the final
+palette color <span class="math inline">\(C_j\)</span> is determined by
+the mathematical mean of all pixels within that box: <span
+class="math display">\[R_{avg} = \frac{1}{k}\sum_{i=1}^{k} R_i, \quad
+G_{avg} = \frac{1}{k}\sum_{i=1}^{k} G_i, \quad B_{avg} =
+\frac{1}{k}\sum_{i=1}^{k} B_i\]</span></li>
+</ol>
+<h3
+id="optimization-with-k-means-minimizing-mean-squared-error">Optimization
+with K-Means (Minimizing Mean Squared Error)</h3>
+<p>To refine the palette beyond the initial Median Cut, encoders often
+apply K-Means clustering to minimize the Mean Squared Error (MSE). The
+objective function is defined as:</p>
+<p><span class="math display">\[J = \sum_{j=1}^{256} \sum_{x \in S_j} \|
+x - \mu_j \|^2\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(S_j\)</span> is the set of all pixels
+mapped to palette color <span class="math inline">\(j\)</span>.</li>
+<li><span class="math inline">\(x\)</span> is the 3D RGB coordinate
+vector of an individual pixel <span class="math inline">\((R, G,
+B)\)</span>.</li>
+<li><span class="math inline">\(\mu_j\)</span> is the mean centroid
+vector of the palette cluster <span
+class="math inline">\(j\)</span>.</li>
+<li><span class="math inline">\(\| x - \mu_j \|\)</span> is the
+Euclidean norm.</li>
+</ul>
+<p>The algorithm iteratively reassigns each pixel to its nearest
+centroid using the Euclidean formula, then recalculates each centroid
+<span class="math inline">\(\mu_j\)</span> until the objective function
+<span class="math inline">\(J\)</span> converges to an optimal minimum.
+The resulting 256 centroids become the global or local color table
+stored directly in the GIF data stream.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

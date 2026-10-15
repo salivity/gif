@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identify GIF Source: Photoshop, GIMP, or FFmpeg - gif</title>
+    <meta name="description" content="Digital forensics experts determine whether an animated GIF was produced by Adobe Photoshop, GIMP, or FFmpeg by analyzing embedded metadata, color quantization schemes, frame disposal methods, and the structural arrangement of file blocks. While all three">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/identify-gif-source-photoshop-gimp-or-f-fmpeg">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Identify GIF Source: Photoshop, GIMP, or FFmpeg - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/identify-gif-source-photoshop-gimp-or-f-fmpeg" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Digital forensics experts determine whether an animated GIF was produced by Adobe Photoshop, GIMP, or FFmpeg by analyzing embedded metadata, color quantization schemes, frame disposal methods, and the structural arrangement of file blocks. While all three" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="identify-gif-source-photoshop-gimp-or-ffmpeg">Identify GIF
+Source: Photoshop, GIMP, or FFmpeg</h1>
+<p>Digital forensics experts determine whether an animated GIF was
+produced by Adobe Photoshop, GIMP, or FFmpeg by analyzing embedded
+metadata, color quantization schemes, frame disposal methods, and the
+structural arrangement of file blocks. While all three programs produce
+files adhering to the standard GIF89a specification, each software
+implements unique encoding defaults, optimization routines, and
+signature data blocks that leave distinct digital fingerprints.</p>
+<h3 id="application-extension-blocks-and-embedded-metadata">Application
+Extension Blocks and Embedded Metadata</h3>
+<p>The most direct indicators appear within the GIF's non-graphical data
+segments, specifically Application Extension and Comment Extension
+blocks:</p>
+<ul>
+<li><strong>Adobe Photoshop:</strong> Photoshop routinely inserts
+extensive XMP (Extensible Metadata Platform) data inside an Application
+Extension block labeled with the identifier <code>XMP Data</code> and
+authentication code <code>XMP</code>. This block often contains complete
+XML structures specifying software versions, document IDs, creation
+timestamps, and color profiles. Even when saving for the web, Photoshop
+standardizes its Netscape 2.0 looping block layout in a fixed structural
+sequence immediately following the global color table.</li>
+<li><strong>GIMP:</strong> By default, GIMP appends a Comment Extension
+block containing the plain-text ASCII string
+<code>Created with GIMP</code> unless the user explicitly unticks the
+comment option during export. Additionally, GIMP omits the heavy
+XML-based XMP structures typical of Adobe products, keeping the
+non-image byte overhead minimal.</li>
+<li><strong>FFmpeg:</strong> FFmpeg generally produces a streamlined
+file lacking application-specific metadata blocks. Unless explicitly
+configured by the user to inject tags, FFmpeg strips unnecessary blocks,
+typically including only the basic Netscape 2.0 loop extension
+(identifying code <code>NETSCAPE2.0</code>) without supplementary
+proprietary vendor markers or XML data.</li>
+</ul>
+<h3 id="palette-construction-and-quantization-artifacts">Palette
+Construction and Quantization Artifacts</h3>
+<p>Because the GIF format is constrained to a 256-color palette per
+frame, the mathematical approaches used to reduce color depth
+(quantization) and simulate intermediate shades (dithering) vary
+noticeably across tools:</p>
+<ul>
+<li><strong>Photoshop:</strong> Uses proprietary quantization
+algorithms, typically labeled as Selective, Perceptual, or Adaptive.
+Photoshop often creates a unified Global Color Table (GCT) mapped
+precisely to skin tones or high-priority visual zones, combined with a
+proprietary diffusion dither pattern that exhibits a distinct
+mathematical distribution of pixel clusters.</li>
+<li><strong>GIMP:</strong> Relies on standard quantization algorithms
+such as Median Cut. When dithering is enabled, GIMP implements standard
+Floyd-Steinberg or reduced color bleeding variants that yield distinct,
+regular error-diffusion distributions unlike Photoshop’s proprietary
+dither algorithms.</li>
+<li><strong>FFmpeg:</strong> Typically utilizes a two-pass mechanism via
+the <code>palettegen</code> and <code>paletteuse</code> filters. The
+<code>palettegen</code> filter generates a global palette often sorted
+using a specialized k-means clustering or reserve-palette algorithm.
+When FFmpeg uses Bayer matrix dithering (ordered dithering via flags
+like <code>bayer:bayer_scale</code>), it leaves a cross-hatch pattern
+unique to its implementation, readily differentiated from Photoshop and
+GIMP error-diffusion styles.</li>
+</ul>
+<h3 id="frame-disposal-and-sub-frame-optimization">Frame Disposal and
+Sub-Frame Optimization</h3>
+<p>The method an encoder uses to render subsequent frames leaves
+distinct operational artifacts within each frame's Graphic Control
+Extension (GCE):</p>
+<ul>
+<li><strong>Photoshop:</strong> Heavily optimizes animated GIFs by
+cropping subsequent frames down to only the rectangular bounding box
+containing changed pixels (differential encoding). It selectively sets
+frame disposal methods to either "Do Not Dispose" (value
+<code>0x01</code>) or "Restore to Background" (value <code>0x02</code>)
+dynamically across individual frames to achieve compression.</li>
+<li><strong>GIMP:</strong> Explicitly asks the user to choose between
+two global disposal models: "Cumulative layers (combine)" which assigns
+disposal method <code>0x01</code> universally, or "One frame per layer
+(replace)" which assigns disposal method <code>0x02</code> across all
+frames. A consistent, uniform disposal flag across every frame in an
+optimized sequence strongly correlates with GIMP.</li>
+<li><strong>FFmpeg:</strong> In its standard implementation without
+advanced palette optimization scripts, FFmpeg often encodes every single
+frame as a full-size, standalone image without calculating bounding-box
+differentials. The presence of full canvas dimensions across all local
+image descriptors, even during minimal visual movement, frequently
+points to command-line tools like FFmpeg.</li>
+</ul>
+<h3 id="structural-byte-ordering-and-block-sequencing">Structural Byte
+Ordering and Block Sequencing</h3>
+<p>Forensic analysts inspect the low-level byte stream using hex editors
+to verify the precise sequence of GIF data blocks:</p>
+<ol type="1">
+<li><strong>Header and Logical Screen Descriptor:</strong> All three
+write <code>GIF89a</code>.</li>
+<li><strong>Global vs. Local Color Tables:</strong> FFmpeg scripts
+frequently force individual Local Color Tables (LCT) on every frame when
+not configured with a global palette pass. Photoshop strongly prefers a
+Global Color Table with local palette overrides only when dramatic scene
+changes occur. GIMP enforces either a pure global palette or
+standardized layer-to-palette conversions depending on indexed color
+mode settings.</li>
+<li><strong>Terminator Placement:</strong> Minor implementation quirks,
+such as whether a zero-byte block terminator cleanly precedes the
+trailer byte (<code>0x3B</code>) or how sub-block length counters are
+padded, provide deterministic evidence matching the source code
+repositories of FFmpeg, GEGL/GIMP, or Adobe's imaging engine.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

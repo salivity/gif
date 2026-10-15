@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated GIF Ghosting and Canvas Disposal Errors - gif</title>
+    <meta name="description" content="When an animated GIF decoder fails to clear or reset the canvas between frames, a visual artifact known as &quot;ghosting&quot; or &quot;frame trailing&quot; occurs. This article explains the technical mechanics of the GIF frame disposal process, why improper decoder impleme">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/animated-gif-ghosting-and-canvas-disposal-errors">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Animated GIF Ghosting and Canvas Disposal Errors - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/animated-gif-ghosting-and-canvas-disposal-errors" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When an animated GIF decoder fails to clear or reset the canvas between frames, a visual artifact known as &quot;ghosting&quot; or &quot;frame trailing&quot; occurs. This article explains the technical mechanics of the GIF frame disposal process, why improper decoder impleme" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="animated-gif-ghosting-and-canvas-disposal-errors">Animated GIF
+Ghosting and Canvas Disposal Errors</h1>
+<p>When an animated GIF decoder fails to clear or reset the canvas
+between frames, a visual artifact known as "ghosting" or "frame
+trailing" occurs. This article explains the technical mechanics of the
+GIF frame disposal process, why improper decoder implementation creates
+distorted smearing, and how these rendering errors manifest
+visually.</p>
+<h3 id="the-visual-glitch-ghosting-and-smearing">The Visual Glitch:
+Ghosting and Smearing</h3>
+<p>The primary visual glitch caused by an uncleared disposal canvas is
+frame accumulation, commonly referred to as <strong>ghosting</strong>,
+<strong>trailing</strong>, or <strong>pixel smearing</strong>.</p>
+<p>Instead of showing clean motion, moving elements leave behind
+permanent copies of themselves on the screen. For example, if a small
+ball bounces across a transparent or static background, an uncleared
+canvas causes the ball to draw continuously across its path. Rather than
+seeing a single moving sphere, the viewer sees a smeared, continuous
+line of overlapping spheres. Over time, the image becomes increasingly
+cluttered, muddy, and visually corrupted as successive frames draw on
+top of one another without erasing prior data.</p>
+<h3 id="the-role-of-the-disposal-method">The Role of the Disposal
+Method</h3>
+<p>The GIF89a specification utilizes a property called the
+<strong>Disposal Method</strong>, defined within the Graphics Control
+Extension of each frame. Because animated GIFs often use frame-by-frame
+optimization—storing only the pixels that change rather than redrawing
+the entire screen—the decoder relies on disposal instructions to
+determine what to do with the current frame before rendering the next
+one.</p>
+<p>The standard disposal values are:</p>
+<ul>
+<li><strong>0 - Unspecified:</strong> The decoder decides how to handle
+the canvas (often treated as "Do Not Dispose").</li>
+<li><strong>1 - Do Not Dispose (Leave in Place):</strong> The graphics
+already drawn remain on the canvas, and the subsequent frame is rendered
+directly on top.</li>
+<li><strong>2 - Restore to Background Color:</strong> The area occupied
+by the current frame is cleared and replaced with the background color
+before the next frame is displayed.</li>
+<li><strong>3 - Restore to Previous:</strong> The canvas reverts to the
+state it was in before the current frame was drawn.</li>
+</ul>
+<h3 id="why-the-glitch-happens">Why the Glitch Happens</h3>
+<p>Ghosting occurs when the encoder specifies a canvas reset (typically
+Method 2: <em>Restore to Background</em> or Method 3: <em>Restore to
+Previous</em>), but the playback software or decoder treats the
+instruction as Method 1 (<em>Do Not Dispose</em>), or skips the clearing
+step entirely.</p>
+<p>When the next frame contains transparent pixels intended to reveal a
+clean background, an erroneous decoder instead reveals the uncleared
+pixels from the previous frame. Because transparency in a GIF is binary
+(a pixel is either fully transparent or fully opaque), the decoder fails
+to erase the old graphic, trapping discarded frames permanently on the
+display area.</p>
+<h3 id="summary">Summary</h3>
+<p>The smeared trails seen in broken GIFs are not usually a corruption
+of the image data itself, but rather an execution failure by the
+playback decoder. When software ignores instructions to wipe the frame's
+bounding box, transparent regions inadvertently display obsolete
+graphical data, leading to the cumulative visual glitch known as
+ghosting.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

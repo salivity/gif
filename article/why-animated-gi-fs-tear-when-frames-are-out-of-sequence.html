@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Animated GIFs Tear When Frames Are Out of Sequence - gif</title>
+    <meta name="description" content="Animated GIFs display severe visual tearing and visual artifacts when decoded frames are pushed out of sequence because the GIF format relies on state-dependent, delta-encoded frame updates rather than full-frame renders. Instead of replacing the entire c">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-animated-gi-fs-tear-when-frames-are-out-of-sequence">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Animated GIFs Tear When Frames Are Out of Sequence - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-animated-gi-fs-tear-when-frames-are-out-of-sequence" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs display severe visual tearing and visual artifacts when decoded frames are pushed out of sequence because the GIF format relies on state-dependent, delta-encoded frame updates rather than full-frame renders. Instead of replacing the entire c" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-animated-gifs-tear-when-frames-are-out-of-sequence">Why
+Animated GIFs Tear When Frames Are Out of Sequence</h1>
+<p>Animated GIFs display severe visual tearing and visual artifacts when
+decoded frames are pushed out of sequence because the GIF format relies
+on state-dependent, delta-encoded frame updates rather than full-frame
+renders. Instead of replacing the entire canvas on every tick, most GIFs
+only draw changed pixels over the previous frame while utilizing
+specific disposal methods to clear or retain background data. If frames
+are processed or displayed out of order, the decoder applies changes to
+an incorrect baseline image, breaking the temporal chain and resulting
+in overlapping pixel noise, jagged seams, and visual tearing.</p>
+<p>Unlike modern video formats that employ distinct keyframes (I-frames)
+to periodically reset visual state, the GIF89a specification treats an
+animation as a continuous state machine. To minimize file sizes,
+encoders typically optimize GIFs by cropping frames to smaller
+sub-rectangles that cover only the pixels that changed since the last
+frame. If frame three is drawn before frame two, the sub-rectangle of
+frame three is composited onto frame one. This leaves the unrendered
+areas of frame two missing and misaligns the visual progression of the
+animation.</p>
+<p>A major contributor to this tearing is the GIF "disposal method."
+Every frame in an animated GIF contains metadata instructing the decoder
+on what to do with the canvas once the frame's display duration ends.
+The most common methods include:</p>
+<ul>
+<li><strong>Do Not Dispose:</strong> Leaves the current frame's pixels
+on the canvas, allowing the next frame to draw directly over them.</li>
+<li><strong>Restore to Background:</strong> Clears the current frame’s
+sub-rectangle to the background color or transparency before the next
+frame is rendered.</li>
+<li><strong>Restore to Previous:</strong> Reverts the canvas to the
+state it was in before the current frame was drawn.</li>
+</ul>
+<p>When frames arrive out of order, these disposal instructions execute
+at the wrong time. If a "Restore to Previous" command runs after an
+unexpected frame has already altered the canvas, the decoder cannot
+accurately reconstruct the historical canvas state. Similarly, failing
+to execute a "Restore to Background" at the proper moment causes
+discarded pixels to remain visible, creating severe ghosting artifacts
+where movement occurs.</p>
+<p>Transparency handling further exacerbates the tearing effect. GIF
+frames frequently use transparent pixels as a mask to let the graphic
+from preceding frames show through. When frames are scrambled,
+transparent areas expose whatever arbitrary visual state happens to be
+on the canvas rather than the deliberate, immediately preceding frame.
+Because the decoder lacks the forward and backward dependency checks
+native to advanced video decoders, it blindly renders these transparent
+layers and delta slices onto the buffer, transforming the animation into
+fragmented, corrupted visual noise.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

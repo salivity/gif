@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrub Animated GIF Frames with JavaScript - gif</title>
+    <meta name="description" content="Implementing an interactive scrubber for an animated GIF requires decomposing the file into individual image frames and rendering them sequentially onto an HTML5 &lt;canvas&gt; element based on user input. Because standard HTML &lt;img&gt; tags do not provide an API">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/scrub-animated-gif-frames-with-java-script">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Scrub Animated GIF Frames with JavaScript - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/scrub-animated-gif-frames-with-java-script" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Implementing an interactive scrubber for an animated GIF requires decomposing the file into individual image frames and rendering them sequentially onto an HTML5 &lt;canvas&gt; element based on user input. Because standard HTML &lt;img&gt; tags do not provide an API" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="scrub-animated-gif-frames-with-javascript">Scrub Animated GIF
+Frames with JavaScript</h1>
+<p>Implementing an interactive scrubber for an animated GIF requires
+decomposing the file into individual image frames and rendering them
+sequentially onto an HTML5 <code>&lt;canvas&gt;</code> element based on
+user input. Because standard HTML <code>&lt;img&gt;</code> tags do not
+provide an API to control GIF playback or access individual frames,
+developers must decode the raw binary data of the GIF, store the
+extracted frames in memory, and map an interactive UI element—such as a
+range slider or drag event listener—to the active frame index.</p>
+<h3 id="the-challenge-with-native-gifs">The Challenge with Native
+GIFs</h3>
+<p>Web browsers treat GIFs as static image elements with self-contained,
+automatic playback loops. There are no native methods like
+<code>currentTime</code> or <code>seek()</code> that exist for HTML5
+video elements. To gain scrub control, you must treat the GIF as a
+sequence of discrete bitmap frames.</p>
+<h3 id="step-1-decode-the-gif-frames">Step 1: Decode the GIF Frames</h3>
+<p>You must parse the binary format of the GIF to extract its metadata,
+color palettes, and individual frame graphic control extensions. While
+you can write a custom binary parser using JavaScript's
+<code>DataView</code>, standard practice involves using lightweight
+client-side libraries like <code>gifuct-js</code> or
+<code>omggif</code>.</p>
+<p>Fetch the GIF as an <code>ArrayBuffer</code> and decode it:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { parseGIF<span class="op">,</span> decompressFrames } <span class="im">from</span> <span class="st">&#39;gifuct-js&#39;</span><span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">loadGifFrames</span>(url) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(url)<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> buffer <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">arrayBuffer</span>()<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> gif <span class="op">=</span> <span class="fu">parseGIF</span>(buffer)<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> frames <span class="op">=</span> <span class="fu">decompressFrames</span>(gif<span class="op">,</span> <span class="kw">true</span>)<span class="op">;</span> <span class="co">// true builds full patch data</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> frames<span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="step-2-pre-render-frames-to-offscreen-canvases">Step 2:
+Pre-render Frames to Offscreen Canvases</h3>
+<p>GIF frames often utilize disposal methods and partial updates,
+meaning a single frame might only store the pixels that changed from the
+previous frame. To ensure smooth scrubbing in both forward and backward
+directions, composite each frame onto its own offscreen
+<code>&lt;canvas&gt;</code> during the initial load.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">prepareFrameCanvases</span>(frames<span class="op">,</span> width<span class="op">,</span> height) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> renderedCanvases <span class="op">=</span> []<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tempCanvas <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">&#39;canvas&#39;</span>)<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tempCtx <span class="op">=</span> tempCanvas<span class="op">.</span><span class="fu">getContext</span>(<span class="st">&#39;2d&#39;</span>)<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  tempCanvas<span class="op">.</span><span class="at">width</span> <span class="op">=</span> width<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  tempCanvas<span class="op">.</span><span class="at">height</span> <span class="op">=</span> height<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  frames<span class="op">.</span><span class="fu">forEach</span>((frame) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> frameCanvas <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">createElement</span>(<span class="st">&#39;canvas&#39;</span>)<span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    frameCanvas<span class="op">.</span><span class="at">width</span> <span class="op">=</span> width<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    frameCanvas<span class="op">.</span><span class="at">height</span> <span class="op">=</span> height<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> frameCtx <span class="op">=</span> frameCanvas<span class="op">.</span><span class="fu">getContext</span>(<span class="st">&#39;2d&#39;</span>)<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Convert pixel patch to ImageData</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> frameImageData <span class="op">=</span> tempCtx<span class="op">.</span><span class="fu">createImageData</span>(frame<span class="op">.</span><span class="at">dims</span><span class="op">.</span><span class="at">width</span><span class="op">,</span> frame<span class="op">.</span><span class="at">dims</span><span class="op">.</span><span class="at">height</span>)<span class="op">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    frameImageData<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="fu">set</span>(frame<span class="op">.</span><span class="at">patch</span>)<span class="op">;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Handle disposal and draw the current state</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    tempCtx<span class="op">.</span><span class="fu">putImageData</span>(frameImageData<span class="op">,</span> frame<span class="op">.</span><span class="at">dims</span><span class="op">.</span><span class="at">left</span><span class="op">,</span> frame<span class="op">.</span><span class="at">dims</span><span class="op">.</span><span class="at">top</span>)<span class="op">;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    frameCtx<span class="op">.</span><span class="fu">drawImage</span>(tempCanvas<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    renderedCanvases<span class="op">.</span><span class="fu">push</span>(frameCanvas)<span class="op">;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> renderedCanvases<span class="op">;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="step-3-set-up-the-canvas-and-scrubber-ui">Step 3: Set Up the
+Canvas and Scrubber UI</h3>
+<p>Add an HTML <code>&lt;canvas&gt;</code> to display the active frame
+and an <code>&lt;input type="range"&gt;</code> element to serve as the
+timeline scrubber.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">canvas</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;gif-viewer&quot;</span><span class="dt">&gt;&lt;/</span><span class="kw">canvas</span><span class="dt">&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">input</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;range&quot;</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;gif-scrubber&quot;</span><span class="ot"> min</span><span class="op">=</span><span class="st">&quot;0&quot;</span><span class="ot"> value</span><span class="op">=</span><span class="st">&quot;0&quot;</span><span class="ot"> step</span><span class="op">=</span><span class="st">&quot;1&quot;</span><span class="dt">&gt;</span></span></code></pre></div>
+<h3 id="step-4-bind-the-scrubber-to-the-display-canvas">Step 4: Bind the
+Scrubber to the Display Canvas</h3>
+<p>Attach an <code>input</code> event listener to the slider to swap the
+visible canvas contents instantly whenever the user drags the
+scrubber.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">initScrubber</span>(gifUrl) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> frames <span class="op">=</span> <span class="cf">await</span> <span class="fu">loadGifFrames</span>(gifUrl)<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> width <span class="op">=</span> frames[<span class="dv">0</span>]<span class="op">.</span><span class="at">dims</span><span class="op">.</span><span class="at">width</span><span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> height <span class="op">=</span> frames[<span class="dv">0</span>]<span class="op">.</span><span class="at">dims</span><span class="op">.</span><span class="at">height</span><span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> displayCanvas <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&#39;gif-viewer&#39;</span>)<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> displayCtx <span class="op">=</span> displayCanvas<span class="op">.</span><span class="fu">getContext</span>(<span class="st">&#39;2d&#39;</span>)<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  displayCanvas<span class="op">.</span><span class="at">width</span> <span class="op">=</span> width<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  displayCanvas<span class="op">.</span><span class="at">height</span> <span class="op">=</span> height<span class="op">;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> scrubber <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&#39;gif-scrubber&#39;</span>)<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  scrubber<span class="op">.</span><span class="at">max</span> <span class="op">=</span> frames<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> frameCanvases <span class="op">=</span> <span class="fu">prepareFrameCanvases</span>(frames<span class="op">,</span> width<span class="op">,</span> height)<span class="op">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Initial render</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  displayCtx<span class="op">.</span><span class="fu">drawImage</span>(frameCanvases[<span class="dv">0</span>]<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Update on scrub</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  scrubber<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">&#39;input&#39;</span><span class="op">,</span> (e) <span class="kw">=&gt;</span> {</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> frameIndex <span class="op">=</span> <span class="pp">parseInt</span>(e<span class="op">.</span><span class="at">target</span><span class="op">.</span><span class="at">value</span><span class="op">,</span> <span class="dv">10</span>)<span class="op">;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    displayCtx<span class="op">.</span><span class="fu">clearRect</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> width<span class="op">,</span> height)<span class="op">;</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    displayCtx<span class="op">.</span><span class="fu">drawImage</span>(frameCanvases[frameIndex]<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="optional-mouse-or-touch-drag-controls">Optional: Mouse or Touch
+Drag Controls</h3>
+<p>To allow users to drag directly across the image instead of using a
+slider, listen to pointer events on the canvas element. Calculate the
+horizontal delta relative to the canvas width and map the resulting
+percentage to the total frame count.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

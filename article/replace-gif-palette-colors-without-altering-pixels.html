@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Replace GIF Palette Colors Without Altering Pixels - gif</title>
+    <meta name="description" content="This article explains how to programmatically swap a specific color in an animated or static GIF by mutating its color table directly. Because GIF images use an indexed color system, developers can modify raw color table bytes in the file&#39;s binary stream">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/replace-gif-palette-colors-without-altering-pixels">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Replace GIF Palette Colors Without Altering Pixels - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/replace-gif-palette-colors-without-altering-pixels" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how to programmatically swap a specific color in an animated or static GIF by mutating its color table directly. Because GIF images use an indexed color system, developers can modify raw color table bytes in the file&#39;s binary stream" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="replace-gif-palette-colors-without-altering-pixels">Replace GIF
+Palette Colors Without Altering Pixels</h1>
+<p>This article explains how to programmatically swap a specific color
+in an animated or static GIF by mutating its color table directly.
+Because GIF images use an indexed color system, developers can modify
+raw color table bytes in the file's binary stream rather than decoding,
+modifying, and re-encoding pixel data. This approach preserves existing
+raster index maps, avoids lossy re-compression, and executes
+significantly faster than traditional image processing pipelines.</p>
+<h3 id="understanding-the-gif-color-architecture">Understanding the GIF
+Color Architecture</h3>
+<p>A GIF image relies on indexed color, meaning each pixel does not
+store its own RGB values. Instead, each pixel stores an integer index
+pointing to an entry in a color palette. A GIF contains either a single
+Global Color Table (GCT) applied to all frames, or Local Color Tables
+(LCT) defined before individual frame descriptors.</p>
+<p>Each entry in a color table is exactly 3 bytes long, representing
+red, green, and blue values:</p>
+<p><code>[Byte 0: Red] [Byte 1: Green] [Byte 2: Blue]</code></p>
+<p>To change how a color appears across an entire GIF without altering
+the pixel data or shifting index assignments, you locate the specific
+RGB entry within the color table and overwrite those three bytes with
+your target values.</p>
+<h3 id="locating-the-global-color-table">Locating the Global Color
+Table</h3>
+<p>The standard layout of a GIF file starts with the Header and Logical
+Screen Descriptor:</p>
+<ol type="1">
+<li><strong>Bytes 0–5:</strong> Signature and Version
+(<code>GIF87a</code> or <code>GIF89a</code>).</li>
+<li><strong>Bytes 6–9:</strong> Canvas Width and Height (2 bytes each,
+little-endian).</li>
+<li><strong>Byte 10:</strong> Packed Fields byte.</li>
+<li><strong>Byte 11:</strong> Background Color Index.</li>
+<li><strong>Byte 12:</strong> Pixel Aspect Ratio.</li>
+</ol>
+<p>The Packed Fields byte (Byte 10) indicates whether a Global Color
+Table exists and determines its size:</p>
+<ul>
+<li><strong>Bit 7 (MSB):</strong> Global Color Table Flag (1 if present,
+0 if absent).</li>
+<li><strong>Bits 0–2:</strong> Size of the Global Color Table,
+calculated as <code>2^(N + 1)</code> colors, where <code>N</code> is the
+integer value of these three bits.</li>
+</ul>
+<p>If the GCT flag is set to 1, the Global Color Table begins
+immediately at <strong>byte offset 13</strong>. The length of the table
+in bytes is <code>3 * 2^(N + 1)</code>.</p>
+<h3 id="implementation-direct-binary-modification">Implementation:
+Direct Binary Modification</h3>
+<p>To change a color without modifying pixel indexes, read the file as a
+mutable byte array, locate the table, find the matching RGB sequence,
+and replace the bytes in place.</p>
+<p>Here is an example using Python:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> replace_gif_gct_color(input_path, output_path, target_rgb, replacement_rgb):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(input_path, <span class="st">&quot;rb&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> <span class="bu">bytearray</span>(f.read())</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Verify GIF signature</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> data[:<span class="dv">3</span>] <span class="op">!=</span> <span class="st">b&quot;GIF&quot;</span>:</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;Invalid GIF file.&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Read packed field to confirm GCT presence and determine size</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    packed_byte <span class="op">=</span> data[<span class="dv">10</span>]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    has_gct <span class="op">=</span> (packed_byte <span class="op">&amp;</span> <span class="bn">0x80</span>) <span class="op">!=</span> <span class="dv">0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> has_gct:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;This file does not have a Global Color Table.&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Size of the GCT is 2^(N + 1) entries of 3 bytes each</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    size_flag <span class="op">=</span> packed_byte <span class="op">&amp;</span> <span class="bn">0x07</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    num_entries <span class="op">=</span> <span class="dv">1</span> <span class="op">&lt;&lt;</span> (size_flag <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    gct_length <span class="op">=</span> num_entries <span class="op">*</span> <span class="dv">3</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    gct_start <span class="op">=</span> <span class="dv">13</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    gct_end <span class="op">=</span> gct_start <span class="op">+</span> gct_length</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scan the GCT for the target RGB</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    t_r, t_g, t_b <span class="op">=</span> target_rgb</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    new_r, new_g, new_b <span class="op">=</span> replacement_rgb</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    replaced <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> offset <span class="kw">in</span> <span class="bu">range</span>(gct_start, gct_end, <span class="dv">3</span>):</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (data[offset] <span class="op">==</span> t_r <span class="kw">and</span> </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            data[offset <span class="op">+</span> <span class="dv">1</span>] <span class="op">==</span> t_g <span class="kw">and</span> </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>            data[offset <span class="op">+</span> <span class="dv">2</span>] <span class="op">==</span> t_b):</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>            data[offset] <span class="op">=</span> new_r</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>            data[offset <span class="op">+</span> <span class="dv">1</span>] <span class="op">=</span> new_g</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>            data[offset <span class="op">+</span> <span class="dv">2</span>] <span class="op">=</span> new_b</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>            replaced <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> replaced:</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(output_path, <span class="st">&quot;wb&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>            f.write(data)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;Target color not found in Global Color Table.&quot;</span>)</span></code></pre></div>
+<h3 id="handling-local-color-tables-and-transparency">Handling Local
+Color Tables and Transparency</h3>
+<p>When implementing this technique, consider two potential edge
+cases:</p>
+<ul>
+<li><strong>Local Color Tables (LCT):</strong> If an individual frame
+specifies an LCT via bit 7 of its Image Descriptor packed field, that
+frame ignores the GCT. To alter colors in that frame, parse past the
+Graphic Control Extensions to the Image Descriptor (marked by the byte
+<code>0x2C</code>) and update the local palette bytes following that
+descriptor.</li>
+<li><strong>Transparent Colors:</strong> If the target color is marked
+as transparent within a Graphic Control Extension block (marked by
+<code>0x21 0xF9</code>), changing its RGB values in the palette will not
+impact rendering in compliant decoders, because the decoder discards
+rendering for that designated index.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why GIF Color Palettes Use Powers of Two - gif</title>
+    <meta name="description" content="The Graphics Interchange Format (GIF) restricts individual color lookup tables to powers of two primarily because of binary storage efficiency, the mathematical foundation of indexed color systems, and the design of its header specification. Created by Co">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-gif-color-palettes-use-powers-of-two">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why GIF Color Palettes Use Powers of Two - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-gif-color-palettes-use-powers-of-two" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Graphics Interchange Format (GIF) restricts individual color lookup tables to powers of two primarily because of binary storage efficiency, the mathematical foundation of indexed color systems, and the design of its header specification. Created by Co" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-gif-color-palettes-use-powers-of-two">Why GIF Color Palettes
+Use Powers of Two</h1>
+<p>The Graphics Interchange Format (GIF) restricts individual color
+lookup tables to powers of two primarily because of binary storage
+efficiency, the mathematical foundation of indexed color systems, and
+the design of its header specification. Created by CompuServe in 1987,
+the GIF format was optimized for low-bandwidth networks and hardware
+constrained by memory, where bit-level efficiency was paramount. By
+aligning the color table size to exact powers of two, the format avoids
+wasted data states, simplifies the header metadata, and directly
+integrates with the underlying LZW compression algorithm.</p>
+<h3 id="the-header-structure-and-3-bit-storage">The Header Structure and
+3-Bit Storage</h3>
+<p>In the GIF specification (both GIF87a and GIF89a), the size of a
+color table—whether a Global Color Table or a Local Color Table—is not
+recorded as an arbitrary integer count of colors. Instead, it is stored
+in a packed byte using a 3-bit field.</p>
+<p>A 3-bit field can represent values from 0 to 7 in binary
+(<code>000</code> to <code>111</code>). The GIF standard calculates the
+actual number of entries in the color table using the formula:</p>
+<p><span class="math display">\[\text{Number of Colors} = 2^{(N +
+1)}\]</span></p>
+<p>where <span class="math inline">\(N\)</span> is the value represented
+by those 3 bits.</p>
+<ul>
+<li><code>000</code> yields <span class="math inline">\(2^1 = 2\)</span>
+colors (1 bit per pixel)</li>
+<li><code>001</code> yields <span class="math inline">\(2^2 = 4\)</span>
+colors (2 bits per pixel)</li>
+<li><code>010</code> yields <span class="math inline">\(2^3 = 8\)</span>
+colors (3 bits per pixel)</li>
+<li><code>011</code> yields <span class="math inline">\(2^4 =
+16\)</span> colors (4 bits per pixel)</li>
+<li><code>100</code> yields <span class="math inline">\(2^5 =
+32\)</span> colors (5 bits per pixel)</li>
+<li><code>101</code> yields <span class="math inline">\(2^6 =
+64\)</span> colors (6 bits per pixel)</li>
+<li><code>110</code> yields <span class="math inline">\(2^7 =
+128\)</span> colors (7 bits per pixel)</li>
+<li><code>111</code> yields <span class="math inline">\(2^8 =
+256\)</span> colors (8 bits per pixel)</li>
+</ul>
+<p>Because this 3-bit field represents an exponent rather than an
+explicit color count, the format mathematically prevents any size that
+is not a power of two between 2 and 256.</p>
+<h3 id="bit-depth-alignment-in-pixel-data">Bit-Depth Alignment in Pixel
+Data</h3>
+<p>GIF images use indexed color, meaning pixel data does not store
+direct RGB values. Instead, each pixel stores an index pointing to an
+entry in the color lookup table.</p>
+<p>In computer systems, representing <span
+class="math inline">\(K\)</span> discrete values requires <span
+class="math inline">\(\lceil\log_2(K)\rceil\)</span> bits:</p>
+<ul>
+<li>Storing 5 colors requires 3 bits per pixel (which can address up to
+8 colors).</li>
+<li>Storing 33 colors requires 6 bits per pixel (which can address up to
+64 colors).</li>
+</ul>
+<p>If a GIF allowed an arbitrary palette size, such as 35 colors, the
+raster data would still require 6 bits per pixel to represent indices 0
+through 34. The remaining 29 possible states (indices 35 through 63)
+would remain unused. Restricting the palette size to powers of two
+ensures that the palette's declared size precisely matches the total
+addressable range of the chosen bit-depth.</p>
+<h3 id="integration-with-lzw-compression">Integration with LZW
+Compression</h3>
+<p>GIF uses the Lempel-Ziv-Welch (LZW) lossless compression algorithm.
+The compression process requires an initial code size, which is derived
+directly from the bit depth of the image data.</p>
+<p>The initial LZW code size is defined as the minimum number of bits
+needed to represent all possible pixel values, with a baseline minimum
+of 2 bits. Special control codes—specifically the "Clear Code" and "End
+of Information" code—are immediately placed after the standard color
+indices. Because the index values occupy the full range of <span
+class="math inline">\(0\)</span> to <span class="math inline">\(2^n -
+1\)</span>, the first available control codes naturally begin at <span
+class="math inline">\(2^n\)</span> and <span class="math inline">\(2^n +
+1\)</span>. A non-power-of-two table would leave unused code spaces or
+complicate the initialization of the LZW code dictionary.</p>
+<h3 id="hardware-efficiency-in-early-computing">Hardware Efficiency in
+Early Computing</h3>
+<p>When GIF was designed in the late 1980s, microprocessors lacked the
+performance required to handle non-aligned bit fields efficiently.
+Calculations involving powers of two could be handled using simple, fast
+bit-shift operations (<code>&lt;&lt;</code> and <code>&gt;&gt;</code>)
+and bitwise masks (<code>AND</code>) rather than division and modulo
+instructions, which were computationally expensive. Defining tables
+exclusively by powers of two allowed decoders to extract pixel indices
+and read palettes rapidly on hardware with strict memory and CPU
+limits.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

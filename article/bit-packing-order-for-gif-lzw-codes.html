@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bit-Packing Order for GIF LZW Codes - gif</title>
+    <meta name="description" content="This article explains the precise bit-packing scheme used to serialize variable-length LZW codes into byte streams within GIF data sub-blocks. In the GIF specification (GIF87a and GIF89a), variable-width LZW codes are written into bytes using a Least Sign">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/bit-packing-order-for-gif-lzw-codes">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Bit-Packing Order for GIF LZW Codes - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/bit-packing-order-for-gif-lzw-codes" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains the precise bit-packing scheme used to serialize variable-length LZW codes into byte streams within GIF data sub-blocks. In the GIF specification (GIF87a and GIF89a), variable-width LZW codes are written into bytes using a Least Sign" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="bit-packing-order-for-gif-lzw-codes">Bit-Packing Order for GIF
+LZW Codes</h1>
+<p>This article explains the precise bit-packing scheme used to
+serialize variable-length LZW codes into byte streams within GIF data
+sub-blocks. In the GIF specification (GIF87a and GIF89a), variable-width
+LZW codes are written into bytes using a Least Significant Bit (LSB)
+first convention. This guide details how individual code bits map across
+byte boundaries and how the resulting bytes are organized inside
+sub-blocks.</p>
+<h3 id="lsb-first-bit-packing">LSB-First Bit Packing</h3>
+<p>LZW codes in GIF are variable in length, starting at
+<code>code_size + 1</code> bits (where <code>code_size</code> is the LZW
+Minimum Code Size, at least 2) and expanding dynamically up to a maximum
+of 12 bits.</p>
+<p>When packing these arbitrary-length codes into 8-bit bytes:</p>
+<ol type="1">
+<li><strong>Bit Placement</strong>: The least significant bit (LSB) of
+the LZW code is mapped to the lowest unused bit (starting at bit 0) of
+the current byte.</li>
+<li><strong>Byte Saturation</strong>: Successive bits of the code fill
+the current byte upward toward the most significant bit (bit 7).</li>
+<li><strong>Byte Spanning</strong>: When an LZW code contains more bits
+than remain in the current byte, the lower bits of the code fill the
+remainder of the current byte up to bit 7. The byte is then emitted, and
+the remaining higher-order bits of the code are placed starting at bit 0
+of the next byte.</li>
+</ol>
+<h3 id="step-by-step-packing-example">Step-by-Step Packing Example</h3>
+<p>Assume the current code width is 5 bits, and the encoder outputs two
+consecutive 5-bit codes:</p>
+<ul>
+<li><strong>Code A</strong>: <code>10110</code> (binary, value 22)</li>
+<li><strong>Code B</strong>: <code>01101</code> (binary, value 13)</li>
+</ul>
+<p><strong>Packing Code A:</strong></p>
+<ul>
+<li>Code A has bits: <span class="math inline">\(a_0=0, a_1=1, a_2=1,
+a_3=0, a_4=1\)</span>.</li>
+<li>Bits 0 through 4 of Byte 0 receive Code A:
+<ul>
+<li>Byte 0 bits [4:0] = <code>10110</code></li>
+</ul></li>
+</ul>
+<p><strong>Packing Code B:</strong></p>
+<ul>
+<li>Code B has bits: <span class="math inline">\(b_0=1, b_1=0, b_2=1,
+b_3=1, b_4=0\)</span>.</li>
+<li>Only 3 bits remain in Byte 0 (bits 5, 6, and 7). They are filled
+with <span class="math inline">\(b_0, b_1, b_2\)</span>:
+<ul>
+<li>Byte 0 bits [7:5] = <code>101</code></li>
+<li>Complete Byte 0 = <code>10110110</code> (<code>0xB6</code>)</li>
+</ul></li>
+<li>Byte 0 is completed and pushed to the stream.</li>
+<li>The remaining bits of Code B (<span class="math inline">\(b_3,
+b_4\)</span>) are placed into the beginning of Byte 1:
+<ul>
+<li>Byte 1 bits [1:0] = <code>01</code></li>
+<li>Byte 1 bits [7:2] remain open for subsequent codes.</li>
+</ul></li>
+</ul>
+<h3 id="sub-block-encapsulation">Sub-Block Encapsulation</h3>
+<p>The stream of packed 8-bit bytes is not written continuously across
+the entire image. Instead, it is partitioned into discrete data
+sub-blocks:</p>
+<ul>
+<li><strong>Block Size Byte</strong>: Each sub-block begins with an
+unsigned 1-byte count (specifying a payload between 1 and 255
+bytes).</li>
+<li><strong>Payload</strong>: The exact number of packed data bytes
+specified by the count byte.</li>
+<li><strong>Block Termination</strong>: A sub-block with a length byte
+of <code>0x00</code> (the Block Terminator) signifies the end of the
+image's LZW data stream.</li>
+</ul>
+<p>When the encoder outputs the final code (the End of Information code,
+or EOI), any partially filled final byte is padded with zero bits up to
+bit 7 and emitted into the current sub-block before writing the
+<code>0x00</code> terminator.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

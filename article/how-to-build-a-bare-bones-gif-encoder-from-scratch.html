@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Build a Bare-Bones GIF Encoder from Scratch - gif</title>
+    <meta name="description" content="This article explains how to construct a minimal, fully compliant GIF encoder from the ground up by writing raw binary data directly to an output stream. You will learn the anatomy of the GIF format—specifically the GIF89a standard—including how to assemb">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-to-build-a-bare-bones-gif-encoder-from-scratch">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Build a Bare-Bones GIF Encoder from Scratch - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-to-build-a-bare-bones-gif-encoder-from-scratch" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how to construct a minimal, fully compliant GIF encoder from the ground up by writing raw binary data directly to an output stream. You will learn the anatomy of the GIF format—specifically the GIF89a standard—including how to assemb" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-build-a-bare-bones-gif-encoder-from-scratch">How to Build
+a Bare-Bones GIF Encoder from Scratch</h1>
+<p>This article explains how to construct a minimal, fully compliant GIF
+encoder from the ground up by writing raw binary data directly to an
+output stream. You will learn the anatomy of the GIF format—specifically
+the GIF89a standard—including how to assemble the file header, screen
+descriptor, color palette, image descriptor, LZW-compressed data blocks,
+and terminating byte without relying on third-party image processing
+libraries.</p>
+<h3 id="1-the-gif-header">1. The GIF Header</h3>
+<p>Every GIF file begins with a 6-byte signature indicating the file
+format and version. The standard versions are <code>GIF87a</code> and
+<code>GIF89a</code>. For modern compatibility, use the ASCII bytes for
+<code>GIF89a</code>:</p>
+<pre><code>0x47 0x49 0x46 0x38 0x39 0x61  // &quot;GIF89a&quot;</code></pre>
+<p>Write these 6 bytes directly to the start of your binary buffer.</p>
+<h3 id="2-the-logical-screen-descriptor">2. The Logical Screen
+Descriptor</h3>
+<p>Immediately following the header is the 7-byte Logical Screen
+Descriptor, which defines the canvas dimensions and global display
+properties. GIF uses 16-bit little-endian integers for dimensions.</p>
+<ul>
+<li><strong>Canvas Width (2 bytes):</strong> Width in pixels
+(little-endian, e.g., <code>256</code> is <code>0x00, 0x01</code>).</li>
+<li><strong>Canvas Height (2 bytes):</strong> Height in pixels
+(little-endian).</li>
+<li><strong>Packed Fields (1 byte):</strong>
+<ul>
+<li>Bit 7: Global Color Table (GCT) Flag (<code>1</code> if present,
+<code>0</code> if absent).</li>
+<li>Bits 4–6: Color Resolution (<code>bits per pixel - 1</code>).</li>
+<li>Bit 3: Sort Flag (<code>0</code> for unsorted).</li>
+<li>Bits 0–2: Size of GCT (<code>2^(N+1)</code> colors, where
+<code>N</code> is this 3-bit value).</li>
+</ul></li>
+<li><strong>Background Color Index (1 byte):</strong> The palette index
+used for undefined pixels.</li>
+<li><strong>Pixel Aspect Ratio (1 byte):</strong> Set to
+<code>0x00</code> if no ratio is specified.</li>
+</ul>
+<p>For a 2-color palette (size exponent <code>0</code>), the packed byte
+with a GCT present is typically <code>0x80</code> (<code>10000000</code>
+in binary).</p>
+<h3 id="3-the-global-color-table">3. The Global Color Table</h3>
+<p>If the GCT flag is set to <code>1</code>, the palette must
+immediately follow the Logical Screen Descriptor. The color table
+consists of uncompressed, 3-byte RGB entries.</p>
+<p>The number of entries is determined by <code>2^(N+1)</code> from the
+packed fields byte. For a minimal 1-bit palette (2 colors):</p>
+<pre><code>0x00 0x00 0x00  // Index 0: Black (R, G, B)
+0xFF 0xFF 0xFF  // Index 1: White (R, G, B)</code></pre>
+<p>This yields 6 bytes total. The color count must strictly match the
+declared power of two; pad unused slots with zeros if necessary.</p>
+<h3 id="4-the-image-descriptor">4. The Image Descriptor</h3>
+<p>Each individual frame requires an Image Descriptor block (10 bytes)
+that marks the start of frame data:</p>
+<ul>
+<li><strong>Image Separator (1 byte):</strong> Always <code>0x2C</code>
+(ASCII <code>,</code>).</li>
+<li><strong>Image Left Position (2 bytes):</strong> Horizontal offset
+from canvas edge (little-endian, usually <code>0x0000</code>).</li>
+<li><strong>Image Top Position (2 bytes):</strong> Vertical offset from
+canvas edge (little-endian, usually <code>0x0000</code>).</li>
+<li><strong>Image Width (2 bytes):</strong> Frame width in pixels.</li>
+<li><strong>Image Height (2 bytes):</strong> Frame height in
+pixels.</li>
+<li><strong>Packed Fields (1 byte):</strong> Flags for Local Color Table
+(LCT), interlacing, and LCT size. Set to <code>0x00</code> if reusing
+the Global Color Table without interlacing.</li>
+</ul>
+<h3 id="5-lzw-raster-data-compression">5. LZW Raster Data
+Compression</h3>
+<p>GIF encodes pixel index streams using a modified LZW
+(Lempel-Ziv-Welch) compression algorithm with variable code lengths.</p>
+<ol type="1">
+<li><strong>LZW Minimum Code Size (1 byte):</strong> Declare the
+starting code bit-length. For a 2-color image, this value is
+<code>2</code> (the minimum allowed value by the GIF specification is 2,
+even for 1-bit palettes).</li>
+<li><strong>Special Codes:</strong>
+<ul>
+<li><em>Clear Code:</em> <code>2^(Minimum Code Size)</code>. For a size
+of 2, this is <code>4</code>.</li>
+<li><em>End of Information (EOI) Code:</em> <code>Clear Code + 1</code>
+(i.e., <code>5</code>).</li>
+</ul></li>
+<li><strong>Code Stream Emission:</strong>
+<ul>
+<li>Start code size is <code>Minimum Code Size + 1</code> (e.g., 3
+bits).</li>
+<li>Always emit the Clear Code first.</li>
+<li>Read pixel indices, match sequences in the dictionary, and output
+code words.</li>
+<li>Increment the bit size by 1 whenever the dictionary size exceeds the
+current bit-length capacity (e.g., reaching code <code>8</code> requires
+switching to 4-bit codes).</li>
+<li>Emit the EOI Code after processing all pixels.</li>
+</ul></li>
+<li><strong>Bit Packing:</strong> Pack variable-length codes into a
+continuous stream of 8-bit bytes, filling least-significant bits (LSB)
+first.</li>
+<li><strong>Sub-blocks:</strong> Group the packed byte stream into
+chunks of no more than 255 bytes. Prefix each chunk with a 1-byte length
+indicator. Terminate the entire compressed block with a
+<code>0x00</code> byte (a sub-block of length zero).</li>
+</ol>
+<h3 id="6-the-gif-trailer">6. The GIF Trailer</h3>
+<p>To finalize the file, append the GIF trailer byte:</p>
+<pre><code>0x3B  // ASCII &quot;;&quot;</code></pre>
+<p>This single byte signals the end of the GIF data stream to decoders.
+Once written, close the binary stream; the resulting output is a valid,
+standalone GIF file.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

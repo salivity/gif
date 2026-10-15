@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Interlacing Works in Animated GIF Files - gif</title>
+    <meta name="description" content="Frame interlacing in animated GIFs reorganizes how pixel data is stored and unpacked by replacing standard sequential row encoding with a four-pass alternating line structure. This article explains the technical mechanics of GIF interlacing, how the GIF89">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-interlacing-works-in-animated-gif-files">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Interlacing Works in Animated GIF Files - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-interlacing-works-in-animated-gif-files" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Frame interlacing in animated GIFs reorganizes how pixel data is stored and unpacked by replacing standard sequential row encoding with a four-pass alternating line structure. This article explains the technical mechanics of GIF interlacing, how the GIF89" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-interlacing-works-in-animated-gif-files">How Interlacing
+Works in Animated GIF Files</h1>
+<p>Frame interlacing in animated GIFs reorganizes how pixel data is
+stored and unpacked by replacing standard sequential row encoding with a
+four-pass alternating line structure. This article explains the
+technical mechanics of GIF interlacing, how the GIF89a specification
+applies the interlace flag to individual animation frames, and how
+decoding engines process interlaced multi-frame sequences during
+playback.</p>
+<h3 id="the-four-pass-interlace-mechanism">The Four-Pass Interlace
+Mechanism</h3>
+<p>In a non-interlaced GIF frame, pixel rows are written and read
+sequentially from top to bottom (row 0, row 1, row 2, and so on).
+Interlacing breaks this linear order by distributing the image rows
+across four distinct passes:</p>
+<ul>
+<li><strong>Pass 1:</strong> Stores every 8th row, starting at row 0
+(rows 0, 8, 16, 24, etc.).</li>
+<li><strong>Pass 2:</strong> Stores every 8th row, starting at row 4
+(rows 4, 12, 20, 28, etc.).</li>
+<li><strong>Pass 3:</strong> Stores every 4th row, starting at row 2
+(rows 2, 6, 10, 14, etc.).</li>
+<li><strong>Pass 4:</strong> Stores every 2nd row, starting at row 1
+(rows 1, 3, 5, 7, etc.).</li>
+</ul>
+<p>When a decoder reconstructs an interlaced frame, it maps these
+incoming rows to their predetermined vertical offsets in memory rather
+than appending them consecutively.</p>
+<h3 id="frame-level-control-in-the-gif89a-specification">Frame-Level
+Control in the GIF89a Specification</h3>
+<p>In the GIF89a format, an animated GIF consists of a single global
+header followed by multiple data blocks, including Graphic Control
+Extensions and Image Descriptors for each frame. Interlacing is not
+defined globally for the entire file; instead, each individual frame
+contains its own Image Descriptor block with a dedicated 1-bit
+<strong>Interlace Flag</strong>.</p>
+<p>Because this setting resides at the frame level, every frame in an
+animated GIF can theoretically be configured independently. A
+multi-frame GIF can contain a mix of interlaced and non-interlaced
+frames, though encoding software typically applies the setting uniformly
+across all frames to simplify generation.</p>
+<h3 id="decoding-and-rendering-multi-frame-animations">Decoding and
+Rendering Multi-Frame Animations</h3>
+<p>For static images, interlacing historically allowed low-bandwidth
+connections to display a low-resolution "rough" preview of the entire
+image that sharpened as subsequent passes arrived. In multi-frame
+animations, this behavior changes significantly:</p>
+<ol type="1">
+<li><strong>Deinterlacing in Memory:</strong> Modern decoders decode the
+compressed LZW stream of an interlaced frame and reconstruct the
+complete pixel grid in an internal memory buffer before displaying
+it.</li>
+<li><strong>Display Synchronization:</strong> Because animated GIFs rely
+on precise frame delays defined in the Graphic Control Extension (often
+20 to 100 milliseconds), decoders generally do not render partial passes
+to the screen during playback. Rendering partial passes would cause
+extreme visual tearing and flicker across frames.</li>
+<li><strong>Disposal Method Execution:</strong> After the frame is fully
+assembled via the four-pass map, the standard disposal method (e.g.,
+restore to background, do not dispose, or restore to previous) is
+executed exactly as it would be with a non-interlaced frame.</li>
+</ol>
+<h3 id="impact-on-file-size-and-performance">Impact on File Size and
+Performance</h3>
+<p>Interlacing alters the sequential patterns fed into the GIF format’s
+LZW compression algorithm. In sequential scanning, neighboring
+horizontal lines often share similar pixel runs, allowing efficient
+dictionary matching. Interlacing separates neighboring lines by large
+vertical gaps, which disrupts these vertical patterns and typically
+reduces LZW compression efficiency. As a result, enabling interlacing
+across multiple frames in an animated GIF usually increases the total
+file size and adds slight CPU overhead during decompression without
+offering visual progressive-loading benefits.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

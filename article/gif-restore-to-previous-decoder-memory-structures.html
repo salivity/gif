@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Restore to Previous: Decoder Memory Structures - gif</title>
+    <meta name="description" content="Implementing the &quot;Restore to Previous&quot; disposal method (Disposal Method 3) in a GIF software decoder requires specialized memory allocation strategies to preserve and recover canvas states across multiple frames. Because this method commands the decoder t">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-restore-to-previous-decoder-memory-structures">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF Restore to Previous: Decoder Memory Structures - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-restore-to-previous-decoder-memory-structures" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Implementing the &quot;Restore to Previous&quot; disposal method (Disposal Method 3) in a GIF software decoder requires specialized memory allocation strategies to preserve and recover canvas states across multiple frames. Because this method commands the decoder t" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-restore-to-previous-decoder-memory-structures">GIF Restore
+to Previous: Decoder Memory Structures</h1>
+<p>Implementing the "Restore to Previous" disposal method (Disposal
+Method 3) in a GIF software decoder requires specialized memory
+allocation strategies to preserve and recover canvas states across
+multiple frames. Because this method commands the decoder to discard the
+current frame's modifications and revert the rendering canvas to the
+state left by the last non-disposed frame, a simple single-surface
+canvas is insufficient. This article outlines the primary memory
+structures, pixel buffers, and state tracking metadata necessary to
+accurately implement this behavior.</p>
+<h3 id="1-the-active-canvas-buffer">1. The Active Canvas Buffer</h3>
+<p>The primary memory allocation for any GIF decoder is the main frame
+buffer representing the logical screen.</p>
+<ul>
+<li><strong>Format:</strong> Typically allocated as a raw 32-bit RGBA
+(or BGRA) byte array (<code>uint8_t*</code> or <code>uint32_t*</code>),
+matching
+<code>Logical Screen Width × Logical Screen Height × 4 bytes</code>.
+While the GIF specification uses indexed 8-bit color, decoding directly
+to 32-bit color avoids palette collision when different frames define
+local color tables.</li>
+<li><strong>Purpose:</strong> Serves as the compositing target where
+each frame's transparent and opaque pixels are blended in real
+time.</li>
+</ul>
+<h3 id="2-the-snapshot--backup-buffer">2. The Snapshot / Backup
+Buffer</h3>
+<p>To fulfill Disposal Method 3, the decoder must allocate a secondary
+off-screen buffer of identical dimensions and bit depth to the active
+canvas.</p>
+<ul>
+<li><strong>Allocation Size:</strong> Exactly equal to the Active Canvas
+Buffer
+(<code>Logical Screen Width × Logical Screen Height × 4 bytes</code>).</li>
+<li><strong>Purpose:</strong> Holds a frozen copy of the canvas state
+prior to rendering the frame with Disposal Method 3.</li>
+<li><strong>Lifecycle:</strong> When the decoder encounters a frame
+marked with Disposal Method 3, it performs a fast block memory copy
+(<code>memcpy</code>) from the Active Canvas Buffer to this Backup
+Buffer before the current frame is drawn. Once the display duration
+expires, the decoder copies the pixel data from the Backup Buffer back
+to the Active Canvas Buffer, effectively undoing the frame's
+changes.</li>
+</ul>
+<h3 id="3-state-management-and-tracking-structure">3. State Management
+and Tracking Structure</h3>
+<p>To prevent unnecessary copies and properly handle chained frames, a
+dedicated metadata structure must be maintained in memory.</p>
+<p>A typical C-style tracking structure includes:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span><span class="op">*</span> active_canvas<span class="op">;</span>      <span class="co">// Primary RGBA frame buffer</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span><span class="op">*</span> backup_canvas<span class="op">;</span>      <span class="co">// Secondary RGBA buffer for Method 3</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> last_disposal_method<span class="op">;</span>    <span class="co">// Disposal method of the preceding frame</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> restore_frame_index<span class="op">;</span>     <span class="co">// Index of the frame being restored</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> has_valid_backup<span class="op">;</span>       <span class="co">// Flag indicating if backup_canvas contains valid data</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Optional dirty region optimization</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> x<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> y<span class="op">;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> width<span class="op">;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> height<span class="op">;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> backup_rect<span class="op">;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> GifDecoderState<span class="op">;</span></span></code></pre></div>
+<h3 id="4-bounding-box-dirty-rect-sub-buffer-optimization">4. Bounding
+Box (Dirty Rect) Sub-Buffer (Optimization)</h3>
+<p>In memory-constrained environments, allocating two full-screen 32-bit
+buffers may be prohibitive. An alternative structure tracks only the
+dirty rectangle modified by the frame.</p>
+<ul>
+<li><strong>Structure:</strong> A dynamically sized byte buffer matching
+<code>Frame Width × Frame Height × 4 bytes</code>, accompanied by offset
+coordinates (<code>Frame Left Position</code>,
+<code>Frame Top Position</code>).</li>
+<li><strong>Behavior:</strong> Before rendering the frame, the decoder
+copies only the pixels within the target frame's sub-rectangle from the
+active canvas into this sub-buffer. During disposal, only this localized
+region is blitted back into the main canvas.</li>
+</ul>
+<h3 id="handling-multi-frame-edge-cases">Handling Multi-Frame Edge
+Cases</h3>
+<p>When multiple consecutive frames specify Disposal Method 3, the
+decoder must not overwrite the initial snapshot buffer. The
+<code>has_valid_backup</code> flag ensures that the snapshot taken
+before the <em>first</em> "Restore to Previous" frame in a chain is
+preserved until a frame specifies a different disposal method (such as
+"Do Not Dispose" or "Restore to Background"). The backup memory
+structure is only updated when a newly rendered frame becomes the new
+baseline state.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

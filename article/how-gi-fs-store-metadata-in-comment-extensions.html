@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How GIFs Store Metadata in Comment Extensions - gif</title>
+    <meta name="description" content="The Graphics Interchange Format (GIF), specifically under the GIF89a specification, enables creators and software to embed human-readable metadata directly into the image file using a specialized structure called the Comment Extension block. This article">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-gi-fs-store-metadata-in-comment-extensions">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How GIFs Store Metadata in Comment Extensions - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-gi-fs-store-metadata-in-comment-extensions" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Graphics Interchange Format (GIF), specifically under the GIF89a specification, enables creators and software to embed human-readable metadata directly into the image file using a specialized structure called the Comment Extension block. This article" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-gifs-store-metadata-in-comment-extensions">How GIFs Store
+Metadata in Comment Extensions</h1>
+<p>The Graphics Interchange Format (GIF), specifically under the GIF89a
+specification, enables creators and software to embed human-readable
+metadata directly into the image file using a specialized structure
+called the Comment Extension block. This article explains how this block
+is constructed, how it holds textual data such as credits, descriptions,
+or software tags, and how image decoders process these bytes without
+disrupting the visual display of the animation or still image.</p>
+<h3 id="the-role-of-the-gif89a-extension-mechanism">The Role of the
+GIF89a Extension Mechanism</h3>
+<p>The original GIF specification (GIF87a) only defined visual image
+data and basic control information. The GIF89a revision introduced
+"Extensions" to support additional functionality, such as animation
+timing (Graphic Control Extension), application-specific instructions
+(Application Extension), and arbitrary text notes (Comment
+Extension).</p>
+<p>Because the Comment Extension block is purely informational, it does
+not affect visual rendering. Compliant decoders are designed to
+recognize it, read the data if needed, or bypass it entirely when
+displaying the graphic.</p>
+<h3 id="binary-structure-of-the-comment-extension-block">Binary
+Structure of the Comment Extension Block</h3>
+<p>The Comment Extension is serialized into a byte sequence that
+strictly follows the GIF block framing rules. It consists of four
+distinct components:</p>
+<ol type="1">
+<li><p><strong>Extension Introducer (<code>0x21</code>)</strong><br />
+Every extension block in a GIF file begins with a single-byte
+identifier: hex value <code>0x21</code> (ASCII exclamation point
+<code>!</code>). This tells the parser that an extension block follows
+rather than an image descriptor or a file terminator.</p></li>
+<li><p><strong>Comment Label (<code>0xFE</code>)</strong><br />
+Immediately following the Extension Introducer is the Comment Label,
+defined as byte <code>0xFE</code>. This byte informs the decoder that
+the specific type of extension being read is a Comment Extension,
+distinguishing it from graphic control or application
+extensions.</p></li>
+<li><p><strong>Data Sub-Blocks</strong><br />
+Metadata in GIF files cannot be written as an unbounded stream. Instead,
+it is partitioned into one or more data sub-blocks:</p>
+<ul>
+<li><strong>Block Size Byte:</strong> Each sub-block begins with a
+single byte that indicates the length of the payload that follows, with
+a value ranging from <code>1</code> to <code>255</code>
+(<code>0x01</code> to <code>0xFF</code>).</li>
+<li><strong>Payload Bytes:</strong> The actual comment text follows the
+size byte. The GIF specification specifies 7-bit ASCII as the default
+encoding for these characters.</li>
+<li><strong>Multiple Blocks:</strong> If a comment exceeds 255 bytes, it
+continues across multiple successive sub-blocks, each starting with its
+own size byte.</li>
+</ul></li>
+<li><p><strong>Block Terminator (<code>0x00</code>)</strong><br />
+The end of the Comment Extension sequence is marked by a single byte
+with a value of <code>0x00</code> (a sub-block of size zero). When the
+parser encounters this byte, it knows the comment data is complete and
+returns to the main parsing loop.</p></li>
+</ol>
+<h3 id="byte-level-example">Byte-Level Example</h3>
+<p>A comment containing the text <code>"Image by Bob"</code> (12
+characters) appears in the binary stream as follows:</p>
+<ul>
+<li><code>21</code> — Extension Introducer</li>
+<li><code>FE</code> — Comment Label</li>
+<li><code>0C</code> — Sub-block length (12 bytes in hex)</li>
+<li><code>49 6D 61 67 65 20 62 79 20 42 6F 62</code> — ASCII values for
+<code>"Image by Bob"</code></li>
+<li><code>00</code> — Block Terminator</li>
+</ul>
+<h3 id="decoder-handling-and-constraints">Decoder Handling and
+Constraints</h3>
+<p>When an image viewer parses a GIF, it reads the stream
+sequentially:</p>
+<ul>
+<li><strong>Display-only parsers:</strong> Upon reading
+<code>0x21 0xFE</code>, the parser simply reads the length byte, skips
+ahead by that number of bytes, and repeats the process until it reads
+<code>0x00</code>, ignoring the contents.</li>
+<li><strong>Metadata-aware tools:</strong> The parser collects the
+payload bytes across all consecutive sub-blocks until the terminator is
+reached, concatenates them, and exposes the string as file
+metadata.</li>
+</ul>
+<p>A GIF file may contain multiple Comment Extension blocks located
+anywhere between the Global Color Table and the GIF Trailer
+(<code>0x3B</code>), allowing multiple distinct notes or metadata tags
+to exist within the same file.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

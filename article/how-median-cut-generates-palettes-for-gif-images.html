@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Median-Cut Generates Palettes for GIF Images - gif</title>
+    <meta name="description" content="The median-cut algorithm is a color quantization technique designed to reduce true-color images into optimized, limited-color palettes while preserving visual fidelity. Because the Graphics Interchange Format (GIF) is strictly limited to an 8-bit color de">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-median-cut-generates-palettes-for-gif-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Median-Cut Generates Palettes for GIF Images - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-median-cut-generates-palettes-for-gif-images" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The median-cut algorithm is a color quantization technique designed to reduce true-color images into optimized, limited-color palettes while preserving visual fidelity. Because the Graphics Interchange Format (GIF) is strictly limited to an 8-bit color de" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-median-cut-generates-palettes-for-gif-images">How Median-Cut
+Generates Palettes for GIF Images</h1>
+<p>The median-cut algorithm is a color quantization technique designed
+to reduce true-color images into optimized, limited-color palettes while
+preserving visual fidelity. Because the Graphics Interchange Format
+(GIF) is strictly limited to an 8-bit color depth—meaning a maximum of
+256 distinct colors—the median-cut algorithm provides a fast, balanced
+method to inspect millions of source colors and synthesize a
+representative 256-color palette that best reflects the original
+image.</p>
+<h3 id="the-color-limitation-of-gif-images">The Color Limitation of GIF
+Images</h3>
+<p>Standard digital images use 24-bit true color, capable of displaying
+over 16.7 million distinct hues across the Red, Green, and Blue (RGB)
+color space. In contrast, the GIF specification relies on an indexed
+color system constrained to 8 bits per pixel. To display a complex image
+or animation, the encoder must map every pixel in the source material to
+a global or local color lookup table (CLUT) containing no more than 256
+colors. Without intelligent color selection, images suffer from severe
+posterization, loss of fine gradients, and stark visual artifacts.</p>
+<h3 id="how-the-median-cut-algorithm-works">How the Median-Cut Algorithm
+Works</h3>
+<p>The median-cut algorithm operates by treating every pixel in an image
+as a point within a three-dimensional RGB color cube, recursively
+partitioning the data into smaller, balanced clusters.</p>
+<ol type="1">
+<li><strong>Initial Bounding Box</strong>: All pixels present in the
+source image are placed inside a single 3D bounding box defined by the
+minimum and maximum values of the Red, Green, and Blue channels.</li>
+<li><strong>Dimension Evaluation</strong>: The algorithm calculates the
+range (maximum value minus minimum value) of each color channel within
+the box to determine which axis has the greatest spread.</li>
+<li><strong>Median Partitioning</strong>: The pixels in the box are
+sorted along the dimension with the largest spread. The algorithm then
+cuts the box at the median pixel, dividing the data into two separate
+child boxes that each contain an equal number of color points.</li>
+<li><strong>Recursive Division</strong>: This process is repeated on the
+resulting subsets. At each iteration, the box spanning the widest range
+is selected and split. For a standard GIF palette, the subdivision
+continues until exactly 256 boxes (or fewer, if the image contains fewer
+colors) are formed.</li>
+<li><strong>Palette Color Assignment</strong>: Once 256 boxes are
+generated, the algorithm calculates the average (centroid) color of all
+pixels enclosed in each box. These 256 averaged values become the final
+palette entries stored in the GIF file header.</li>
+</ol>
+<h3 id="advantages-of-median-cut-for-gif-creation">Advantages of
+Median-Cut for GIF Creation</h3>
+<p>Median-cut is particularly effective for GIF generation because it is
+data-adaptive. Unlike fixed or uniform palettes, median-cut dynamically
+allocates more palette slots to color ranges that appear frequently in
+the image. For instance, in an image dominated by a blue sky, the blue
+region of the color space is divided multiple times, granting the sky
+dozens of subtle variations to eliminate harsh banding. Conversely, rare
+colors receive fewer palette entries, ensuring optimal use of the
+256-color ceiling.</p>
+<p>Additionally, median-cut balances computational speed with palette
+quality. While iterative clustering techniques like k-means can produce
+slightly more accurate color centroids, they require significant
+processing time—an issue magnified when rendering multi-frame animated
+GIFs. Median-cut runs in <span class="math inline">\(O(N \log
+K)\)</span> time (where <span class="math inline">\(N\)</span> is the
+number of pixels and <span class="math inline">\(K\)</span> is the
+target palette size), making it fast enough to process consecutive
+frames efficiently while providing high-quality color tables ready for
+spatial dithering.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Animated GIFs Render in PDF and Print Engines - gif</title>
+    <meta name="description" content="Animated GIFs are designed for dynamic screen display, but print emulation engines and PDF converters are built for static media. When an animated GIF is processed by a print engine or converted to a standard PDF document, it undergoes a flattening proces">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-animated-gi-fs-render-in-pdf-and-print-engines">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Animated GIFs Render in PDF and Print Engines - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-animated-gi-fs-render-in-pdf-and-print-engines" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs are designed for dynamic screen display, but print emulation engines and PDF converters are built for static media. When an animated GIF is processed by a print engine or converted to a standard PDF document, it undergoes a flattening proces" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-animated-gifs-render-in-pdf-and-print-engines">How Animated
+GIFs Render in PDF and Print Engines</h1>
+<p>Animated GIFs are designed for dynamic screen display, but print
+emulation engines and PDF converters are built for static media. When an
+animated GIF is processed by a print engine or converted to a standard
+PDF document, it undergoes a flattening process where animation is
+stripped away. This article explains how rendering engines handle
+multi-frame GIFs, why frame selection varies across environments, the
+impact on final document quality and file size, and how to reliably
+handle GIF assets in print workflows.</p>
+<h3 id="the-static-medium-constraint">The Static Medium Constraint</h3>
+<p>Print emulation tools—such as headless browser printing (Puppeteer,
+Playwright), CSS <code>@media print</code> stylesheets, and dedicated
+HTML-to-PDF engines (like WeasyPrint or wkhtmltopdf)—operate under the
+assumption of a static, two-dimensional page. Standard PDF
+specifications (ISO 32000) treat embedded images as static raster or
+vector XObjects. Because physical paper and standard PDF pages cannot
+loop frames, the animation pipeline is halted at the moment of
+rasterization.</p>
+<h3 id="frame-selection-behavior">Frame Selection Behavior</h3>
+<p>How an engine chooses which frame to display depends entirely on its
+rendering architecture:</p>
+<ul>
+<li><strong>The First-Frame Default:</strong> Traditional PDF conversion
+libraries and image decoders typically read the GIF's header and
+immediately extract frame index 0. The remaining frame disposal methods,
+delays, and subsequent frames are ignored.</li>
+<li><strong>Temporal State Capture:</strong> Modern browser-based print
+engines (such as Chromium or WebKit in headless mode) execute the GIF's
+animation loop in real time on the DOM. When a print command (like
+<code>page.pdf()</code>) is issued, the engine captures whatever frame
+is currently active in the rendering thread. If the page takes three
+seconds to load before the print command fires, the resulting PDF
+displays the frame active at the three-second mark rather than the first
+frame.</li>
+<li><strong>Failure to Render:</strong> Outdated or minimalist PDF
+generators that lack proper multi-frame GIF decoders may fail to parse
+the file altogether, resulting in broken image icons, transparent
+blocks, or fatal conversion errors.</li>
+</ul>
+<h3 id="hidden-performance-and-file-size-issues">Hidden Performance and
+File Size Issues</h3>
+<p>Converting an animated GIF to PDF often introduces unexpected
+performance problems:</p>
+<ul>
+<li><strong>Payload Redundancy:</strong> Some conversion engines do not
+extract and re-encode only the selected frame. Instead, they embed the
+entire multi-frame binary file into the PDF structure while merely
+instructing the PDF viewer to display the first frame. This drastically
+bloats the PDF file size with invisible, unusable data.</li>
+<li><strong>Color and Resolution Degradation:</strong> GIFs are
+restricted to an 8-bit color palette (a maximum of 256 colors) and are
+usually mastered at 72 or 96 DPI for web use. When rendered into a PDF
+targeted for print (often requiring 300 DPI), the image appears heavily
+pixelated and exhibits banding or dithering artifacts.</li>
+</ul>
+<h3 id="best-practices-for-print-emulation">Best Practices for Print
+Emulation</h3>
+<p>To avoid unpredictable results when converting web content containing
+animated GIFs to PDF:</p>
+<ul>
+<li><strong>Use CSS Print Media Queries:</strong> Target
+<code>@media print</code> in your stylesheet to hide the animated GIF
+and display a high-resolution, static image (such as an SVG, PNG, or
+JPEG) in its place.</li>
+<li><strong>Swap Sources via JavaScript:</strong> In automated headless
+browser pipelines, run a pre-print script that traverses the DOM,
+identifies <code>.gif</code> image sources, and swaps them to a
+designated keyframe before invoking the PDF generation method.</li>
+<li><strong>Pre-process Assets:</strong> Convert GIFs to modern formats
+prior to the PDF generation stage to ensure total control over color
+depth, resolution, and frame choice.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

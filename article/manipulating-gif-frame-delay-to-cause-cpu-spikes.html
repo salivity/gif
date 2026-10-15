@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manipulating GIF Frame Delay to Cause CPU Spikes - gif</title>
+    <meta name="description" content="This article examines how modifying the frame delay parameter within a GIF file can trigger severe CPU exhaustion during rendering. By tampering with the Graphic Control Extension block to set frame intervals to zero or exceptionally low values, attackers">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/manipulating-gif-frame-delay-to-cause-cpu-spikes">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Manipulating GIF Frame Delay to Cause CPU Spikes - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/manipulating-gif-frame-delay-to-cause-cpu-spikes" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines how modifying the frame delay parameter within a GIF file can trigger severe CPU exhaustion during rendering. By tampering with the Graphic Control Extension block to set frame intervals to zero or exceptionally low values, attackers" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="manipulating-gif-frame-delay-to-cause-cpu-spikes">Manipulating
+GIF Frame Delay to Cause CPU Spikes</h1>
+<p>This article examines how modifying the frame delay parameter within
+a GIF file can trigger severe CPU exhaustion during rendering. By
+tampering with the Graphic Control Extension block to set frame
+intervals to zero or exceptionally low values, attackers can force
+vulnerable rendering engines and decoders into tight execution loops.
+The following sections break down the structure of the GIF format, the
+mechanics of the frame delay exploit, the resulting impact on processing
+resources, and how modern software mitigates this behavior.</p>
+<h3 id="the-anatomy-of-the-gif-frame-delay">The Anatomy of the GIF Frame
+Delay</h3>
+<p>The GIF89a specification supports animation through sequential image
+frames governed by the Graphic Control Extension (GCE). Within this
+extension, a 2-byte (16-bit) field known as the "Delay Time" determines
+the duration for which a frame must be displayed before advancing to the
+next.</p>
+<p>The Delay Time value is stored in little-endian format and represents
+time in hundredths of a second (centiseconds, or 10-millisecond
+increments):</p>
+<ul>
+<li>A value of <code>0x0A00</code> (10 in decimal) indicates a delay of
+100 milliseconds (10 frames per second).</li>
+<li>A value of <code>0x6400</code> (100 in decimal) indicates a delay of
+1,000 milliseconds (1 frame per second).</li>
+<li>A value of <code>0x0000</code> indicates a delay of 0
+milliseconds.</li>
+</ul>
+<h3 id="mechanics-of-the-frame-delay-exploit">Mechanics of the Frame
+Delay Exploit</h3>
+<p>To execute this attack, an adversary constructs or modifies a GIF by
+opening the binary file in a hex editor or generating it
+programmatically via a script. The attacker locates the GCE
+blocks—identified by the byte sequence <code>0x21 0xF9 0x04</code>—and
+alters the two delay bytes directly following the packed fields
+byte.</p>
+<p>By setting the delay bytes across hundreds or thousands of frames to
+<code>0x0000</code> (zero delay) or <code>0x0001</code> (10
+milliseconds):</p>
+<ol type="1">
+<li><strong>Unbounded Loop Execution:</strong> When an unhardened image
+parser or rendering thread decodes the file, it evaluates the
+0-millisecond delay instruction literally. Instead of scheduling the
+next frame on a timer, it attempts to redraw the canvas
+immediately.</li>
+<li><strong>Resource Contention:</strong> The rendering engine enters an
+unthrottled loop, computing frame compositing, decompression (LZW
+decoding), and color mapping as fast as the host processor allows.</li>
+<li><strong>Amplification Through Payload Design:</strong> Attackers
+frequently combine zero-delay values with large canvas dimensions (e.g.,
+4096×4096 pixels) and differential frame updates (disposal methods that
+require redrawing only modified regions). This combination forces the
+CPU to calculate continuous matrix transformations and memory copies
+without idling.</li>
+</ol>
+<h3 id="system-impact">System Impact</h3>
+<p>When executed against applications that lack safeguards, the
+manipulated file causes client-side resource exhaustion. Effects
+include:</p>
+<ul>
+<li><strong>Core Saturation:</strong> The rendering thread consumes 100%
+of an assigned CPU core. In multi-threaded environments where each image
+renders independently, multiple malicious GIFs embedded on a single
+webpage or interface can lock all available CPU cores.</li>
+<li><strong>Application Freezes:</strong> User interface (UI) threads
+share processing queues with rendering pipelines in many desktop and
+mobile frameworks. Once saturated, the entire application becomes
+unresponsive.</li>
+<li><strong>Battery Drain and Thermal Throttling:</strong> On mobile and
+embedded devices, prolonged processing at maximum clock speeds causes
+thermal spikes and rapid battery depletion, often culminating in the
+operating system forcefully terminating the process.</li>
+</ul>
+<h3 id="parser-defenses-and-frame-clamping">Parser Defenses and Frame
+Clamping</h3>
+<p>Modern web browsers and robust image libraries have implemented
+defensive rendering logic to neutralize this vulnerability. Rather than
+honoring exact zero-millisecond specifications, parsers apply frame
+clamping:</p>
+<ul>
+<li><strong>Minimum Threshold Enforcement:</strong> If the parser
+detects a delay value of <code>0</code> or any duration below a
+specified limit (typically less than 2 centiseconds, or 20
+milliseconds), it overrides the value and applies a default delay,
+usually 10 centiseconds (100 milliseconds).</li>
+<li><strong>Frame Dropping:</strong> Some decoders drop intermediate
+frames if the rendering pipeline cannot keep up with the requested
+display frequency, capping the CPU usage to a fixed display refresh rate
+(e.g., 60 Hz).</li>
+</ul>
+<p>Despite these protections in major browsers, bespoke software, IoT
+interfaces, legacy media players, and custom native applications
+utilizing unpatched or custom GIF decoders often remain susceptible to
+delay manipulation attacks.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

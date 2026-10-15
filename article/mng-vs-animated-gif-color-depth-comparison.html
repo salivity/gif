@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNG vs Animated GIF: Color Depth Comparison - gif</title>
+    <meta name="description" content="When comparing the visual capabilities of MNG (Multiple-image Network Graphics) and animated GIF, MNG vastly outperforms GIF in color depth, palette versatility, and transparency rendering. While GIF is constrained by a legacy 8-bit indexed palette system">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/mng-vs-animated-gif-color-depth-comparison">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MNG vs Animated GIF: Color Depth Comparison - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/mng-vs-animated-gif-color-depth-comparison" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When comparing the visual capabilities of MNG (Multiple-image Network Graphics) and animated GIF, MNG vastly outperforms GIF in color depth, palette versatility, and transparency rendering. While GIF is constrained by a legacy 8-bit indexed palette system" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="mng-vs-animated-gif-color-depth-comparison">MNG vs Animated GIF:
+Color Depth Comparison</h1>
+<p>When comparing the visual capabilities of MNG (Multiple-image Network
+Graphics) and animated GIF, MNG vastly outperforms GIF in color depth,
+palette versatility, and transparency rendering. While GIF is
+constrained by a legacy 8-bit indexed palette system that caps each
+frame at 256 colors, MNG leverages modern PNG architecture to deliver
+full 24-bit Truecolor imagery and 8-bit alpha-channel transparency. This
+technical overview breaks down the precise differences in color
+capabilities, transparency handling, and overall visual fidelity between
+the two formats.</p>
+<h3 id="color-depth-and-palette-limitations">Color Depth and Palette
+Limitations</h3>
+<p>The animated GIF format relies on an indexed color model. Each frame
+can reference a maximum of 256 colors (8 bits per pixel) selected from a
+24-bit RGB color space. Although specialized encoders can technically
+assign unique 256-color local palettes to individual frames or
+sub-regions, the fundamental restriction remains: a single pixel array
+cannot display true full-color imagery. This limitation frequently
+results in visible color banding, posterization, and heavy dithering
+artifacts when displaying continuous-tone images, complex gradients, or
+photographic animations.</p>
+<p>In contrast, MNG is essentially an animated extension of the PNG
+format. It natively supports full 24-bit Truecolor (8 bits per channel
+across Red, Green, and Blue), enabling the display of up to 16.7 million
+distinct colors simultaneously without a palette. For high-precision
+applications, MNG can even support 48-bit Truecolor (16 bits per
+channel), as well as 16-bit greyscale. This removes all color
+quantization constraints, allowing animations to retain photorealistic
+fidelity, subtle color shifts, and smooth gradients.</p>
+<h3 id="transparency-and-edge-blending">Transparency and Edge
+Blending</h3>
+<p>Color capability extends to how transparent pixels interact with
+background colors:</p>
+<ul>
+<li><strong>Animated GIF:</strong> GIF only supports binary (1-bit)
+transparency. A pixel is either 100% visible or 100% transparent, with
+no in-between states. As a result, anti-aliasing edges against arbitrary
+backgrounds is impossible, often leaving unsightly jagged edges or
+colored "halos" around animated objects.</li>
+<li><strong>MNG:</strong> MNG incorporates full alpha-channel
+transparency with up to 8 bits (256 levels) or 16 bits of alpha data.
+This allows for true variable opacity, smooth anti-aliased drop shadows,
+semi-transparent smoke or glass effects, and seamless blending onto any
+background color or underlying image layer.</li>
+</ul>
+<h3 id="additional-color-architecture-jng-integration">Additional Color
+Architecture (JNG Integration)</h3>
+<p>Beyond standard lossless PNG streams, the MNG specification also
+supports JNG (JPEG Network Graphics). This feature allows creators to
+embed lossy, full-color JPEG image streams within an animated container,
+paired with an optional alpha channel. This provides the exact color
+richness of standard JPEG photography while keeping file sizes
+manageable for animated sequences, a capability entirely absent in the
+GIF specification.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

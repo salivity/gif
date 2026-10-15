@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stop Autoplaying GIFs with prefers-reduced-motion - gif</title>
+    <meta name="description" content="The prefers-reduced-motion CSS media query is an accessibility feature that detects if a user has requested their operating system to minimize non-essential movement. Because standard animated GIF files loop indefinitely and lack native playback controls,">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/stop-autoplaying-gi-fs-with-prefers-reduced-motion">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Stop Autoplaying GIFs with prefers-reduced-motion - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/stop-autoplaying-gi-fs-with-prefers-reduced-motion" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The prefers-reduced-motion CSS media query is an accessibility feature that detects if a user has requested their operating system to minimize non-essential movement. Because standard animated GIF files loop indefinitely and lack native playback controls," />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="stop-autoplaying-gifs-with-prefers-reduced-motion">Stop
+Autoplaying GIFs with prefers-reduced-motion</h1>
+<p>The <code>prefers-reduced-motion</code> CSS media query is an
+accessibility feature that detects if a user has requested their
+operating system to minimize non-essential movement. Because standard
+animated GIF files loop indefinitely and lack native playback controls,
+developers cannot simply pause them using a single CSS property.
+Instead, developers utilize the <code>prefers-reduced-motion</code>
+media query in conjunction with HTML elements or CSS background swaps to
+replace autoplaying GIFs with static images, effectively suppressing
+unwanted animation for motion-sensitive users.</p>
+<h3 id="the-problem-with-animated-gifs">The Problem with Animated
+GIFs</h3>
+<p>Animated GIFs lack native pause, stop, or play controls. Once
+rendered in a browser, they loop continuously. For users with vestibular
+disorders, motion sensitivities, or cognitive distractions, this
+continuous motion can cause dizziness, nausea, headaches, or loss of
+focus. Because CSS cannot directly manipulate the internal frame
+playback of an encoded <code>.gif</code> file, developers must intercept
+the asset delivery to ensure motion is suppressed.</p>
+<h3 id="detecting-the-motion-preference">Detecting the Motion
+Preference</h3>
+<p>Operating systems like Windows, macOS, iOS, and Android allow users
+to enable a "Reduce Motion" setting. Browsers expose this operating
+system setting to web applications through the CSS media query:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">@media</span> <span class="fu">(</span><span class="kw">prefers-reduced-motion</span><span class="ch">:</span> <span class="dv">reduce</span><span class="fu">)</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* Motion-suppressing styles applied here */</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>The media query accepts two primary values:</p>
+<ul>
+<li><code>no-preference</code>: The user has not requested reduced
+motion; default animations and autoplay behaviors can proceed.</li>
+<li><code>reduce</code>: The user has explicitly enabled settings to
+minimize animations, transitions, and automatic movement.</li>
+</ul>
+<h3 id="suppressing-gifs-using-the-html-picture-element">Suppressing
+GIFs Using the HTML <code>&lt;picture&gt;</code> Element</h3>
+<p>The most efficient way to suppress an autoplaying GIF is by using the
+HTML <code>&lt;picture&gt;</code> element. This approach allows the
+browser to evaluate the media query before downloading the image,
+preventing unnecessary bandwidth usage.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;static-frame.png&quot;</span><span class="ot"> media</span><span class="op">=</span><span class="st">&quot;(prefers-reduced-motion: reduce)&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;animated-graphic.gif&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Description of the animated demonstration&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>In this implementation, if the user’s system is set to reduced
+motion, the browser loads <code>static-frame.png</code> (a still capture
+of the first or most representative frame of the GIF). If no motion
+preference is set, the browser downloads and displays
+<code>animated-graphic.gif</code>.</p>
+<h3 id="suppressing-gifs-using-css-background-swaps">Suppressing GIFs
+Using CSS Background Swaps</h3>
+<p>When GIFs are used as decorative visual elements via CSS background
+properties, developers can suppress them by overriding the
+<code>background-image</code> property directly within a media query
+block.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.hero-banner</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;animated-background.gif&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">@media</span> <span class="fu">(</span><span class="kw">prefers-reduced-motion</span><span class="ch">:</span> <span class="dv">reduce</span><span class="fu">)</span> {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">.hero-banner</span> {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;static-background.png&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>When <code>reduce</code> is active, the browser overrides the
+animated asset with the static file, stopping all background motion
+automatically.</p>
+<h3
+id="suppressing-gifs-through-class-toggling-with-javascript">Suppressing
+GIFs Through Class Toggling with JavaScript</h3>
+<p>In cases where interactive components require manual control,
+developers can read the media query via JavaScript using
+<code>window.matchMedia()</code> and conditionally swap the image source
+attribute.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> motionQuery <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="fu">matchMedia</span>(<span class="st">&#39;(prefers-reduced-motion: reduce)&#39;</span>)<span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> animatedImage <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">querySelector</span>(<span class="st">&#39;.dynamic-gif&#39;</span>)<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">handleMotionPreference</span>(e) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (e<span class="op">.</span><span class="at">matches</span>) {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    animatedImage<span class="op">.</span><span class="at">src</span> <span class="op">=</span> <span class="st">&#39;static-frame.png&#39;</span><span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    animatedImage<span class="op">.</span><span class="at">src</span> <span class="op">=</span> <span class="st">&#39;animated-graphic.gif&#39;</span><span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Initial check and event listener for real-time changes</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">handleMotionPreference</span>(motionQuery)<span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>motionQuery<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">&#39;change&#39;</span><span class="op">,</span> handleMotionPreference)<span class="op">;</span></span></code></pre></div>
+<p>This approach dynamically updates the image source if a user toggles
+their system settings while browsing the page.</p>
+<h3 id="modern-alternative-replacing-gifs-with-html5-video">Modern
+Alternative: Replacing GIFs with HTML5 Video</h3>
+<p>Because GIFs are inefficient in file size and difficult to control
+programmatically, many developers replace them with looping HTML5 video
+files (<code>.mp4</code> or <code>.webm</code>). Unlike GIFs, HTML5
+video provides native JavaScript controls:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">video</span><span class="ot"> id</span><span class="op">=</span><span class="st">&quot;looping-media&quot;</span><span class="ot"> autoplay loop muted playsinline</span><span class="dt">&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;animation.mp4&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;video/mp4&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">video</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> motionQuery <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="fu">matchMedia</span>(<span class="st">&#39;(prefers-reduced-motion: reduce)&#39;</span>)<span class="op">;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> video <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&#39;looping-media&#39;</span>)<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (motionQuery<span class="op">.</span><span class="at">matches</span>) {</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  video<span class="op">.</span><span class="fu">pause</span>()<span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  video<span class="op">.</span><span class="fu">removeAttribute</span>(<span class="st">&#39;autoplay&#39;</span>)<span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Converting GIFs to video files combined with
+<code>prefers-reduced-motion</code> gives developers complete control
+over stopping and starting animations, drastically improves page load
+performance, and guarantees a safe browsing experience for all
+users.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

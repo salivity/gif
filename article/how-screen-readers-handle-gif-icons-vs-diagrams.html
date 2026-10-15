@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Screen Readers Handle GIF Icons vs Diagrams - gif</title>
+    <meta name="description" content="Web accessibility requires distinguishing between decorative GIF icons and informative GIF diagrams to provide an optimal experience for assistive technology users. While screen readers should completely ignore decorative graphics to prevent auditory clut">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-screen-readers-handle-gif-icons-vs-diagrams">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Screen Readers Handle GIF Icons vs Diagrams - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-screen-readers-handle-gif-icons-vs-diagrams" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Web accessibility requires distinguishing between decorative GIF icons and informative GIF diagrams to provide an optimal experience for assistive technology users. While screen readers should completely ignore decorative graphics to prevent auditory clut" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-screen-readers-handle-gif-icons-vs-diagrams">How Screen
+Readers Handle GIF Icons vs Diagrams</h1>
+<p>Web accessibility requires distinguishing between decorative GIF
+icons and informative GIF diagrams to provide an optimal experience for
+assistive technology users. While screen readers should completely
+ignore decorative graphics to prevent auditory clutter, they must
+provide meaningful, detailed descriptions for informative diagrams that
+convey essential data or processes. Properly implementing HTML
+attributes, ARIA roles, and extended text alternatives ensures that
+non-sighted users receive the necessary context without being
+overwhelmed by visual ornamentation.</p>
+<h3 id="decorative-gif-icons-hiding-non-essential-content">Decorative
+GIF Icons: Hiding Non-Essential Content</h3>
+<p>Decorative GIF icons—such as spinning stars, animated bullet points,
+or pulsing accent arrows—serve solely to enhance the visual appeal of a
+webpage. Because they do not convey information necessary for
+understanding the content, screen readers should completely bypass
+them.</p>
+<p>To ensure screen readers ignore decorative GIFs:</p>
+<ul>
+<li><strong>Use Empty Alt Attributes:</strong> Apply <code>alt=""</code>
+(a null alt attribute) to the <code>&lt;img&gt;</code> tag. This informs
+the screen reader that the image is purely presentational, prompting the
+software to skip it entirely. Never omit the <code>alt</code> attribute
+altogether; doing so causes many screen readers to read the raw file
+name (e.g., "star-animation.gif"), creating a frustrating user
+experience.</li>
+<li><strong>Apply ARIA Hidden:</strong> Add
+<code>aria-hidden="true"</code> to explicitly remove the element from
+the accessibility tree. This is especially helpful if the GIF is wrapped
+in a container that might otherwise receive keyboard focus.</li>
+<li><strong>Implement via CSS:</strong> Whenever possible, load purely
+decorative animated icons as CSS background images rather than inline
+HTML elements. Screen readers naturally ignore CSS background images by
+default.</li>
+</ul>
+<h3
+id="informative-gif-diagrams-providing-equivalent-context">Informative
+GIF Diagrams: Providing Equivalent Context</h3>
+<p>Informative GIF diagrams convey meaningful concepts, such as
+scientific processes, UI workflows, cyclical charts, or instructional
+walkthroughs. Because these graphics contain functional information,
+screen readers must convey their purpose and details accurately.</p>
+<p>To make informative GIF diagrams accessible:</p>
+<ul>
+<li><strong>Provide a Succinct Label:</strong> Use the <code>alt</code>
+attribute to state the high-level purpose of the diagram (e.g.,
+<code>alt="Animated diagram showing the four stages of the water cycle"</code>).</li>
+<li><strong>Offer Extended Descriptions:</strong> Animated diagrams
+often contain too much information for a brief alt tag. Pair the GIF
+with a detailed text description in the surrounding content, or link the
+image to an off-screen description using the
+<code>aria-describedby</code> attribute pointing to an element's
+<code>id</code>.</li>
+<li><strong>Use Semantic Figures:</strong> Wrap the image in a
+<code>&lt;figure&gt;</code> element and include a descriptive
+<code>&lt;figcaption&gt;</code>. This creates a semantic relationship
+between the diagram and its textual explanation, making navigation
+seamless for screen reader users.</li>
+<li><strong>Provide Static Data Alternatives:</strong> If the GIF
+visualizes data trends or steps in a sequence, provide an accessible
+data table or an ordered list directly below the animation to present
+the identical information in a linear, readable format.</li>
+</ul>
+<h3 id="motion-considerations-for-screen-reader-users">Motion
+Considerations for Screen Reader Users</h3>
+<p>Many screen reader users retain partial vision or use screen
+magnification software alongside speech output. Because standard GIF
+files loop infinitely and lack native playback controls, continuously
+looping diagrams can distract users or cause physical distress, such as
+vestibular disorders. To comply with accessibility guidelines (WCAG
+2.2.2 Pause, Stop, Hide), always provide a mechanism to pause, stop, or
+hide any GIF animation that lasts longer than five seconds, regardless
+of whether it is decorative or informative.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

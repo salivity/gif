@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Clipboards Handle Animated GIF Data - gif</title>
+    <meta name="description" content="When you copy and paste an animated GIF between applications, the operating system clipboard does not treat the content as a single, rigid image; instead, it uses a multi-format negotiation system known as data flavors or MIME types. This article explains">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-clipboards-handle-animated-gif-data">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Clipboards Handle Animated GIF Data - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-clipboards-handle-animated-gif-data" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When you copy and paste an animated GIF between applications, the operating system clipboard does not treat the content as a single, rigid image; instead, it uses a multi-format negotiation system known as data flavors or MIME types. This article explains" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-clipboards-handle-animated-gif-data">How Clipboards Handle
+Animated GIF Data</h1>
+<p>When you copy and paste an animated GIF between applications, the
+operating system clipboard does not treat the content as a single, rigid
+image; instead, it uses a multi-format negotiation system known as data
+flavors or MIME types. This article explains how operating systems
+expose multiple representations of GIF data during a copy action, how
+receiving applications select the appropriate format, and why animated
+GIFs sometimes lose their motion and paste as static images.</p>
+<h3 id="multi-format-negotiation">Multi-Format Negotiation</h3>
+<p>Modern operating system clipboards—such as the Windows Clipboard,
+macOS Pasteboard, and Linux X11/Wayland data selections—act as shared
+memory brokers. When an application copies data, it rarely writes just
+one data stream. Instead, it declares an inventory of available formats,
+ordered by fidelity, allowing the receiving application to pick the
+richest format it can properly render.</p>
+<p>When an application copies an animated GIF, it typically populates
+the clipboard with several variations:</p>
+<ul>
+<li><strong>The raw GIF payload:</strong> The complete binary data
+encoded with the GIF89a specification, preserving all animation frames,
+loop counts, and timing metadata (e.g., <code>image/gif</code> or
+<code>com.compuserve.gif</code>).</li>
+<li><strong>A file reference or URI:</strong> A system file path or web
+URL pointing to the source file (e.g., <code>CF_HDROP</code> on Windows,
+<code>public.file-url</code> on macOS, or <code>text/uri-list</code> on
+Linux).</li>
+<li><strong>A fallback static image:</strong> A rendered, single-frame
+bitmap representation (such as <code>CF_DIB</code>/PNG/TIFF), almost
+always representing the first frame of the animation, provided for basic
+legacy applications.</li>
+</ul>
+<h3 id="the-copy-process">The Copy Process</h3>
+<p>The source application initiates the process by registering its
+available formats with the operating system:</p>
+<ol type="1">
+<li><strong>Format Registration:</strong> The source app informs the OS
+clipboard service of every representation it can provide for the
+selected GIF.</li>
+<li><strong>Data Storage vs. Delayed Rendering:</strong> To conserve
+system memory, operating systems frequently employ "delayed rendering"
+(or lazy loading). The source application does not immediately write
+large animation byte streams into memory. Instead, it promises the OS
+that it will supply the chosen binary format on demand when a paste
+action occurs.</li>
+</ol>
+<h3 id="the-paste-process">The Paste Process</h3>
+<p>When a user pastes into a target application, the target inspects the
+clipboard's advertised formats and requests the best format it
+supports:</p>
+<ul>
+<li><strong>Animation-Aware Applications:</strong> Web browsers, chat
+clients (like Slack or Discord), and presentation tools scan for
+<code>image/gif</code>, file descriptors, or custom byte streams. If
+detected, the application reads the raw multi-frame data and loads it
+into an animation-capable rendering engine.</li>
+<li><strong>Static Image Editors and Document Processors:</strong> Many
+traditional photo editors, word processors, and text boxes only
+recognize standard device-independent bitmaps (like Windows DIB or raw
+pixels). These applications request the static bitmap format, discarding
+all animation metadata and freezing the GIF on its initial frame.</li>
+</ul>
+<h3 id="operating-system-implementations">Operating System
+Implementations</h3>
+<p>Each operating system executes this process via its native clipboard
+architecture:</p>
+<ul>
+<li><strong>Windows:</strong> Uses the OLE (Object Linking and
+Embedding) data transfer model via the <code>IDataObject</code>
+interface. The source exposes formats like custom registered clipboard
+formats (such as <code>"GIF"</code> or <code>"image/gif"</code>), shell
+file drops (<code>CF_HDROP</code>), and standard raster formats
+(<code>CF_DIB</code> or <code>CF_DIBV5</code>). Applications querying
+only standard bitmap handles miss the animation entirely.</li>
+<li><strong>macOS:</strong> Employs <code>NSPasteboard</code> utilizing
+Uniform Type Identifiers (UTIs). The source typically writes
+<code>com.compuserve.gif</code> for raw animated data, alongside
+<code>public.tiff</code> or <code>public.png</code> as fallback
+representations. Cocoa-based applications that support animation look
+specifically for the GIF UTI.</li>
+<li><strong>Linux (X11 / Wayland):</strong> Uses selections and
+MIME-type targets. The clipboard owner responds to requests for targets
+like <code>image/gif</code>, <code>text/uri-list</code>, or fallback
+formats like <code>image/png</code>. The receiving client queries the
+available target list via the Wayland data device protocol or X11
+selection requests and initiates a pipe transfer for the desired
+format.</li>
+</ul>
+<h3 id="why-animated-gifs-fail-to-animate">Why Animated GIFs Fail to
+Animate</h3>
+<p>The failure of an animated GIF to animate after pasting is almost
+always caused by target application selection rather than clipboard
+corruption. If a target application requests a generic bitmap rather
+than the raw GIF MIME type, the operating system fulfills the request
+using the static fallback frame. Unless the receiving software includes
+a parser designed to decode multi-frame GIF containers from memory
+streams, it defaults to treating the clipboard payload as a standard
+static image.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated GIF Import: Internal Data Structures - gif</title>
+    <meta name="description" content="When an image editing program imports a 500-frame animated GIF, it transforms sequential, LZW-compressed binary chunks into a structured hierarchy of in-memory objects. To balance editing performance with memory consumption, the application parses file-le">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/animated-gif-import-internal-data-structures">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Animated GIF Import: Internal Data Structures - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/animated-gif-import-internal-data-structures" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When an image editing program imports a 500-frame animated GIF, it transforms sequential, LZW-compressed binary chunks into a structured hierarchy of in-memory objects. To balance editing performance with memory consumption, the application parses file-le" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="animated-gif-import-internal-data-structures">Animated GIF
+Import: Internal Data Structures</h1>
+<p>When an image editing program imports a 500-frame animated GIF, it
+transforms sequential, LZW-compressed binary chunks into a structured
+hierarchy of in-memory objects. To balance editing performance with
+memory consumption, the application parses file-level metadata,
+constructs indexed frame timelines, builds color lookup tables, and
+allocates pixel buffers—often employing caching and delta-compositing
+strategies to prevent excessive RAM usage.</p>
+<h3 id="1-document-root-and-global-header-structure">1. Document Root
+and Global Header Structure</h3>
+<p>The editor first instantiates a top-level document model representing
+the file. This structure stores canvas-wide attributes decoded from the
+GIF Logical Screen Descriptor:</p>
+<ul>
+<li><strong>Canvas Dimensions:</strong> Logical screen width and height
+(defining the maximum bounds of the workspace).</li>
+<li><strong>Global Color Table (GCT):</strong> An array of up to 256
+24-bit RGB values (<code>[256][3]uint8</code>), serving as the fallback
+palette for frames lacking individual color definitions.</li>
+<li><strong>Loop Control Metadata:</strong> Extracted from the Netscape
+Application Block, tracking whether the animation loops infinitely or a
+fixed number of times.</li>
+<li><strong>Color Resolution &amp; Aspect Ratio:</strong> Bit-depth
+metadata and pixel aspect ratio flags.</li>
+</ul>
+<h3 id="2-timeline-sequence-and-frame-nodes">2. Timeline Sequence and
+Frame Nodes</h3>
+<p>Because a 500-frame GIF functions as a time-based sequence, the
+editor places each frame into a sequential container—typically a dynamic
+array (<code>std::vector&lt;Frame&gt;</code> or equivalent) or a doubly
+linked list for efficient reordering and insertion.</p>
+<p>Each <code>Frame</code> node encapsulates:</p>
+<ul>
+<li><strong>Local Bounding Box:</strong> Offset coordinates (<span
+class="math inline">\(X, Y\)</span>) and dimensions (<span
+class="math inline">\(Width, Height\)</span>). GIF frames do not need to
+fill the entire canvas; they are often sub-rectangles that update only
+changing regions.</li>
+<li><strong>Local Color Table (LCT):</strong> An optional frame-specific
+palette overriding the GCT.</li>
+<li><strong>Graphic Control Block (GCB) Parameters:</strong>
+<ul>
+<li><em>Delay Time:</em> Target display duration in milliseconds
+(measured in hundredths of a second in the raw format).</li>
+<li><em>Transparency Index:</em> An 8-bit pointer denoting which palette
+entry represents a fully transparent pixel.</li>
+<li><em>Disposal Method:</em> An enumeration (Unspecified, Do Not
+Dispose, Restore to Background, or Restore to Previous) instructing how
+the canvas resets before the subsequent frame is drawn.</li>
+</ul></li>
+</ul>
+<h3 id="3-pixel-storage-structures">3. Pixel Storage Structures</h3>
+<p>Storing 500 uncompressed 32-bit RGBA frames at full resolution
+directly in RAM can quickly consume gigabytes of memory. Editors
+typically employ dual-tier storage:</p>
+<ul>
+<li><strong>Indexed Raw Buffers:</strong> The decompressed LZW stream
+yields an array of 8-bit integers (<code>uint8_t[]</code>), where each
+byte represents an index pointing to the active palette. Storing the
+primary data as 8-bit indexed pixels keeps the memory footprint at
+roughly one byte per pixel rather than four bytes (RGBA).</li>
+<li><strong>Decoded RGBA Bitmap Cache:</strong> The editor creates a
+standard 32-bit (RGBA8888) raster buffer dynamically when a frame needs
+to be rendered, edited, or sent to the GPU. For 500 frames, these
+decoded buffers are managed via an LRU (Least Recently Used) cache or a
+virtual memory paging system, evicting non-visible frames to disk or
+regenerating them on demand.</li>
+</ul>
+<h3 id="4-composited-state-and-playback-cache">4. Composited State and
+Playback Cache</h3>
+<p>Because GIF relies on delta-encoding (frame <span
+class="math inline">\(N\)</span> often relies on frame <span
+class="math inline">\(N-1\)</span> depending on the disposal method),
+jumping directly to frame 450 requires computing the cumulative state of
+all prior frames.</p>
+<p>To enable smooth scrubbing without recalculating from frame zero:</p>
+<ul>
+<li><strong>Compositing Accumulator:</strong> A working buffer that
+steps through disposal methods to render fully resolved states.</li>
+<li><strong>Sparse Keyframe Cache:</strong> A secondary array of
+full-canvas snapshots taken at predetermined intervals (e.g., every 25th
+or 50th frame). When a user navigates to an arbitrary point, the
+playback engine seeks to the nearest keyframe and only renders forward
+through the delta frames from that point.</li>
+</ul>
+<h3 id="5-integration-into-the-editors-native-layer-graph">5.
+Integration into the Editor’s Native Layer Graph</h3>
+<p>Finally, the editor maps the imported data into its internal document
+object model (DOM):</p>
+<ul>
+<li><strong>Layer Stack Mapping:</strong> Each frame is mapped either as
+an independent layer in a flat layer hierarchy or as a time-sample
+keyframe within a single timeline track.</li>
+<li><strong>Undo/Redo History Trees:</strong> Pointers to initial frame
+states are wrapped in command pattern objects or copy-on-write (CoW)
+nodes, ensuring edits to any of the 500 individual frames do not clone
+the entire 500-frame sequence in memory.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

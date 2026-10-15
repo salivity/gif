@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Alpha Channels Flatten When Exporting to GIF - gif</title>
+    <meta name="description" content="Exporting a modern design asset containing an alpha channel to a GIF file requires converting smooth, multi-level transparency into a format that only supports binary transparency. Modern formats like PNG utilize an 8-bit alpha channel offering 256 levels">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-alpha-channels-flatten-when-exporting-to-gif">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Alpha Channels Flatten When Exporting to GIF - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-alpha-channels-flatten-when-exporting-to-gif" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Exporting a modern design asset containing an alpha channel to a GIF file requires converting smooth, multi-level transparency into a format that only supports binary transparency. Modern formats like PNG utilize an 8-bit alpha channel offering 256 levels" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-alpha-channels-flatten-when-exporting-to-gif">How Alpha
+Channels Flatten When Exporting to GIF</h1>
+<p>Exporting a modern design asset containing an alpha channel to a GIF
+file requires converting smooth, multi-level transparency into a format
+that only supports binary transparency. Modern formats like PNG utilize
+an 8-bit alpha channel offering 256 levels of opacity, whereas the GIF
+format supports only a single 1-bit transparent index. To reconcile this
+difference, export engines must flatten semi-transparent pixels using
+techniques such as color matting, thresholding, and dithering, which
+often permanently alters the edges of the artwork.</p>
+<h3 id="the-technical-limitation-of-gif-transparency">The Technical
+Limitation of GIF Transparency</h3>
+<p>Modern design tools support 32-bit color spaces (24-bit RGB combined
+with an 8-bit alpha channel). This enables anti-aliasing, soft shadows,
+and translucent glassmorphism effects where a pixel can be partially
+visible (for instance, 30% or 75% opaque).</p>
+<p>The Graphics Interchange Format (GIF89a specification), however, is
+limited to an indexed palette of up to 256 total colors. In this
+palette, transparency is represented by a single designated color slot
+acting as a boolean switch: a pixel is either 100% visible or 100%
+transparent. Because intermediate values cannot exist in the file
+format, the design software must calculate what each semi-transparent
+pixel should look like before writing the data.</p>
+<h3 id="the-matting-process">The Matting Process</h3>
+<p>The primary method used to flatten an alpha channel into a GIF is
+"matting." Matting simulates partial transparency by compositing the
+semi-transparent pixels against a predetermined solid background
+color.</p>
+<ol type="1">
+<li><strong>Color Selection:</strong> The designer or software
+designates a "matte" color (typically white, black, or the dominant
+color of the target webpage background).</li>
+<li><strong>Blending:</strong> The software calculates the resulting RGB
+values of all partially transparent pixels by blending their original
+color with the matte color based on their opacity percentage. For
+example, a 50% opaque red pixel over a white matte becomes a solid, 100%
+opaque pink pixel.</li>
+<li><strong>Quantization:</strong> The newly blended solid colors are
+assigned values from the GIF's 256-color palette.</li>
+</ol>
+<p>Through this process, the smooth edge is baked into solid pixels,
+giving the illusion of smooth anti-aliasing when viewed against a
+background that matches the chosen matte color.</p>
+<h3 id="thresholding-and-binary-clipping">Thresholding and Binary
+Clipping</h3>
+<p>If no matte color is selected during export, the software relies on
+thresholding. The exporter evaluates every pixel's alpha value against
+an opacity cutoff—usually set at 50%:</p>
+<ul>
+<li>Pixels with alpha values above the threshold (e.g., 51% to 100%
+opacity) are rounded up to 100% opaque.</li>
+<li>Pixels with alpha values below the threshold (e.g., 0% to 50%
+opacity) are dropped entirely and marked as 100% transparent.</li>
+</ul>
+<p>Thresholding completely strips out semi-transparency without
+blending, which removes soft drop shadows and converts smooth curves
+into jagged, stair-stepped edges (aliasing).</p>
+<h3 id="the-halo-artifact">The "Halo" Artifact</h3>
+<p>The consequence of alpha flattening in GIFs is the common "halo" or
+fringe effect. Because the edge pixels are permanently blended with the
+matte color during export, placing the resulting GIF on a background
+with a different color reveals the baked-in matte. For instance,
+exporting anti-aliased black text with a white matte creates light-gray
+transition pixels at the boundary; placing this GIF on a dark background
+displays an obvious white outline around the text.</p>
+<p>To minimize these artifacts, the export matte must match the exact
+hex code of the intended destination background, or modern alternatives
+with native 8-bit alpha support—such as WebP or APNG—must be used
+instead.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

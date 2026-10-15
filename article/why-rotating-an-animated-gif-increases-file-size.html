@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Rotating an Animated GIF Increases File Size - gif</title>
+    <meta name="description" content="Applying even a subtle rotational transformation to an animated GIF often dramatically increases its final file size. This happens because rotation disrupts the format&#39;s inter-frame optimization, forces pixel interpolation that expands the color palette,">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-rotating-an-animated-gif-increases-file-size">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Rotating an Animated GIF Increases File Size - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-rotating-an-animated-gif-increases-file-size" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Applying even a subtle rotational transformation to an animated GIF often dramatically increases its final file size. This happens because rotation disrupts the format&#39;s inter-frame optimization, forces pixel interpolation that expands the color palette," />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-rotating-an-animated-gif-increases-file-size">Why Rotating
+an Animated GIF Increases File Size</h1>
+<p>Applying even a subtle rotational transformation to an animated GIF
+often dramatically increases its final file size. This happens because
+rotation disrupts the format's inter-frame optimization, forces pixel
+interpolation that expands the color palette, expands the canvas
+dimensions, and destroys the horizontal pixel redundancy that the LZW
+compression algorithm relies on to keep file sizes small.</p>
+<h2 id="loss-of-inter-frame-redundancy">Loss of Inter-Frame
+Redundancy</h2>
+<p>The most significant factor in animated GIF compression is temporal
+optimization. In an optimized GIF, only the pixels that change from one
+frame to the next are saved, while static areas are left transparent
+using frame disposal methods.</p>
+<p>When you rotate an animation—even by a fraction of a degree—virtually
+every pixel across the entire canvas shifts to a new coordinate. Because
+the background and previously static elements no longer line up
+identically from frame to frame, the encoder cannot reuse static areas.
+Instead of storing small patches of changed pixels, the file must store
+every frame in its entirety.</p>
+<h2 id="anti-aliasing-and-color-palette-inflation">Anti-Aliasing and
+Color Palette Inflation</h2>
+<p>GIFs rely on an indexed palette of at most 256 colors. When an image
+is rotated, the software must resample the pixels using an interpolation
+algorithm (such as bilinear or bicubic) to prevent jagged, harsh
+edges.</p>
+<p>This interpolation generates dozens of new intermediate,
+semi-transparent, or blended color values along the edges of the rotated
+graphics. This introduces two issues:</p>
+<ul>
+<li><strong>Palette exhaustion:</strong> The encoder may run out of
+color slots, forcing it to use dithering (scattering pixels to simulate
+colors).</li>
+<li><strong>Dithering noise:</strong> Dithered patterns introduce visual
+noise, replacing smooth gradients or flat colors with chaotic pixel
+arrangements that compress poorly.</li>
+</ul>
+<h2 id="inefficiency-in-lzw-compression">Inefficiency in LZW
+Compression</h2>
+<p>GIF uses the Lempel-Ziv-Welch (LZW) lossless compression algorithm,
+which scans image data horizontally row by row to identify repeated
+patterns of identical pixels.</p>
+<p>Before rotation, clean horizontal lines and uniform color blocks
+yield long, repetitive sequences that compress efficiently into tiny
+byte tokens. Rotating an image turns straight horizontal boundaries into
+diagonal, stepped edges. These jagged steps break continuous horizontal
+runs of identical colors into short, fragmented sequences, severely
+reducing LZW compression efficiency.</p>
+<h2 id="canvas-bounding-box-expansion">Canvas Bounding Box
+Expansion</h2>
+<p>Rotating a rectangular image within a standard axis-aligned
+coordinate system increases the overall dimensions of the image. Unless
+the rotated GIF is explicitly cropped, the software must enlarge the
+canvas bounding box to prevent the corners of the original image from
+being clipped. A larger canvas means more total pixels per frame, adding
+further data to the file structure even if the extra space is merely
+filled with transparent pixels.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

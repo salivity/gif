@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Optimize Animated GIFs with Global Palettes - gif</title>
+    <meta name="description" content="Animated GIFs can quickly become bloated when each frame stores its own unique color data, but using a Global Color Table (GCT) resolves this issue by sharing a single palette across the entire sequence. This article explains how global palette optimizati">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-to-optimize-animated-gi-fs-with-global-palettes">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Optimize Animated GIFs with Global Palettes - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-to-optimize-animated-gi-fs-with-global-palettes" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs can quickly become bloated when each frame stores its own unique color data, but using a Global Color Table (GCT) resolves this issue by sharing a single palette across the entire sequence. This article explains how global palette optimizati" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-optimize-animated-gifs-with-global-palettes">How to
+Optimize Animated GIFs with Global Palettes</h1>
+<p>Animated GIFs can quickly become bloated when each frame stores its
+own unique color data, but using a Global Color Table (GCT) resolves
+this issue by sharing a single palette across the entire sequence. This
+article explains how global palette optimization works, how it
+eliminates redundant local palettes, and how combining it with
+transparency differencing significantly reduces GIF file sizes without
+sacrificing visual quality.</p>
+<h3 id="understanding-global-vs-local-color-tables">Understanding Global
+vs. Local Color Tables</h3>
+<p>The GIF89a specification supports a maximum of 256 colors per frame.
+It allows these colors to be defined in two ways:</p>
+<ul>
+<li><strong>Local Color Table (LCT):</strong> Every individual frame
+contains its own custom 256-color palette. While this allows for greater
+color variety across scenes, it adds up to 768 bytes of uncompressed RGB
+overhead per frame.</li>
+<li><strong>Global Color Table (GCT):</strong> A single 256-color
+palette defined in the GIF header that is applied to all frames
+throughout the animation.</li>
+</ul>
+<h3 id="the-palette-sharing-technique-global-palette-optimization">The
+Palette Sharing Technique: Global Palette Optimization</h3>
+<p>The primary technique for palette sharing is <strong>Global Palette
+Optimization</strong>. Instead of quantizing each frame individually,
+the optimization software analyzes the color space of the entire
+animation across all frames simultaneously.</p>
+<p>Using algorithms such as Median Cut, Octree, or NeuQuant, the encoder
+identifies the most prominent colors throughout the full timeline. It
+then builds a single, unified 256-color palette that serves as the GCT.
+Once this master palette is applied, all individual Local Color Tables
+are stripped out, instantly cutting the file overhead associated with
+per-frame color tables.</p>
+<h3 id="pairing-with-transparency-and-frame-differencing">Pairing with
+Transparency and Frame Differencing</h3>
+<p>Global palette sharing enables an even more effective compression
+technique: <strong>frame differencing</strong> (also known as delta
+encoding).</p>
+<p>When all frames share the exact same color indices:</p>
+<ol type="1">
+<li>The encoder compares a frame to the one preceding it.</li>
+<li>Any pixel that does not change between frames is replaced with a
+transparent index.</li>
+<li>The decoder retains the previous pixel and only draws the moving
+elements.</li>
+</ol>
+<p>Because LZW compression (the native compression in GIF) compresses
+long runs of identical values efficiently, large transparent areas
+shrink the file size substantially. This technique is only fully
+effective when frames share a global palette; if two frames use
+different local palettes, unchanged pixels may point to different color
+indices, preventing transparency reuse.</p>
+<h3 id="trade-offs-and-best-practices">Trade-offs and Best
+Practices</h3>
+<p>While a global palette dramatically decreases file size, it requires
+compromises:</p>
+<ul>
+<li><strong>Color Banding:</strong> Distributing only 256 colors across
+an entire video clip with dynamic lighting or multiple scenes can lead
+to color banding or dithering artifacts.</li>
+<li><strong>Scene Splitting:</strong> If an animation changes scenes
+dramatically, it is often better to split the GIF or use targeted local
+palettes only on key transition frames while keeping the rest
+global.</li>
+</ul>
+<p>For standard web animations, short loops, and screen recordings,
+generating a single Global Color Table combined with transparency
+optimization is the single most effective method for producing
+lightweight, fast-loading GIFs.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

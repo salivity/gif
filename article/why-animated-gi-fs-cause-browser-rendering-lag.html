@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Animated GIFs Cause Browser Rendering Lag - gif</title>
+    <meta name="description" content="Loading dozens of animated GIF files at the same time causes browser rendering lag primarily because the Graphics Interchange Format (GIF) is an obsolete, computationally expensive format that lacks modern hardware acceleration. When a browser displays mu">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-animated-gi-fs-cause-browser-rendering-lag">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Animated GIFs Cause Browser Rendering Lag - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-animated-gi-fs-cause-browser-rendering-lag" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Loading dozens of animated GIF files at the same time causes browser rendering lag primarily because the Graphics Interchange Format (GIF) is an obsolete, computationally expensive format that lacks modern hardware acceleration. When a browser displays mu" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-animated-gifs-cause-browser-rendering-lag">Why Animated GIFs
+Cause Browser Rendering Lag</h1>
+<p>Loading dozens of animated GIF files at the same time causes browser
+rendering lag primarily because the Graphics Interchange Format (GIF) is
+an obsolete, computationally expensive format that lacks modern hardware
+acceleration. When a browser displays multiple GIFs simultaneously, it
+must continuously decompress, store, and repaint hundreds of individual
+bitmap frames using the central processing unit (CPU). This process
+quickly saturates the CPU, exhausts system memory, and blocks the
+browser's main execution thread, resulting in sluggish scrolling,
+dropped frame rates, and unresponsive user interfaces.</p>
+<h3 id="software-based-cpu-decoding">Software-Based CPU Decoding</h3>
+<p>Modern video formats such as MP4, WebM, and AV1 rely on specialized
+hardware decoders built directly into the graphics processing unit
+(GPU). GIFs, however, rely on an antiquated compression algorithm (LZW)
+created in the 1980s that cannot leverage modern GPU acceleration.
+Consequently, the browser must use the CPU to software-decode every
+single frame of every GIF running on the page. Processing dozens of
+concurrent animation loops creates a massive processing bottleneck on
+the CPU.</p>
+<h3 id="excessive-memory-consumption">Excessive Memory Consumption</h3>
+<p>A GIF file stores animations as a sequence of full or partial raster
+images. To display an animation smoothly, the browser must unpack these
+compressed frames into uncompressed raw bitmap arrays in system memory
+(RAM). A single 2-megabyte GIF can easily expand to tens or hundreds of
+megabytes of raw pixel data once decompressed. When dozens of GIFs are
+loaded simultaneously, the cumulative memory footprint can reach
+multiple gigabytes, causing memory pressure, cache thrashing, and
+aggressive garbage collection cycles that freeze the browser tab.</p>
+<h3 id="continuous-repaints-and-compositing">Continuous Repaints and
+Compositing</h3>
+<p>Web browsers aim to render content at 60 frames per second. Each
+animated GIF operates on its own internal timer and frame rate, which is
+rarely synchronized with the browser's native refresh cycle. Because the
+animations are out of sync, the browser's rendering engine is forced
+into a continuous loop of:</p>
+<ul>
+<li>Decompressing the next frame in the sequence.</li>
+<li>Invaliding the layout area (paint invalidation).</li>
+<li>Repainting the affected pixels.</li>
+<li>Uploading the updated textures to the GPU for compositing.</li>
+</ul>
+<p>With dozens of files updating asynchronously, the browser never
+enters an idle state. It spends 100% of its render cycle continuously
+redrawing elements on the screen.</p>
+<h3 id="main-thread-contention">Main Thread Contention</h3>
+<p>In many rendering engines, image decoding and paint management share
+execution time on the browser’s main thread—the same thread responsible
+for executing JavaScript, computing layout, and processing user inputs
+like clicks and scrolls. When flooded with decoding tasks from dozens of
+animations, the main thread becomes starved for resources. User
+interactions are delayed, page scrolling stutters, and the interface
+becomes visibly janky.</p>
+<h3 id="modern-alternatives">Modern Alternatives</h3>
+<p>To prevent this performance degradation, modern web applications
+replace animated GIFs with looped, muted HTML5 videos (using
+<code>&lt;video&gt;</code> tags with H.264 or VP9 codecs) or modern
+animated image formats like animated WebP and AVIF. These formats offer
+drastically higher compression ratios, support hardware decoding via the
+GPU, and integrate seamlessly with the browser's frame scheduling.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

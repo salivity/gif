@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unisys GIF Patent Impact on 1990s Developers - gif</title>
+    <meta name="description" content="In the mid-1990s, the computing world was disrupted when Unisys Corporation announced it would strictly enforce its patent on the Lempel-Ziv-Welch (LZW) compression algorithm, a foundational component of the widely used Graphics Interchange Format (GIF).">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/unisys-gif-patent-impact-on-1990-s-developers">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Unisys GIF Patent Impact on 1990s Developers - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/unisys-gif-patent-impact-on-1990-s-developers" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In the mid-1990s, the computing world was disrupted when Unisys Corporation announced it would strictly enforce its patent on the Lempel-Ziv-Welch (LZW) compression algorithm, a foundational component of the widely used Graphics Interchange Format (GIF)." />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="unisys-gif-patent-impact-on-1990s-developers">Unisys GIF Patent
+Impact on 1990s Developers</h1>
+<p>In the mid-1990s, the computing world was disrupted when Unisys
+Corporation announced it would strictly enforce its patent on the
+Lempel-Ziv-Welch (LZW) compression algorithm, a foundational component
+of the widely used Graphics Interchange Format (GIF). This article
+examines how this sudden patent enforcement targeted third-party
+software creators, crippled freeware and open-source graphics
+development, forced developers to engineer inventive workarounds, and
+directly catalyzed the creation of modern, open image formats like
+PNG.</p>
+<p>When CompuServe released the GIF specification in 1987, it adopted
+the LZW algorithm for its efficient, lossless compression, unaware that
+Unisys held a 1985 patent (U.S. Patent 4,558,302) covering the
+technology. For nearly eight years, third-party developers freely
+implemented GIF encoders and decoders into web browsers, graphics
+editors, and utilities, cementing GIF as the visual backbone of the
+early World Wide Web. This landscape fundamentally changed in late
+December 1994, when CompuServe and Unisys announced an agreement
+requiring commercial developers of software supporting GIF to purchase
+an LZW license from Unisys.</p>
+<p>For independent and commercial third-party developers, the
+announcement created immediate legal and financial jeopardy. Unisys
+established licensing terms that typically demanded thousands of dollars
+in upfront fees alongside per-unit royalties. While established
+commercial software vendors like Adobe or Netscape could absorb these
+costs, small-scale utility creators and shareware authors could not. The
+terms effectively outlawed the creation of independent, low-cost
+graphics tools that wrote or read compressed GIF files.</p>
+<p>The open-source and freeware communities faced the most severe
+disruption. Open-source licenses, such as the GNU General Public License
+(GPL), require that software be redistributed freely without per-copy
+fees or commercial restrictions. Because the Unisys license terms were
+fundamentally incompatible with these principles, maintaining legal,
+open-source LZW compression code became impossible. Maintainers of
+critical developer libraries, including <code>libungif</code> and early
+Linux graphics toolkits, were forced to strip compression routines
+entirely out of their codebases to avoid litigation.</p>
+<p>To circumvent the patent without breaking compatibility with existing
+web browsers, developers turned to technical workarounds. The Unisys
+patent explicitly covered the compression (encoding) of data via LZW,
+while decompression (decoding) was initially treated more leniently,
+though still subject to shifting corporate policies. Programmers began
+building "uncompressed GIF" encoders. These libraries constructed valid
+GIF files containing raw image data wrapped in the GIF file container
+without applying LZW compression, or using basic run-length encoding
+tricks that bypassed the proprietary algorithm. While this avoided
+patent infringement, it produced substantially larger files,
+counteracting the primary benefit of the format during an era dominated
+by dial-up internet connections.</p>
+<p>The friction reached a boiling point in 1999 when Unisys tightened
+its enforcement stance, demanding licensing fees from webmasters and
+non-commercial developers using unlicensed software to generate web
+graphics. This triggered widespread outrage and led the League for
+Programming Freedom to organize the "Burn All GIFs" campaign, urging
+developers and users to purge GIF files from the internet.</p>
+<p>The most lasting consequence of the Unisys patent dispute was the
+rapid development of the Portable Network Graphics (PNG) format.
+Frustrated by proprietary restrictions on a universal web standard, an
+independent coalition of developers convened in early 1995 to design a
+patent-free successor. PNG utilized the open DEFLATE algorithm, offered
+superior technical features such as 24-bit color and alpha transparency,
+and was unencumbered by royalties. By the time the Unisys patents
+expired globally between 2003 and 2004, the controversy had permanently
+altered software development, serving as an enduring case study on the
+risks software patents pose to open internet standards.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

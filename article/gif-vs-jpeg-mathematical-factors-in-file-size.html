@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF vs JPEG: Mathematical Factors in File Size - gif</title>
+    <meta name="description" content="Choosing between GIF and JPEG for optimal file size depends on the mathematical nature of the image data, primarily the image&#39;s color cardinality, spatial frequency distribution, and the efficiency of the respective compression algorithms—Lempel-Ziv-Welch">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-vs-jpeg-mathematical-factors-in-file-size">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF vs JPEG: Mathematical Factors in File Size - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-vs-jpeg-mathematical-factors-in-file-size" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Choosing between GIF and JPEG for optimal file size depends on the mathematical nature of the image data, primarily the image&#39;s color cardinality, spatial frequency distribution, and the efficiency of the respective compression algorithms—Lempel-Ziv-Welch" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-vs-jpeg-mathematical-factors-in-file-size">GIF vs JPEG:
+Mathematical Factors in File Size</h1>
+<p>Choosing between GIF and JPEG for optimal file size depends on the
+mathematical nature of the image data, primarily the image's color
+cardinality, spatial frequency distribution, and the efficiency of the
+respective compression algorithms—Lempel-Ziv-Welch (LZW) versus the
+Discrete Cosine Transform (DCT) paired with quantization. While GIF
+relies on lossless dictionary encoding across a restricted color space,
+JPEG utilizes lossy frequency-domain quantization optimized for
+continuous tones. The underlying mathematical characteristics of the
+pixel matrix dictate which format minimizes byte size.</p>
+<h3 id="color-cardinality-and-quantization">Color Cardinality and
+Quantization</h3>
+<p>The fundamental boundary between GIF and JPEG efficiency begins with
+color cardinality, denoted as the number of unique colors (<span
+class="math inline">\(N\)</span>) in an image.</p>
+<ul>
+<li><strong>GIF (Palette-Based):</strong> GIF uses an indexed color
+table restricted to an 8-bit depth (<span class="math inline">\(N \le
+256\)</span>). Each pixel is represented as an index pointing to a
+24-bit RGB value in a lookup table. If an image inherently possesses low
+color cardinality (such as diagrams, logos, or flat graphics), the raw
+pre-compression data requires only 8 bits per pixel (bpp) plus a
+negligible palette overhead of at most <span class="math inline">\(256
+\times 3\)</span> bytes.</li>
+<li><strong>JPEG (Continuous Tone):</strong> JPEG natively processes
+24-bit true color (8 bits per channel across YCbCr color space).
+Reducing an image to 256 colors does not inherently compress JPEG data,
+as JPEG encodes color variation rather than indexed positions. When
+<span class="math inline">\(N\)</span> is small, GIF avoids the
+structural overhead of JPEG's color space transformation and macroblock
+framing.</li>
+</ul>
+<h3 id="transform-domain-vs-string-matching-redundancy">Transform Domain
+vs. String-Matching Redundancy</h3>
+<p>The mathematical compression models operate on entirely different
+principles of redundancy reduction.</p>
+<h4 id="1-gif-one-dimensional-run-and-dictionary-redundancy-lzw">1. GIF:
+One-Dimensional Run and Dictionary Redundancy (LZW)</h4>
+<p>GIF compresses pixel streams using LZW, a lossless dictionary-based
+algorithm operating sequentially (row by row). LZW replaces recurring
+sequences of symbols (pixel indices) with dynamic codes.</p>
+<p>The compression ratio in LZW is inversely proportional to the Shannon
+entropy of horizontal symbol transitions: <span
+class="math display">\[H(X) = -\sum_{i=1}^{n} P(x_i) \log_2
+P(x_i)\]</span></p>
+<p>Where large contiguous blocks of uniform color exist, horizontal runs
+generate repetitive strings. This causes the LZW dictionary to index
+long patterns quickly, resulting in high compression ratios. Conversely,
+if an image contains high local entropy (such as noise, grain, or
+gradients), horizontal patterns break, dictionary growth saturates, and
+GIF file size increases significantly.</p>
+<h4
+id="2-jpeg-two-dimensional-spatial-frequency-and-dct-quantization">2.
+JPEG: Two-Dimensional Spatial Frequency and DCT Quantization</h4>
+<p>JPEG divides the image into <span class="math inline">\(8 \times
+8\)</span> pixel blocks and applies the two-dimensional Discrete Cosine
+Transform (DCT):</p>
+<p><span class="math display">\[F(u, v) = \frac{1}{4} C(u) C(v)
+\sum_{x=0}^{7} \sum_{y=0}^{7} f(x, y)
+\cos\left[\frac{(2x+1)u\pi}{16}\right]
+\cos\left[\frac{(2y+1)v\pi}{16}\right]\]</span></p>
+<p>The DCT transforms spatial pixel values <span
+class="math inline">\(f(x,y)\)</span> into frequency coefficients <span
+class="math inline">\(F(u,v)\)</span>, concentrating most image energy
+into low-frequency coefficients (top-left of the matrix).</p>
+<p>Compression is achieved through quantization, where each coefficient
+is divided by a quantization matrix value <span
+class="math inline">\(Q(u,v)\)</span> and rounded:</p>
+<p><span class="math display">\[F_Q(u, v) = \text{round}\left(\frac{F(u,
+v)}{Q(u, v)}\right)\]</span></p>
+<p>Because high-frequency coefficients are heavily divided, they round
+to zero. A zigzag scan converts the remaining matrix into a
+one-dimensional array where long runs of zeros are compressed via
+Run-Length Encoding (RLE) and Huffman coding.</p>
+<h3 id="spatial-frequency-and-edge-transitions">Spatial Frequency and
+Edge Transitions</h3>
+<p>The mathematical factor that most decisively tips the scale between
+the two formats is the rate of spatial luminance change across
+neighboring pixels (<span class="math inline">\(df/dx,
+df/dy\)</span>).</p>
+<ul>
+<li><strong>Sharp Edges (Step Functions):</strong> Sharp, high-contrast
+borders (common in text, line art, and user interfaces) mathematically
+represent step functions. In the frequency domain, a step function
+requires an infinite series of high-frequency sinusoids to represent
+accurately (Fourier analysis). When JPEG quantizes these frequencies, it
+either produces significant visual distortion (ringing artifacts) or
+requires very fine quantization, creating non-zero coefficients that
+drastically inflate file size. For GIF, a sharp edge between flat color
+regions merely represents a single transition between two repeated index
+sequences, compressing exceptionally well with LZW.</li>
+<li><strong>Continuous Gradients (Low Frequencies):</strong> Smooth
+color transitions contain almost zero high-frequency energy. In JPEG, an
+<span class="math inline">\(8 \times 8\)</span> block containing a
+smooth gradient results in only two or three non-zero DCT coefficients,
+while the other 61 coefficients become zero, yielding extreme
+compression. In contrast, an un-dithered gradient in GIF introduces
+dozens of distinct colors that exceed the 256-color limit, or forces
+dithering (error diffusion). Dithering mathematically introduces
+high-frequency pseudo-noise, which completely disrupts LZW's
+string-matching capability and causes GIF file sizes to expand.</li>
+</ul>
+<h3 id="summary-of-mathematical-conditions-for-superiority">Summary of
+Mathematical Conditions for Superiority</h3>
+<p>An image achieves a <strong>smaller file size as a GIF</strong>
+when:</p>
+<ol type="1">
+<li>The unique color count is strictly low (<span
+class="math inline">\(N \le 256\)</span>).</li>
+<li>Spatial variance along the horizontal scan axis is minimal,
+maximizing repeated index strings.</li>
+<li>The image contains high spatial frequency step functions (sharp
+boundaries) separating regions of zero frequency (flat color).</li>
+</ol>
+<p>An image achieves a <strong>smaller file size as a JPEG</strong>
+when:</p>
+<ol type="1">
+<li>The energy spectrum is heavily concentrated in low spatial
+frequencies (smooth photographic tones).</li>
+<li>The color palette spans a large, continuous manifold (<span
+class="math inline">\(N \gg 256\)</span>).</li>
+<li>The sparsity of the quantized DCT coefficient matrix (<span
+class="math inline">\(\sum [F_Q(u,v) = 0]\)</span>) exceeds the
+redundancy ratio attainable by 1D horizontal LZW parsing.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

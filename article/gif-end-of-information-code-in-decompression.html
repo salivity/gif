@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF End-of-Information Code in Decompression - gif</title>
+    <meta name="description" content="The End-of-Information (EOI) code in a GIF file is a dedicated marker within the compressed image data that signals the exact conclusion of the pixel stream. Because the Graphics Interchange Format (GIF) relies on the Lempel-Ziv-Welch (LZW) compression al">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-end-of-information-code-in-decompression">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF End-of-Information Code in Decompression - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-end-of-information-code-in-decompression" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The End-of-Information (EOI) code in a GIF file is a dedicated marker within the compressed image data that signals the exact conclusion of the pixel stream. Because the Graphics Interchange Format (GIF) relies on the Lempel-Ziv-Welch (LZW) compression al" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-end-of-information-code-in-decompression">GIF
+End-of-Information Code in Decompression</h1>
+<p>The End-of-Information (EOI) code in a GIF file is a dedicated marker
+within the compressed image data that signals the exact conclusion of
+the pixel stream. Because the Graphics Interchange Format (GIF) relies
+on the Lempel-Ziv-Welch (LZW) compression algorithm packed into
+variable-length bit sequences, decoders require an unambiguous boundary
+to stop processing data. This article explains the role of the EOI code,
+how it is calculated, and its technical mechanics during the image
+decompression process.</p>
+<h3 id="the-role-of-lzw-and-special-codes-in-gif">The Role of LZW and
+Special Codes in GIF</h3>
+<p>GIF uses a modified form of the LZW algorithm to compress pixel color
+indices into a sequence of binary codes. The data begins with a
+designated minimum code size based on the image's color depth. If the
+initial code size is defined as <span class="math inline">\(N\)</span>
+bits, the base alphabet contains <span
+class="math inline">\(2^N\)</span> regular pixel values (from <span
+class="math inline">\(0\)</span> to <span class="math inline">\(2^N -
+1\)</span>).</p>
+<p>To manage the dynamic dictionary, the GIF specification reserves two
+special control codes directly above the base value range:</p>
+<ul>
+<li><strong>Clear Code (CC):</strong> Defined as <span
+class="math inline">\(2^N\)</span>, which signals the decoder to
+reinitialize the string table to its default state.</li>
+<li><strong>End-of-Information (EOI) Code:</strong> Defined as <span
+class="math inline">\(2^N + 1\)</span>, which signals the end of the
+raster data.</li>
+</ul>
+<p>For example, in an image with an initial code size of 8 bits
+(supporting up to 256 colors), the Clear Code is 256 and the EOI code is
+257.</p>
+<h3 id="why-the-eoi-code-is-essential">Why the EOI Code Is
+Essential</h3>
+<p>During encoding, variable-width codes (starting at <span
+class="math inline">\(N + 1\)</span> bits and expanding up to 12 bits)
+are packed tightly into standard 8-bit bytes. These bytes are then
+grouped into data sub-blocks of up to 255 bytes each.</p>
+<p>Because variable-length codes rarely align perfectly with the
+boundary of the final 8-bit byte, the remaining unused bits in the final
+byte are padded with zeros. Without an explicit EOI marker, the
+decompressor would attempt to read these trailing padding bits as
+another valid data code, resulting in corrupted pixels, out-of-bounds
+array writes, or dictionary errors. The EOI code serves as the
+definitive signal that all valid image data has been read.</p>
+<h3 id="execution-during-decompression">Execution During
+Decompression</h3>
+<p>When an LZW decoder reads a GIF data stream, it unpacks bits
+sequentially according to the current code size. The EOI code functions
+through the following steps:</p>
+<ol type="1">
+<li><strong>Pattern Matching:</strong> The decompressor evaluates
+incoming bit sequences against the active dictionary. When it reads a
+value matching <span class="math inline">\(2^N + 1\)</span>, it
+immediately recognizes the EOI condition.</li>
+<li><strong>Halting Pixel Emission:</strong> Upon receiving the EOI
+code, the decoder immediately stops adding new entries to the string
+table and stops emitting pixel indices to the output buffer.</li>
+<li><strong>Flushing the Bitstream:</strong> The decoder discards any
+remaining bits in the current byte, ignoring zero-padding or stray
+bits.</li>
+<li><strong>Consuming Sub-Blocks:</strong> The decoder bypasses any
+remaining bytes in the current sub-block and looks for the block
+terminator—a single byte with a value of <code>0x00</code> that
+officially closes the image data block.</li>
+</ol>
+<p>Once the EOI processing is complete, the decoder cleanly transitions
+to the next segment of the GIF file, such as another image descriptor in
+an animation, an application extension, or the file trailer byte
+(<code>0x3B</code>).</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

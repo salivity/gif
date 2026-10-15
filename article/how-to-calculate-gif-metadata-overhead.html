@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Calculate GIF Metadata Overhead - gif</title>
+    <meta name="description" content="Calculating the exact structural overhead of non-pixel metadata in a GIF file involves isolating all protocol framing, extension blocks, color palettes, and container headers from the raw LZW-compressed raster data. Because the GIF89a and GIF87a specifica">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-to-calculate-gif-metadata-overhead">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Calculate GIF Metadata Overhead - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-to-calculate-gif-metadata-overhead" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Calculating the exact structural overhead of non-pixel metadata in a GIF file involves isolating all protocol framing, extension blocks, color palettes, and container headers from the raw LZW-compressed raster data. Because the GIF89a and GIF87a specifica" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-calculate-gif-metadata-overhead">How to Calculate GIF
+Metadata Overhead</h1>
+<p>Calculating the exact structural overhead of non-pixel metadata in a
+GIF file involves isolating all protocol framing, extension blocks,
+color palettes, and container headers from the raw LZW-compressed raster
+data. Because the GIF89a and GIF87a specifications interleave structural
+markers with compressed image payloads, determining this non-pixel byte
+count requires a sequential parse of the binary stream. By summing the
+byte lengths of all structural definitions and subtracting the actual
+compressed image data sub-blocks, you can determine the precise overhead
+introduced by the file format itself.</p>
+<h3 id="1-read-the-fixed-file-header-and-logical-screen-descriptor">1.
+Read the Fixed File Header and Logical Screen Descriptor</h3>
+<p>Every valid GIF begins with a fixed 13-byte sequence. Read the first
+6 bytes to parse the GIF signature and version (<code>GIF87a</code> or
+<code>GIF89a</code>). Immediately following the signature, read the
+7-byte Logical Screen Descriptor (LSD), which defines the canvas width,
+height, packed fields, background color index, and pixel aspect ratio.
+Add these initial 13 bytes to your non-pixel overhead counter.</p>
+<h3 id="2-measure-the-global-color-table-if-present">2. Measure the
+Global Color Table (If Present)</h3>
+<p>Examine the packed fields byte (the 11th byte of the file) within the
+Logical Screen Descriptor:</p>
+<ul>
+<li>Check bit 7 (Global Color Table Flag). If set to 1, a Global Color
+Table (GCT) is present.</li>
+<li>Read bits 0–2 to find the table size exponent <span
+class="math inline">\(N\)</span>.</li>
+<li>Calculate the byte length: <span class="math inline">\(3 \times
+2^{N+1}\)</span>.</li>
+<li>Add this calculated length to the overhead counter. If the flag is
+0, add 0 bytes.</li>
+</ul>
+<h3 id="3-parse-extension-blocks-sequentially">3. Parse Extension Blocks
+Sequentially</h3>
+<p>Scan forward byte-by-byte for the Extension Introducer marker
+(<code>0x21</code>). If encountered, determine the extension type using
+the subsequent label byte:</p>
+<ul>
+<li><strong>Graphic Control Extension (<code>0xF9</code>):</strong>
+Fixed length of 8 bytes total (Introducer, Label, Byte Size
+<code>0x04</code>, 4 data bytes, and a <code>0x00</code> block
+terminator).</li>
+<li><strong>Application Extension (<code>0xFF</code>):</strong>
+Typically 19 bytes for standard Netscape looping metadata (Introducer,
+Label, Byte Size <code>0x0B</code>, 11 application auth bytes, sub-block
+size <code>0x03</code>, 3 payload bytes, and a <code>0x00</code>
+terminator). If custom, iterate through all sub-blocks until the
+<code>0x00</code> terminator.</li>
+<li><strong>Comment Extension (<code>0xFE</code>) or Plain Text
+Extension (<code>0x01</code>):</strong> Read the sub-block size bytes
+sequentially and skip their payloads until a <code>0x00</code>
+terminator is reached.</li>
+</ul>
+<p>Add the total byte count of all parsed extension markers, labels,
+size indicators, payloads, and terminators directly to the metadata
+overhead.</p>
+<h3 id="4-process-image-descriptors-and-local-color-tables">4. Process
+Image Descriptors and Local Color Tables</h3>
+<p>When encountering an Image Separator (<code>0x2C</code>), you have
+reached the beginning of a frame:</p>
+<ul>
+<li><strong>Image Descriptor:</strong> Read the fixed 10-byte structure
+(Separator, Left, Top, Width, Height, and Packed Fields). Add 10 bytes
+to the overhead counter.</li>
+<li><strong>Local Color Table (LCT):</strong> Inspect bit 7 of the
+packed fields byte. If set to 1, calculate the size using bits 0–2
+(<span class="math inline">\(3 \times 2^{N+1}\)</span>) and add this
+byte value to the overhead counter.</li>
+</ul>
+<h3 id="5-differentiate-lzw-framing-from-pixel-payloads">5.
+Differentiate LZW Framing from Pixel Payloads</h3>
+<p>Following the Image Descriptor (and optional LCT), the frame's pixel
+data begins:</p>
+<ul>
+<li><strong>LZW Minimum Code Size:</strong> Read this single byte and
+add 1 byte to the overhead counter.</li>
+<li><strong>Image Data Sub-blocks:</strong> The image data is stored in
+discrete sub-blocks. Each sub-block starts with a 1-byte length
+indicator (<span class="math inline">\(1\)</span> to <span
+class="math inline">\(255\)</span>), followed by that number of
+compressed LZW bytes.
+<ul>
+<li>The length indicator bytes represent structural framing overhead;
+add 1 byte per sub-block to the overhead counter.</li>
+<li>The actual compressed bytes enclosed within these sub-blocks
+represent the pixel payload and must be excluded from your overhead
+calculation.</li>
+</ul></li>
+<li><strong>Block Terminator:</strong> When a sub-block length of
+<code>0x00</code> is encountered, add this 1 terminating byte to the
+overhead counter.</li>
+</ul>
+<p>Repeat steps 3 through 5 for every frame present in the file until
+reaching the end of the data stream.</p>
+<h3 id="6-account-for-the-trailer-byte">6. Account for the Trailer
+Byte</h3>
+<p>The end of a GIF file is marked by a single Trailer byte:
+<code>0x3B</code>. Add this final 1 byte to your non-pixel overhead
+counter.</p>
+<h3 id="7-calculate-and-verify-the-final-overhead">7. Calculate and
+Verify the Final Overhead</h3>
+<p>Sum all the accumulated values from steps 1 through 6 to obtain the
+exact structural non-pixel metadata overhead in bytes. To verify
+accuracy, subtract the cumulative length of all raw compressed LZW data
+bytes from the total file size on disk; the remaining value should match
+your calculated metadata overhead exactly.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

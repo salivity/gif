@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can GIF Frames Have Different Transparent Indices? - gif</title>
+    <meta name="description" content="An animated GIF file can specify different transparent color indices for different sub-frames within the same animation. The GIF89a specification governs transparency on a frame-by-frame basis rather than globally, allowing each individual image descripto">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/can-gif-frames-have-different-transparent-indices">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Can GIF Frames Have Different Transparent Indices? - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/can-gif-frames-have-different-transparent-indices" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="An animated GIF file can specify different transparent color indices for different sub-frames within the same animation. The GIF89a specification governs transparency on a frame-by-frame basis rather than globally, allowing each individual image descripto" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="can-gif-frames-have-different-transparent-indices">Can GIF
+Frames Have Different Transparent Indices?</h1>
+<p>An animated GIF file can specify different transparent color indices
+for different sub-frames within the same animation. The GIF89a
+specification governs transparency on a frame-by-frame basis rather than
+globally, allowing each individual image descriptor to use a unique
+index for transparent pixels or even toggle transparency on and off
+between frames.</p>
+<h3 id="how-gif-transparency-works">How GIF Transparency Works</h3>
+<p>In the GIF89a standard, transparency is controlled by an optional
+metadata block called the <strong>Graphic Control Extension
+(GCE)</strong>. The GCE precedes the specific image descriptor (the
+sub-frame) it modifies and contains two critical fields for managing
+transparency:</p>
+<ol type="1">
+<li><strong>Transparent Color Flag (1 bit):</strong> Indicates whether a
+transparent index is defined for the upcoming frame.</li>
+<li><strong>Transparent Color Index (1 byte):</strong> Identifies the
+exact color palette index (0 through 255) that renderers should treat as
+completely transparent for that frame.</li>
+</ol>
+<p>Because an encoder can insert a distinct Graphic Control Extension
+before every sub-frame, the transparent color index does not need to
+remain static across the animation. Frame 1 can designate index 0 as
+transparent, while Frame 2 can designate index 42, and Frame 3 can
+disable transparency entirely.</p>
+<h3 id="global-vs-local-color-tables">Global vs. Local Color Tables</h3>
+<p>A GIF can use either a Global Color Table (GCT) or Local Color Tables
+(LCT):</p>
+<ul>
+<li><strong>Using a Global Color Table:</strong> Even if all frames
+share the same 256-color global palette, each frame's GCE can point to a
+different index within that shared table to be rendered
+transparently.</li>
+<li><strong>Using Local Color Tables:</strong> When sub-frames define
+their own Local Color Tables, each frame possesses an isolated set of up
+to 256 colors. In this scenario, the transparent color index in each
+frame's GCE points directly to that specific frame's local palette. This
+allows the animation to display varying visual colors while keeping
+different palette slots designated as transparent.</li>
+</ul>
+<h3 id="practical-applications">Practical Applications</h3>
+<p>Varying the transparency index per frame is useful in several
+animation scenarios:</p>
+<ul>
+<li><strong>Frame Optimization and Differencing:</strong> GIF animations
+frequently use "delta frames," where a sub-frame only updates a small
+portion of the canvas while leaving the rest untouched using
+transparency and specific disposal methods (such as "Do Not Dispose").
+Changing transparent indices helps encoders optimize palette usage for
+just the modified region.</li>
+<li><strong>Color Cycling:</strong> Encoders can manipulate palette
+indices across frames to create dynamic color transitions while
+selectively masking different elements across consecutive frames.</li>
+<li><strong>Palette Budgeting:</strong> Because GIFs are limited to 256
+colors per palette, dynamically shifting which color index acts as the
+transparent background per frame prevents encoders from wasting valuable
+color slots across diverse frames.</li>
+</ul>
+<h3 id="parser-and-software-compatibility">Parser and Software
+Compatibility</h3>
+<p>Because per-frame transparency definitions are a standard component
+of the GIF89a specification released in 1989, virtually all modern web
+browsers, operating systems, and image viewers support distinct
+transparent indices across sub-frames without issue.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

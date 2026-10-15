@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Matte a Transparent GIF to Remove Fringing - gif</title>
+    <meta name="description" content="Transparent GIFs frequently suffer from an unsightly halo or &quot;fringing&quot; around their edges when placed on colored backgrounds. Because the GIF format only supports 1-bit binary transparency—meaning a pixel is either completely opaque or fully transparent—">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-to-matte-a-transparent-gif-to-remove-fringing">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Matte a Transparent GIF to Remove Fringing - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-to-matte-a-transparent-gif-to-remove-fringing" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Transparent GIFs frequently suffer from an unsightly halo or &quot;fringing&quot; around their edges when placed on colored backgrounds. Because the GIF format only supports 1-bit binary transparency—meaning a pixel is either completely opaque or fully transparent—" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-matte-a-transparent-gif-to-remove-fringing">How to Matte
+a Transparent GIF to Remove Fringing</h1>
+<p>Transparent GIFs frequently suffer from an unsightly halo or
+"fringing" around their edges when placed on colored backgrounds.
+Because the GIF format only supports 1-bit binary transparency—meaning a
+pixel is either completely opaque or fully transparent—it cannot
+smoothly blend semi-transparent edge pixels into a background. Matting
+solves this problem by pre-blending those semi-transparent anti-aliased
+pixels with a specific color that matches the intended destination
+background, cleanly eliminating edge artifacts.</p>
+<h3 id="understanding-why-fringing-occurs">Understanding Why Fringing
+Occurs</h3>
+<p>When an image with smooth, curved edges is created, graphic software
+uses anti-aliasing to smooth the transition between the subject and the
+background. Anti-aliasing relies on varying levels of opacity (an 8-bit
+alpha channel) to fade the edges.</p>
+<p>Because the GIF specification lacks an alpha channel, software must
+decide what to do with these semi-transparent boundary pixels:</p>
+<ul>
+<li>If the software drops anti-aliasing entirely, the edges appear
+jagged and pixelated.</li>
+<li>If the software flattens the anti-aliased edges against a default
+color (usually white) and turns the rest transparent, a pale "halo" or
+fringe appears whenever the GIF is viewed over a dark or colored
+background.</li>
+</ul>
+<h3 id="the-solution-background-matting">The Solution: Background
+Matting</h3>
+<p>Matting is the process of defining which color the anti-aliased edge
+pixels should blend into during the export process. When you matte a GIF
+against the exact hex color of the webpage or application where it will
+live, the edge pixels gradually blend into that specific color rather
+than a generic white or black.</p>
+<p>Once published on that matching background, the blended pixels
+seamlessly merge into the canvas, giving the illusion of smooth, modern
+alpha transparency.</p>
+<h3 id="how-to-matte-a-gif-in-graphic-editors">How to Matte a GIF in
+Graphic Editors</h3>
+<p>Most professional raster graphics editors, such as Adobe Photoshop,
+handle matting through their legacy web export modules.</p>
+<ol type="1">
+<li><strong>Identify the Destination Color:</strong> Find the exact
+hexadecimal color code (e.g., <code>#1A1A1A</code>) of the background
+where the GIF will be displayed.</li>
+<li><strong>Open the Web Export Tool:</strong> In your editor, navigate
+to the web export panel (in Photoshop, go to <strong>File &gt; Export
+&gt; Save for Web (Legacy)</strong>).</li>
+<li><strong>Select GIF as the Format:</strong> Ensure the file type is
+set to <strong>GIF</strong> and that the <strong>Transparency</strong>
+checkbox is enabled.</li>
+<li><strong>Locate the Matte Setting:</strong> Find the
+<strong>Matte</strong> dropdown menu on the right-hand panel. By
+default, it is often set to None, White, or Eyedropper.</li>
+<li><strong>Apply the Background Color:</strong> Select
+<strong>Other...</strong> from the Matte dropdown and enter the hex code
+of your target background.</li>
+<li><strong>Adjust Dither and Diffusion (Optional):</strong> If your
+edges have complex gradients, adjust the transparency dither settings to
+control how smoothly the matte transitions into full transparency.</li>
+<li><strong>Save the File:</strong> Export the GIF.</li>
+</ol>
+<h3 id="limitations-and-modern-alternatives">Limitations and Modern
+Alternatives</h3>
+<p>While matting successfully removes fringing, it binds the GIF to one
+specific background color. If the GIF is placed over a dynamic
+background, a gradient, or an image, the fringe will reappear in the
+shade of the chosen matte color.</p>
+<p>If your platform allows it, consider modern alternatives:</p>
+<ul>
+<li><strong>WebP:</strong> Supports 24-bit color, 8-bit alpha
+transparency, and animation with smaller file sizes than GIF.</li>
+<li><strong>APNG (Animated PNG):</strong> Supports full alpha-channel
+transparency across all modern web browsers, eliminating the need for
+matting entirely.</li>
+</ul>
+<p>If GIF is strictly required for legacy compatibility, matting remains
+the most effective technique for achieving smooth edges on fixed-color
+backgrounds.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

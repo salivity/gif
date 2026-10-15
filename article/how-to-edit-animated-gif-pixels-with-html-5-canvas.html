@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Edit Animated GIF Pixels with HTML5 Canvas - gif</title>
+    <meta name="description" content="Manipulating animated GIF frames in real time requires extracting individual frame data, rendering each frame to an HTML5 canvas, and applying pixel-level transformations before updating the display. Because the standard browser &lt;canvas&gt; context cannot na">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-to-edit-animated-gif-pixels-with-html-5-canvas">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Edit Animated GIF Pixels with HTML5 Canvas - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-to-edit-animated-gif-pixels-with-html-5-canvas" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Manipulating animated GIF frames in real time requires extracting individual frame data, rendering each frame to an HTML5 canvas, and applying pixel-level transformations before updating the display. Because the standard browser &lt;canvas&gt; context cannot na" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-edit-animated-gif-pixels-with-html5-canvas">How to Edit
+Animated GIF Pixels with HTML5 Canvas</h1>
+<p>Manipulating animated GIF frames in real time requires extracting
+individual frame data, rendering each frame to an HTML5 canvas, and
+applying pixel-level transformations before updating the display.
+Because the standard browser <code>&lt;canvas&gt;</code> context cannot
+natively decode or step through multi-frame GIFs via
+<code>drawImage()</code>, developers must rely on decoding tools such as
+the native WebCodecs <code>ImageDecoder</code> API or JavaScript-based
+parsers to gain frame-by-frame access. Once decoded, frames can be
+processed using <code>ImageData</code> arrays, canvas compositing
+operations, or custom shaders to achieve real-time visual effects.</p>
+<h3 id="1-decoding-gif-frames">1. Decoding GIF Frames</h3>
+<p>Standard HTML image elements hide internal GIF frame data from
+JavaScript. To access individual frames, you must decode the binary GIF
+buffer into separate frame components:</p>
+<ul>
+<li><strong>Native WebCodecs API (<code>ImageDecoder</code>):</strong>
+In modern browsers, <code>ImageDecoder</code> provides low-level,
+hardware-accelerated access to each frame's image bitmap and duration
+without third-party dependencies.</li>
+<li><strong>JavaScript Parsers:</strong> For universal browser support,
+libraries like <code>gifuct-js</code> or <code>omggif</code> parse the
+raw ArrayBuffer of a fetched GIF file. These libraries return each
+frame's raw RGBA pixel data, bounding patch coordinates, delay timing,
+and disposal methods.</li>
+</ul>
+<h3 id="2-handling-frame-disposal-and-compositing">2. Handling Frame
+Disposal and Compositing</h3>
+<p>GIFs use frame disposal methods to optimize file size, meaning a
+frame may only contain a sub-rectangle of changes relative to previous
+frames rather than a full-sized image. To render them accurately:</p>
+<ol type="1">
+<li>Maintain an offscreen canvas matching the GIF's total width and
+height.</li>
+<li>Before drawing a new frame, handle the prior frame's disposal method
+(e.g., leave in place, restore to background color, or restore to the
+previous state).</li>
+<li>Draw the new frame patch onto the offscreen canvas to build the
+complete composite frame.</li>
+</ol>
+<h3 id="3-reading-and-modifying-pixel-data">3. Reading and Modifying
+Pixel Data</h3>
+<p>Once a complete frame is compiled on the offscreen canvas, transfer
+it to the active canvas and extract the pixel array:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Draw the composite frame</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ctx<span class="op">.</span><span class="fu">drawImage</span>(offscreenCanvas<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Extract the raw pixel buffer</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> imageData <span class="op">=</span> ctx<span class="op">.</span><span class="fu">getImageData</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> canvas<span class="op">.</span><span class="at">width</span><span class="op">,</span> canvas<span class="op">.</span><span class="at">height</span>)<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> data <span class="op">=</span> imageData<span class="op">.</span><span class="at">data</span><span class="op">;</span> <span class="co">// Uint8ClampedArray [R, G, B, A, R, G, B, A, ...]</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Real-time manipulation loop</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span><span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">4</span>) {</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Example: Invert RGB channels</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  data[i]     <span class="op">=</span> <span class="dv">255</span> <span class="op">-</span> data[i]<span class="op">;</span>     <span class="co">// Red</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  data[i <span class="op">+</span> <span class="dv">1</span>] <span class="op">=</span> <span class="dv">255</span> <span class="op">-</span> data[i <span class="op">+</span> <span class="dv">1</span>]<span class="op">;</span> <span class="co">// Green</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  data[i <span class="op">+</span> <span class="dv">2</span>] <span class="op">=</span> <span class="dv">255</span> <span class="op">-</span> data[i <span class="op">+</span> <span class="dv">2</span>]<span class="op">;</span> <span class="co">// Blue</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">// data[i + 3] is Alpha</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Write the modified pixels back to the canvas</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>ctx<span class="op">.</span><span class="fu">putImageData</span>(imageData<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)<span class="op">;</span></span></code></pre></div>
+<p>For performance-critical operations, you can interpret
+<code>imageData.data.buffer</code> as a <code>Uint32Array</code>. This
+allows 32-bit pixel manipulations in a single operation rather than
+modifying four separate byte indices per pixel.</p>
+<h3 id="4-alternative-canvas-drawing-operations">4. Alternative Canvas
+Drawing Operations</h3>
+<p>Direct pixel manipulation via <code>getImageData()</code> runs
+entirely on the CPU. When possible, substitute direct array loops with
+native canvas 2D operations to leverage GPU acceleration:</p>
+<ul>
+<li><strong>Global Composite Operations:</strong> Use
+<code>ctx.globalCompositeOperation</code> (e.g.,
+<code>'multiply'</code>, <code>'screen'</code>,
+<code>'destination-in'</code>) to blend textures, apply dynamic masking,
+or colorize frames.</li>
+<li><strong>Canvas Filters:</strong> Use <code>ctx.filter</code> (e.g.,
+<code>ctx.filter = 'contrast(1.5) hue-rotate(90deg)'</code>) before
+calling <code>ctx.drawImage()</code> to execute complex color shifts
+natively.</li>
+<li><strong>WebGL Integration:</strong> Upload the current frame to a
+WebGL texture via <code>gl.texImage2D()</code> to execute advanced
+fragment shaders for displacement mapping, blur, or chroma keying at
+high frame rates.</li>
+</ul>
+<h3 id="5-running-the-playback-loop">5. Running the Playback Loop</h3>
+<p>Drive animation playback with <code>requestAnimationFrame()</code>
+paired with a timing tracker. Check the elapsed time against the current
+frame's specified delay. When the delay elapses, advance the frame
+index, apply the disposal rules, execute the pixel modifications, and
+draw the result to the screen. Pre-buffering decoded frames in memory
+minimizes garbage collection pauses and prevents frame-rate drops during
+real-time manipulation.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

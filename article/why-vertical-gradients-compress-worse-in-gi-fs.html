@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Vertical Gradients Compress Worse in GIFs - gif</title>
+    <meta name="description" content="Vertical gradients result in significantly larger GIF file sizes than horizontal gradients due to the interaction between raster scan order and the Lempel-Ziv-Welch (LZW) compression algorithm. Because GIF reads pixel data horizontally row by row, a horiz">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-vertical-gradients-compress-worse-in-gi-fs">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Vertical Gradients Compress Worse in GIFs - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-vertical-gradients-compress-worse-in-gi-fs" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Vertical gradients result in significantly larger GIF file sizes than horizontal gradients due to the interaction between raster scan order and the Lempel-Ziv-Welch (LZW) compression algorithm. Because GIF reads pixel data horizontally row by row, a horiz" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-vertical-gradients-compress-worse-in-gifs">Why Vertical
+Gradients Compress Worse in GIFs</h1>
+<p>Vertical gradients result in significantly larger GIF file sizes than
+horizontal gradients due to the interaction between raster scan order
+and the Lempel-Ziv-Welch (LZW) compression algorithm. Because GIF reads
+pixel data horizontally row by row, a horizontal gradient produces
+identical color sequences on every single line, allowing the LZW
+dictionary to compress subsequent rows into a few recurring tokens.
+Conversely, a vertical gradient shifts color values row by row, forcing
+the dictionary to constantly discard or rebuild sequences, which
+severely degrades compression efficiency.</p>
+<h3 id="raster-scan-order-in-gif-files">Raster Scan Order in GIF
+Files</h3>
+<p>The GIF specification stores image data using a linear raster scan.
+The encoder reads pixels sequentially starting from the top-left corner,
+moving horizontally across the row to the right edge, and then dropping
+down to the start of the next line. This process converts a
+two-dimensional grid of pixels into a single, continuous stream of color
+indices.</p>
+<p>Because data is read horizontally, the direction of visual patterns
+relative to the scan line directly dictates how repetitive the resulting
+data stream will be.</p>
+<h3 id="how-lzw-compression-works">How LZW Compression Works</h3>
+<p>GIF relies on LZW compression, a lossless, dictionary-based
+algorithm. As the encoder processes the linear stream of pixel values,
+it identifies repeated sequences of bytes and assigns them short
+numerical codes.</p>
+<p>The LZW dictionary starts with basic single-pixel values and
+dynamically builds multi-pixel sequences as it encounters them. The
+dictionary has a maximum capacity of 4,096 entries (using 12-bit codes).
+Once the dictionary fills up, the encoder either stops adding new
+strings or clears the dictionary entirely and starts over. High
+compression ratios depend on encountering the exact same multi-pixel
+sequences repeatedly throughout the stream.</p>
+<h3 id="horizontal-gradients-high-pattern-repetition">Horizontal
+Gradients: High Pattern Repetition</h3>
+<p>In a clean horizontal gradient, color changes across the X-axis while
+remaining uniform down the Y-axis.</p>
+<ul>
+<li><strong>Row 1:</strong>
+<code>Color A, Color B, Color C, Color D...</code></li>
+<li><strong>Row 2:</strong>
+<code>Color A, Color B, Color C, Color D...</code></li>
+<li><strong>Row 3:</strong>
+<code>Color A, Color B, Color C, Color D...</code></li>
+</ul>
+<p>While encoding the first row, LZW registers patterns like
+<code>[Color A + Color B]</code> and <code>[Color C + Color D]</code>.
+When the encoder moves to the second row, it encounters the exact same
+sequence.</p>
+<p>Very quickly, the dictionary builds entries that represent large
+segments of a row—or even an entire row—under a single code. By the
+third or fourth row, hundreds or thousands of pixels can be represented
+by just a handful of LZW codes, leading to exceptionally small file
+sizes.</p>
+<h3 id="vertical-gradients-constant-dictionary-invalidation">Vertical
+Gradients: Constant Dictionary Invalidation</h3>
+<p>In a vertical gradient, color remains uniform across any single row,
+but changes as you move down the Y-axis.</p>
+<ul>
+<li><strong>Row 1:</strong>
+<code>Color A, Color A, Color A, Color A...</code></li>
+<li><strong>Row 2:</strong>
+<code>Color B, Color B, Color B, Color B...</code></li>
+<li><strong>Row 3:</strong>
+<code>Color C, Color C, Color C, Color C...</code></li>
+</ul>
+<p>While LZW can compress Row 1 efficiently by building run-length
+patterns of <code>Color A</code> (<code>[A + A]</code>,
+<code>[A + A + A]</code>), none of those dictionary entries apply to Row
+2. When the scan line drops to Row 2, the encoder must start building
+new strings for <code>Color B</code> from scratch.</p>
+<p>This behavior causes two critical issues:</p>
+<ol type="1">
+<li><strong>Dictionary Exhaustion:</strong> The dictionary quickly fills
+with long runs of individual colors (<code>AAAA</code>,
+<code>BBBB</code>, <code>CCCC</code>) that are never used again after
+their specific row finishes.</li>
+<li><strong>Frequent Resets:</strong> Once the 4,096-entry limit is hit
+with single-use data, the encoder must reset the dictionary, forcing the
+compression process back to short, inefficient bit codes.</li>
+</ol>
+<h3 id="the-amplifying-effect-of-dithering">The Amplifying Effect of
+Dithering</h3>
+<p>Because the GIF format is limited to a 256-color palette, gradients
+almost always require dithering to prevent harsh color banding.</p>
+<p>Dithering introduces alternating pixel patterns to simulate
+intermediate shades. In a horizontal gradient, these dithered patterns
+still repeat consistently from line to line. In a vertical gradient,
+error-diffusion algorithms scatter noise across rows, eliminating both
+horizontal run-length redundancy and vertical pattern reuse. This
+introduces high-frequency variance into the pixel stream, maximizing
+file size.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

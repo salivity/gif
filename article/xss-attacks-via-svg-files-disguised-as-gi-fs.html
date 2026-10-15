@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Attacks via SVG Files Disguised as GIFs - gif</title>
+    <meta name="description" content="This article explains how attackers leverage Scalable Vector Graphics (SVG) disguised with a .gif extension to execute Cross-Site Scripting (XSS) attacks. It covers how file validation mechanisms are bypassed, how web servers and browsers handle ambiguous">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/xss-attacks-via-svg-files-disguised-as-gi-fs">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="XSS Attacks via SVG Files Disguised as GIFs - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/xss-attacks-via-svg-files-disguised-as-gi-fs" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how attackers leverage Scalable Vector Graphics (SVG) disguised with a .gif extension to execute Cross-Site Scripting (XSS) attacks. It covers how file validation mechanisms are bypassed, how web servers and browsers handle ambiguous" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="xss-attacks-via-svg-files-disguised-as-gifs">XSS Attacks via SVG
+Files Disguised as GIFs</h1>
+<p>This article explains how attackers leverage Scalable Vector Graphics
+(SVG) disguised with a <code>.gif</code> extension to execute Cross-Site
+Scripting (XSS) attacks. It covers how file validation mechanisms are
+bypassed, how web servers and browsers handle ambiguous MIME types, and
+the technical mechanics that allow embedded JavaScript to execute within
+the victim's session context.</p>
+<p>Unlike traditional raster formats such as GIF, JPEG, or PNG, an SVG
+is an XML-based vector image format. Because it is written in XML, the
+SVG specification natively supports the inclusion of script elements,
+such as <code>&lt;script&gt;</code> tags, and inline event handlers,
+such as <code>onload</code> or <code>onerror</code>. When an SVG
+document is rendered directly by a web browser, the browser's XML parser
+interprets the markup and executes any embedded JavaScript within the
+origin of the hosting domain.</p>
+<p>To exploit file upload mechanisms that permit images but ban
+dangerous formats, attackers rename an SVG file to use a
+<code>.gif</code> extension (e.g., <code>exploit.gif</code>). If an
+application solely validates uploads using the file extension, the file
+is accepted and stored on the server. In more advanced scenarios where
+the application verifies magic bytes, attackers create a GIF/SVG
+polyglot file. This file begins with valid GIF header signatures, such
+as <code>GIF89a</code>, immediately followed by valid SVG XML markup
+containing executable script payloads.</p>
+<p>The execution of the XSS payload relies on how the file is served and
+interpreted by the browser. If the web server does not explicitly send
+an accurate <code>Content-Type: image/gif</code> header, modern browsers
+perform MIME-type sniffing to deduce the file format. Upon scanning the
+file and encountering XML and SVG elements, the browser identifies the
+resource as <code>image/svg+xml</code>. When a user navigates directly
+to the file URL or the file is rendered in an inline context such as an
+<code>&lt;iframe&gt;</code> or an <code>&lt;object&gt;</code> tag, the
+browser treats the file as an active document, thereby executing the
+embedded JavaScript.</p>
+<p>Execution also occurs when misconfigured servers rely on
+client-provided metadata or fail to enforce strict content handling. If
+the server serves the disguised file with a generic MIME type like
+<code>text/plain</code> or <code>application/octet-stream</code> without
+the <code>X-Content-Type-Options: nosniff</code> HTTP header, browsers
+attempt to determine the content type automatically. Once the browser
+detects markup, the payload triggers standard stored XSS behavior,
+enabling attackers to steal session cookies, manipulate the DOM, or
+perform unauthorized actions on behalf of the victim.</p>
+<p>Preventing this vulnerability requires robust file upload and
+delivery controls:</p>
+<ul>
+<li><strong>Server-Side Re-encoding:</strong> Process all uploaded
+images through an image processing library (such as ImageMagick or
+Sharp) to re-encode them into strict raster formats, which strips out
+any XML markup or scripts.</li>
+<li><strong>Strict Header Enforcement:</strong> Explicitly set the
+<code>Content-Type</code> header based on server-side content
+verification and always include
+<code>X-Content-Type-Options: nosniff</code> in HTTP responses.</li>
+<li><strong>Isolated Storage Domains:</strong> Serve all user-generated
+content from an isolated, sandboxed domain or content delivery network
+(CDN) that does not share authentication cookies or session states with
+the main application.</li>
+<li><strong>Content Security Policy (CSP):</strong> Implement a strict
+Content Security Policy that restricts script execution and disallows
+inline scripts.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure GIF Logical Screen Descriptor Parsing - gif</title>
+    <meta name="description" content="The Logical Screen Descriptor (LSD) in a GIF file defines the overall display dimensions, color resolution, and global palette properties for the entire image sequence. Because this 7-byte block dictates the initial memory allocation and color mapping log">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/secure-gif-logical-screen-descriptor-parsing">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Secure GIF Logical Screen Descriptor Parsing - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/secure-gif-logical-screen-descriptor-parsing" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Logical Screen Descriptor (LSD) in a GIF file defines the overall display dimensions, color resolution, and global palette properties for the entire image sequence. Because this 7-byte block dictates the initial memory allocation and color mapping log" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="secure-gif-logical-screen-descriptor-parsing">Secure GIF Logical
+Screen Descriptor Parsing</h1>
+<p>The Logical Screen Descriptor (LSD) in a GIF file defines the overall
+display dimensions, color resolution, and global palette properties for
+the entire image sequence. Because this 7-byte block dictates the
+initial memory allocation and color mapping logic, an insecure parser
+can be exploited through integer overflows, out-of-bounds reads or
+writes, and denial-of-service (DoS) conditions. A robust image parser
+must execute a sequence of strict validation checks on the LSD before
+processing subsequent data blocks.</p>
+<h2 id="1-input-stream-length-verification">1. Input Stream Length
+Verification</h2>
+<p>Before reading the Logical Screen Descriptor, the parser must verify
+that the input stream contains at least 7 bytes immediately following
+the 6-byte header (<code>GIF87a</code> or <code>GIF89a</code>).
+Attempting to parse the LSD without confirming byte availability leads
+to out-of-bounds read vulnerabilities or unexpected EOF exceptions.</p>
+<h2 id="2-dimension-bounds-and-overflow-validation">2. Dimension Bounds
+and Overflow Validation</h2>
+<p>The first 4 bytes of the LSD define the Logical Screen Width and
+Logical Screen Height as two 16-bit unsigned little-endian integers.</p>
+<ul>
+<li><strong>Zero-Dimension Check:</strong> Both width and height must be
+non-zero. A value of zero can lead to division-by-zero errors in
+downstream rendering calculations or unhandled logic states.</li>
+<li><strong>Maximum Dimension Limits:</strong> Extremely large
+dimensions (up to 65,535 × 65,535) can trigger memory exhaustion
+(Decompression/Allocation Bombs). The parser should enforce an
+application-specific upper boundary matching safe system resource
+constraints.</li>
+<li><strong>Integer Overflow in Allocation:</strong> Calculating the
+buffer size required to store the rendered canvas (e.g.,
+<code>width * height * bytes_per_pixel</code>) can overflow a 32-bit
+integer. Safe math functions with overflow detection or promotion to
+64-bit integers must be used prior to allocating memory.</li>
+</ul>
+<h2 id="3-global-color-table-gct-validation">3. Global Color Table (GCT)
+Validation</h2>
+<p>Byte 5 is a packed field containing configuration flags, including
+the Global Color Table Flag (bit 7) and the Global Color Table Size
+(bits 0–2).</p>
+<ul>
+<li><strong>Stream Sufficiency for GCT:</strong> If the Global Color
+Table Flag is set to 1, the size of the table is calculated as <span
+class="math inline">\(3 \times 2^{(N+1)}\)</span> bytes, where <span
+class="math inline">\(N\)</span> represents the 3-bit value of the GCT
+size field (yielding between 2 and 256 RGB entries, or 6 to 768 bytes).
+The parser must verify that the remaining input stream contains at least
+this calculated number of bytes before attempting to read the
+palette.</li>
+<li><strong>Absence Handling:</strong> If the Global Color Table Flag is
+0, the parser must ensure it does not attempt to read palette data and
+that subsequent image descriptors provide their own Local Color Table or
+reference an explicitly handled default palette.</li>
+</ul>
+<h2 id="4-background-color-index-bounds-checking">4. Background Color
+Index Bounds Checking</h2>
+<p>Byte 6 defines the Background Color Index.</p>
+<ul>
+<li><strong>Index Range Check:</strong> If a Global Color Table is
+present, the parser must ensure the Background Color Index is strictly
+less than the total number of colors in the table (<span
+class="math inline">\(2^{(N+1)}\)</span>). If the index exceeds this
+range, referencing it during canvas clearing will result in an
+out-of-bounds memory read.</li>
+<li><strong>Fallback for Missing GCT:</strong> If no Global Color Table
+is present, the index should typically be ignored or defaulted to
+zero/transparent, depending on the application context, to avoid
+accessing an uninitialized color buffer.</li>
+</ul>
+<h2 id="5-pixel-aspect-ratio-division-by-zero-protection">5. Pixel
+Aspect Ratio Division-by-Zero Protection</h2>
+<p>Byte 7 defines the Pixel Aspect Ratio.</p>
+<ul>
+<li>If the byte value is non-zero, the actual aspect ratio is calculated
+using the formula <span class="math inline">\((Value + 15) /
+64\)</span>.</li>
+<li>Parsers that compute custom scaling factors or inverse aspect ratios
+from this field must guard against arithmetic division-by-zero or
+precision underflow when scaling the render canvas.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

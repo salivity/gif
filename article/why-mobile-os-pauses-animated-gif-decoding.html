@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Mobile OS Pauses Animated GIF Decoding - gif</title>
+    <meta name="description" content="Mobile operating systems deliberately throttle or pause animated GIF decoding in background tabs primarily to conserve battery life, free up system memory, and optimize device performance. Because animated GIFs are an inefficient legacy format that requir">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/why-mobile-os-pauses-animated-gif-decoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Mobile OS Pauses Animated GIF Decoding - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/why-mobile-os-pauses-animated-gif-decoding" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Mobile operating systems deliberately throttle or pause animated GIF decoding in background tabs primarily to conserve battery life, free up system memory, and optimize device performance. Because animated GIFs are an inefficient legacy format that requir" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-mobile-os-pauses-animated-gif-decoding">Why Mobile OS Pauses
+Animated GIF Decoding</h1>
+<p>Mobile operating systems deliberately throttle or pause animated GIF
+decoding in background tabs primarily to conserve battery life, free up
+system memory, and optimize device performance. Because animated GIFs
+are an inefficient legacy format that requires continuous frame-by-frame
+rendering, running them off-screen wastes significant processing power.
+By freezing these processes when a browser tab loses focus, mobile
+operating systems like iOS and Android prevent hidden animations from
+draining resources that are needed for active foreground tasks.</p>
+<h3 id="the-inefficiency-of-the-gif-format">The Inefficiency of the GIF
+Format</h3>
+<p>Unlike modern video formats such as MP4 or WebM, the Graphics
+Interchange Format (GIF) was never designed for long-form, complex
+animations. Modern video codecs use inter-frame compression (keyframes
+and delta frames) and rely on dedicated hardware decoders that process
+video with minimal battery impact.</p>
+<p>Animated GIFs, by contrast, store full image frames with basic
+palette limitations. Because hardware decoders do not support GIFs, the
+device's CPU or software rendering engine must manually unpack, decode,
+and store every individual frame as a raw bitmap. A single
+high-resolution GIF running at 30 frames per second can consume as much
+computational power as a high-definition video stream.</p>
+<h3 id="conserving-battery-and-managing-thermal-limits">Conserving
+Battery and Managing Thermal Limits</h3>
+<p>Mobile devices operate under strict thermal constraints and finite
+battery capacities. When a user switches tabs, any continuous CPU or GPU
+activity prevents the processor from entering low-power sleep states
+(C-states).</p>
+<p>If a browser continues decoding animated GIFs in non-visible tabs, it
+creates continuous background workload. This sustained activity rapidly
+depletes battery reserves and generates heat, which can trigger thermal
+throttling across the entire operating system. Mobile platforms mitigate
+this by suspending paint events and execution loops for background
+tabs.</p>
+<h3 id="memory-optimization-and-oom-prevention">Memory Optimization and
+OOM Prevention</h3>
+<p>Memory (RAM) management is critical on mobile platforms. When a GIF
+animates, browsers often cache decoded frames in RAM to avoid
+recalculating them on every loop. In a page with multiple GIFs, this can
+easily consume hundreds of megabytes of memory.</p>
+<p>Mobile operating systems aggressively monitor memory pressure to
+maintain overall system stability. If background tabs consume too much
+RAM, the operating system's low-memory killer (LMK) or Out-Of-Memory
+(OOM) manager will terminate background applications to prevent the
+active app from crashing. Pausing decoding and evicting cached frames
+from background tabs keeps memory usage within safe operational
+thresholds.</p>
+<h3 id="browser-engine-and-page-visibility-integration">Browser Engine
+and Page Visibility Integration</h3>
+<p>Modern mobile browsers (such as WebKit in Safari and Blink in Chrome)
+integrate directly with the underlying operating system's process
+management pipelines using the Page Visibility API.</p>
+<p>When a tab is obscured, minimized, or moved to the background, the
+browser marks the document as hidden. This event triggers an automatic
+halt to:</p>
+<ul>
+<li>High-frequency timers such as
+<code>requestAnimationFrame</code></li>
+<li>Canvas rendering contexts</li>
+<li>Decoding pipelines for non-visible animated image formats</li>
+</ul>
+<p>By aligning browser task scheduling with operating system
+power-management policies, mobile devices ensure that zero computational
+cycles are spent rendering graphics that the user cannot currently
+see.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

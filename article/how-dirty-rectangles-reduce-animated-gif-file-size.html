@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Dirty Rectangles Reduce Animated GIF File Size - gif</title>
+    <meta name="description" content="Animated GIF optimization relies heavily on &quot;dirty rectangles&quot;—also known as delta frames—to drastically reduce overall file size without sacrificing visual fidelity. Instead of saving a complete image for every step of an animation, this technique isolat">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-dirty-rectangles-reduce-animated-gif-file-size">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Dirty Rectangles Reduce Animated GIF File Size - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-dirty-rectangles-reduce-animated-gif-file-size" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIF optimization relies heavily on &quot;dirty rectangles&quot;—also known as delta frames—to drastically reduce overall file size without sacrificing visual fidelity. Instead of saving a complete image for every step of an animation, this technique isolat" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-dirty-rectangles-reduce-animated-gif-file-size">How Dirty
+Rectangles Reduce Animated GIF File Size</h1>
+<p>Animated GIF optimization relies heavily on "dirty rectangles"—also
+known as delta frames—to drastically reduce overall file size without
+sacrificing visual fidelity. Instead of saving a complete image for
+every step of an animation, this technique isolates and encodes only the
+specific pixels that change from one frame to the next. By replacing
+redundant, static visual data with localized updates and transparency,
+delta encoding minimizes the total amount of pixel information the file
+needs to store, resulting in significantly lighter animations that load
+and render faster.</p>
+<h3 id="eliminating-redundant-full-frame-data">Eliminating Redundant
+Full-Frame Data</h3>
+<p>In an unoptimized GIF, every frame is a full-canvas image. If an
+animation has a canvas size of 800x600 pixels across 50 frames, a
+standard render encodes 480,000 pixels 50 distinct times, even if 95% of
+the background remains completely motionless.</p>
+<p>Delta encoding solves this by identifying the exact bounding box—the
+"dirty rectangle"—surrounding only the motion between frame <em>A</em>
+and frame <em>B</em>. Anything outside this bounding box that remains
+identical is omitted from the new frame.</p>
+<h3 id="utilizing-offsets-and-sub-frame-dimensions">Utilizing Offsets
+and Sub-Frame Dimensions</h3>
+<p>The GIF format natively supports storing frames smaller than the
+logical canvas through image descriptors that define width, height, and
+coordinate offsets (X and Y positions).</p>
+<p>When using dirty rectangles, the encoder:</p>
+<ol type="1">
+<li>Calculates the smallest rectangular area containing the modified
+pixels.</li>
+<li>Crops the incoming frame to just those dimensions.</li>
+<li>Sets the X and Y coordinates to place that cropped rectangle
+precisely over the canvas.</li>
+</ol>
+<p>If a character waves a hand in the top-right corner of an 800x600
+canvas, the encoder only saves a sub-frame that might be 50x50 pixels at
+an offset of X: 700, Y: 50. The file stores and processes 2,500 pixels
+instead of 480,000 for that step of the animation.</p>
+<h3 id="leveraging-transparency-and-disposal-methods">Leveraging
+Transparency and Disposal Methods</h3>
+<p>Dirty rectangles work in tandem with the GIF "disposal method"
+setting, specifically "Do Not Dispose" (Leave in Place). This setting
+instructs the GIF decoder to retain the previous frame's graphic on
+screen rather than clearing it to a blank background.</p>
+<p>Any pixels inside the dirty rectangle that do not change can be
+designated as transparent. The decoder leaves the existing pixels
+underneath visible, which avoids re-encoding identical color data.</p>
+<h3 id="enhancing-lzw-compression">Enhancing LZW Compression</h3>
+<p>GIF files use Lempel-Ziv-Welch (LZW) lossless data compression, which
+shrinks files by finding repeating patterns of byte values.</p>
+<p>Delta framing aids LZW compression in two ways:</p>
+<ul>
+<li><strong>Fewer Total Bytes:</strong> Shrinking the pixel array
+dramatically lowers the raw data count fed into the compressor.</li>
+<li><strong>Longer Repeating Sequences:</strong> Large clusters of
+transparent pixels inside the cropped rectangle map to a single index in
+the GIF color palette. Long, uninterrupted sequences of the same index
+compress far more efficiently under LZW than detailed, varied
+textures.</li>
+</ul>
+<p>By discarding duplicate imagery, cropping updates to localized
+coordinates, and maximizing transparent pixel runs, dirty rectangles
+eliminate the vast majority of payload overhead in animated GIFs.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

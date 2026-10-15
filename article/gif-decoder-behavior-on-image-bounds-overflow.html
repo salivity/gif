@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Decoder Behavior on Image Bounds Overflow - gif</title>
+    <meta name="description" content="When a GIF&#39;s LZW-compressed data stream decodes into more pixel values than defined by the Image Descriptor’s dimensions (Width × Height), the decoder enters an out-of-bounds state. This overview explains how decoders handle this discrepancy, detailing in">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-decoder-behavior-on-image-bounds-overflow">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF Decoder Behavior on Image Bounds Overflow - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-decoder-behavior-on-image-bounds-overflow" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When a GIF&#39;s LZW-compressed data stream decodes into more pixel values than defined by the Image Descriptor’s dimensions (Width × Height), the decoder enters an out-of-bounds state. This overview explains how decoders handle this discrepancy, detailing in" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-decoder-behavior-on-image-bounds-overflow">GIF Decoder
+Behavior on Image Bounds Overflow</h1>
+<p>When a GIF's LZW-compressed data stream decodes into more pixel
+values than defined by the Image Descriptor’s dimensions (Width ×
+Height), the decoder enters an out-of-bounds state. This overview
+explains how decoders handle this discrepancy, detailing internal buffer
+management, error mitigation, visual output, and the critical memory
+safety risks involved when surplus data is encountered.</p>
+<h3 id="the-mechanism-of-the-mismatch">The Mechanism of the
+Mismatch</h3>
+<p>A standard GIF file specifies spatial dimensions within its Image
+Descriptor block: an image width, an image height, and coordinate
+offsets. Multiplying width by height establishes the exact number of
+expected pixel indices.</p>
+<p>Following the descriptor, the image data is stored as a series of
+sub-blocks encoded via variable-length LZW compression. The decoder
+reads LZW codes, reconstructs the dictionary, and outputs color palette
+indices sequentially. A mismatch occurs when the LZW stream fails to
+emit an End of Information (EOI) code precisely when the expected pixel
+count is reached, continuing instead to output additional pixel
+values.</p>
+<h3 id="decoder-handling-strategies">Decoder Handling Strategies</h3>
+<p>How a decoder responds depends entirely on its architecture, language
+safety, and adherence to specifications:</p>
+<ol type="1">
+<li><p><strong>Truncation and Silent Discard (Standard
+Practice)</strong><br />
+Most modern, robust decoders maintain an internal pixel counter. Once
+the decoded pixel count equals <code>Width × Height</code>, the decoder
+stops writing to the image canvas. It then skips or drains the remaining
+LZW sub-blocks until it reaches the block terminator byte
+(<code>0x00</code>) or the next valid block header, ensuring the
+rendering pipeline does not desynchronize.</p></li>
+<li><p><strong>Strict Error Abort</strong><br />
+Security-focused parsers treat extraneous data as corruption. Upon
+detecting surplus decoded pixels before the LZW terminator, the parser
+immediately halts decompression, discards the current frame, and raises
+a decode error. This prevents the application from executing potentially
+malicious or invalid image logic.</p></li>
+<li><p><strong>Buffer Overflows (Legacy and Unsafe
+Decoders)</strong><br />
+In older or unhardened C/C++ implementations, decoders frequently
+allocate an output buffer sized strictly to
+<code>Width × Height × BytesPerPixel</code> and write decoded data using
+unchecked pointers. If the compressed stream supplies extra pixels, the
+decoder writes past the allocated memory boundary. This results in a
+heap-based buffer overflow, typically causing an immediate application
+crash (denial of service) or potentially enabling arbitrary code
+execution if the overflow corrupts surrounding heap metadata.</p></li>
+<li><p><strong>Coordinate Wrapping and Artifacting</strong><br />
+Some naive decoders calculate the destination pixel position via modulo
+arithmetic (e.g., <code>x = current_index % width</code>,
+<code>y = current_index / width</code>). If unbounded, writing continues
+into unintended rows or wraps around to overwrite the top of the image
+buffer, generating severe visual glitches and tearing.</p></li>
+</ol>
+<h3 id="impact-on-multi-frame-and-animated-gifs">Impact on Multi-Frame
+and Animated GIFs</h3>
+<p>GIF images can contain multiple local image descriptors within a
+single file to produce animation. If an individual frame overflows its
+bounds without triggering a complete abort, subsequent frames often
+suffer:</p>
+<ul>
+<li><strong>Desynchronization:</strong> If the decoder loses track of
+the sub-block boundaries while processing surplus data, it may fail to
+find the Graphics Control Extension or Image Descriptor of the next
+frame, terminating playback prematurely.</li>
+<li><strong>Canvas Corruption:</strong> When the disposal method of the
+offending frame relies on restoring the previous background or canvas
+state, the overflowed data can corrupt the persistent rendering canvas,
+permanently distorting all subsequent frames.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

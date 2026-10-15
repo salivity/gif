@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Interlaced GIF Second Pass Fills Pixel Rows - gif</title>
+    <meta name="description" content="Interlaced GIFs allow images to render progressively as they download, transitioning from a blurry silhouette to a sharp image across four distinct passes. During the second pass, the decoder reads the scanlines positioned halfway between the rows rendere">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-interlaced-gif-second-pass-fills-pixel-rows">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Interlaced GIF Second Pass Fills Pixel Rows - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-interlaced-gif-second-pass-fills-pixel-rows" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Interlaced GIFs allow images to render progressively as they download, transitioning from a blurry silhouette to a sharp image across four distinct passes. During the second pass, the decoder reads the scanlines positioned halfway between the rows rendere" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-interlaced-gif-second-pass-fills-pixel-rows">How Interlaced
+GIF Second Pass Fills Pixel Rows</h1>
+<p>Interlaced GIFs allow images to render progressively as they
+download, transitioning from a blurry silhouette to a sharp image across
+four distinct passes. During the second pass, the decoder reads the
+scanlines positioned halfway between the rows rendered in the first
+pass, effectively halving the vertical blockiness of the preview. This
+article explains the exact scanline intervals targeted in the second
+pass and how rendering decoders handle the remaining unread pixels to
+construct a coherent image on screen.</p>
+<h3 id="the-interlacing-pattern">The Interlacing Pattern</h3>
+<p>The GIF specification (both GIF87a and GIF89a) organizes interlaced
+scanlines into four distinct passes rather than reading the image
+sequentially from top to bottom. Each pass covers a specific set of rows
+across the image height:</p>
+<ul>
+<li><strong>Pass 1:</strong> Every 8th row, starting at row 0 (rows 0,
+8, 16, 24, etc.)</li>
+<li><strong>Pass 2:</strong> Every 8th row, starting at row 4 (rows 4,
+12, 20, 28, etc.)</li>
+<li><strong>Pass 3:</strong> Every 4th row, starting at row 2 (rows 2,
+6, 10, 14, etc.)</li>
+<li><strong>Pass 4:</strong> Every 2nd row, starting at row 1 (rows 1,
+3, 5, 7, etc.)</li>
+</ul>
+<h3 id="row-targeting-in-the-second-pass">Row Targeting in the Second
+Pass</h3>
+<p>In the raw data stream, the second pass does not actually contain any
+missing pixel rows; it strictly contains the compressed pixel data for
+row 4 and every subsequent 8th row (index <span class="math inline">\(4
++ 8k\)</span>).</p>
+<p>The decoder writes this incoming data directly into its internal
+frame buffer at scanlines 4, 12, 20, and so on. Because rows 0, 8, 16,
+and 24 were already established in Pass 1, the addition of Pass 2 places
+a valid scanline precisely in the middle of each 8-row gap.</p>
+<h3 id="filling-the-in-between-rows-on-display">Filling the In-Between
+Rows on Display</h3>
+<p>Until all passes are complete, the rendering engine must decide how
+to visualize rows that have not yet been transmitted (rows 1–3 and rows
+5–7). Decoders handle these missing rows using vertical pixel
+replication:</p>
+<ol type="1">
+<li><strong>Splitting the Blocks:</strong> After Pass 1, a viewer
+typically renders row 0 across rows 0 through 7, creating uniform blocks
+of 8 pixels in height. When Pass 2 arrives, the decoder updates the
+canvas.</li>
+<li><strong>Assigning the Midpoint:</strong> The decoder paints the true
+data for row 4.</li>
+<li><strong>Downward Replication:</strong> To fill the surrounding
+missing rows, the decoder replicates the newly received row 4 downward
+across rows 5, 6, and 7.</li>
+<li><strong>Preserving Earlier Data:</strong> Rows 1, 2, and 3 continue
+to display the replicated data from row 0.</li>
+</ol>
+<p>By replacing the original 8-pixel-tall solid blocks with two separate
+4-pixel-tall blocks (one sourced from row 0, the other from row 4), the
+second pass doubles the perceived vertical resolution of the preview
+while awaiting the finer details delivered in the third and fourth
+passes.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

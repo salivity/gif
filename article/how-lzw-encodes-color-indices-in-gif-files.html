@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How LZW Encodes Color Indices in GIF Files - gif</title>
+    <meta name="description" content="The Graphics Interchange Format (GIF) achieves compact file sizes by decoupling pixel geometry from 24-bit RGB values through an indexed color model and compressing the resulting index data with the Lempel-Ziv-Welch (LZW) algorithm. Instead of processing">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/how-lzw-encodes-color-indices-in-gif-files">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How LZW Encodes Color Indices in GIF Files - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/how-lzw-encodes-color-indices-in-gif-files" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Graphics Interchange Format (GIF) achieves compact file sizes by decoupling pixel geometry from 24-bit RGB values through an indexed color model and compressing the resulting index data with the Lempel-Ziv-Welch (LZW) algorithm. Instead of processing" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-lzw-encodes-color-indices-in-gif-files">How LZW Encodes
+Color Indices in GIF Files</h1>
+<p>The Graphics Interchange Format (GIF) achieves compact file sizes by
+decoupling pixel geometry from 24-bit RGB values through an indexed
+color model and compressing the resulting index data with the
+Lempel-Ziv-Welch (LZW) algorithm. Instead of processing red, green, and
+blue values directly, the LZW algorithm operates entirely on a stream of
+integer pointers that reference an external color palette. This article
+explains the technical pipeline of how GIF structures its color palette,
+generates index streams, and applies LZW dictionary encoding to those
+indices.</p>
+<h3 id="the-indexed-color-palette-foundation">The Indexed Color Palette
+Foundation</h3>
+<p>A standard RGB image requires 24 bits (3 bytes) per pixel—one byte
+each for red, green, and blue channels. GIF reduces this overhead by
+restricting each frame to a maximum of 256 colors (an 8-bit color
+depth).</p>
+<p>Before any compression occurs, the GIF encoder analyzes the image and
+builds a Color Table (either a Global Color Table for the entire file or
+a Local Color Table for an individual frame). The Color Table is an
+array of RGB triplets:</p>
+<ul>
+<li>Index <code>0</code>: <code>RGB(255, 255, 255)</code></li>
+<li>Index <code>1</code>: <code>RGB(0, 0, 0)</code></li>
+<li>Index <code>2</code>: <code>RGB(255, 0, 0)</code></li>
+<li>... up to Index <code>255</code></li>
+</ul>
+<p>By establishing this lookup table, the raw pixel canvas ceases to be
+an array of multi-byte color values and becomes an array of single-byte
+indices pointing to entries in the Color Table.</p>
+<h3 id="the-index-stream-generation">The Index Stream Generation</h3>
+<p>The image raster data is converted into a linear sequence of index
+numbers read row-by-row, from top-left to bottom-right. For example, a
+horizontal line of alternating black and white pixels is represented not
+as <code>(0,0,0), (255,255,255), (0,0,0), (255,255,255)</code>, but as
+the index sequence:</p>
+<p><code>1, 0, 1, 0</code></p>
+<p>This stream of integer indices serves as the raw input data for the
+LZW compression stage.</p>
+<h3 id="lzw-dictionary-initialization">LZW Dictionary
+Initialization</h3>
+<p>The GIF specification uses a modified version of LZW that dynamically
+creates a dictionary of recurring patterns. The initial state of the
+dictionary is determined by the image's color depth, defined by the "LZW
+Minimum Code Size."</p>
+<p>If an image uses 4 distinct colors, the minimum code size is 2 bits
+(<span class="math inline">\(2^2 = 4\)</span>). The dictionary
+initializes with:</p>
+<ul>
+<li>Codes <code>0</code> through <code>3</code>: Reserved for the
+literal color indices <code>0</code>, <code>1</code>, <code>2</code>,
+and <code>3</code>.</li>
+<li>Code <code>4</code>: Clear Code (resets the dictionary when it
+reaches capacity).</li>
+<li>Code <code>5</code>: End of Information (EOI) Code (signals the end
+of the image stream).</li>
+</ul>
+<p>Any subsequent dictionary entry created during compression begins at
+index code <code>6</code>. For an 8-bit image, codes <code>0</code> to
+<code>255</code> represent raw indices, code <code>256</code> is the
+Clear Code, code <code>257</code> is the EOI Code, and pattern codes
+begin at <code>258</code>.</p>
+<h3 id="pattern-matching-and-output-encoding">Pattern Matching and
+Output Encoding</h3>
+<p>Once initialized, the LZW encoder reads the incoming index stream one
+token at a time:</p>
+<ol type="1">
+<li><strong>Prefix Matching:</strong> The encoder reads an index and
+checks whether the current sequence (prefix + current index) already
+exists in the dictionary.</li>
+<li><strong>Dictionary Expansion:</strong> When it encounters an index
+sequence not present in the dictionary, it outputs the code for the
+existing prefix to the bitstream. It then assigns a new code number to
+the combined sequence (prefix + new index) and inserts it into the
+dictionary.</li>
+<li><strong>Reset Prefix:</strong> The newly encountered index becomes
+the starting point (prefix) for the next sequence evaluation.</li>
+</ol>
+<p>Through this process, repeated sequences of color indices—such as
+solid background areas or recurring dither patterns—are replaced by
+single variable-length codes.</p>
+<h3 id="decompression-and-rendering">Decompression and Rendering</h3>
+<p>During decompression, the GIF decoder initializes the exact same
+default dictionary based on the Color Table size. As it unpacks the
+variable-length bitstream, it resolves the LZW codes back into sequences
+of single indices while reconstructing the dictionary
+simultaneously.</p>
+<p>Finally, the decoder passes the reconstituted index stream to the
+display pipeline. The display engine uses each index to query the Color
+Table, retrieve the actual 24-bit RGB values, and render the final
+pixels on screen. At no point does the LZW algorithm process or store
+RGB data directly; it operates entirely as an abstraction layer over the
+index array.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

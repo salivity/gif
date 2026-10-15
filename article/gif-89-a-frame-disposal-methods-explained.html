@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF 89a Frame Disposal Methods Explained - gif</title>
+    <meta name="description" content="Animated GIFs rely on specific instructions to determine what happens to the canvas before the next frame is rendered. In the GIF 89a specification, this mechanism is governed by the &quot;Disposal Method&quot; field inside the Graphic Control Extension block. Thes">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-89-a-frame-disposal-methods-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF 89a Frame Disposal Methods Explained - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-89-a-frame-disposal-methods-explained" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated GIFs rely on specific instructions to determine what happens to the canvas before the next frame is rendered. In the GIF 89a specification, this mechanism is governed by the &quot;Disposal Method&quot; field inside the Graphic Control Extension block. Thes" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-89a-frame-disposal-methods-explained">GIF 89a Frame Disposal
+Methods Explained</h1>
+<p>Animated GIFs rely on specific instructions to determine what happens
+to the canvas before the next frame is rendered. In the GIF 89a
+specification, this mechanism is governed by the "Disposal Method" field
+inside the Graphic Control Extension block. These methods instruct the
+rendering software whether to keep, erase, or revert graphic data,
+making them essential for creating seamless transparency and optimizing
+animation file sizes. The specification formally outlines four standard
+disposal methods (numbered 0 through 3), each dictating a distinct
+canvas behavior.</p>
+<h2 id="0-no-disposal-specified-unspecified">0. No Disposal Specified
+(Unspecified)</h2>
+<p>When the disposal method is set to 0, the decoder is not required to
+take any specific action with the graphic after displaying it. In
+practice, most modern decoders treat this identically to "Do Not
+Dispose." The current frame remains on the canvas, and subsequent frames
+are drawn directly over it. Because its exact handling is technically
+undefined by the specification, it is rarely selected deliberately in
+modern authoring software, though it frequently appears as a legacy
+default.</p>
+<h2 id="1-do-not-dispose">1. Do Not Dispose</h2>
+<p>Disposal Method 1 instructs the decoder to leave the current frame
+intact on the canvas. When the next frame arrives, it is drawn directly
+over the existing graphic pixels.</p>
+<p>This method is fundamental to GIF optimization techniques known as
+frame differencing. Instead of redrawing the entire screen for every
+frame, an animator can render only the pixels that change, leaving the
+rest of the canvas untouched. While this significantly reduces file
+size, it requires careful management if transparent elements move across
+dynamic backgrounds, as trailing visual artifacts can occur.</p>
+<h2 id="2-restore-to-background-color">2. Restore to Background
+Color</h2>
+<p>Disposal Method 2 instructs the decoder to clear the area occupied by
+the current frame and fill it with the canvas background color before
+rendering the subsequent frame.</p>
+<p>If the GIF utilizes a transparent index, the area occupied by the
+current frame is cleared back to full transparency rather than a solid
+color. This method is critical for moving objects against transparent
+backgrounds, as it prevents the "smearing" or trail effect that would
+occur if previous frame positions were left on the canvas. Only the
+bounding box of the current frame is cleared, not the entire image
+canvas.</p>
+<h2 id="3-restore-to-previous">3. Restore to Previous</h2>
+<p>Disposal Method 3 directs the decoder to restore the canvas to the
+state it was in immediately prior to the current frame being
+rendered.</p>
+<p>To execute this, the decoder temporarily caches the canvas state
+before drawing the frame. Once the frame's display duration finishes,
+the decoder reverts the canvas back to that saved state before rendering
+the next graphic. This method is especially useful for animations
+featuring a persistent background overlaid by temporary, transient
+elements—such as a blinking light or a character briefly stepping into
+frame—without requiring the encoder to repeatedly resend the background
+artwork.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

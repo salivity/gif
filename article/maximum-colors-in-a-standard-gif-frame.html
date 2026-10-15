@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximum Colors in a Standard GIF Frame - gif</title>
+    <meta name="description" content="A single standard GIF frame supports a maximum of 256 simultaneous colors. Defined by the Graphics Interchange Format specifications (GIF87a and GIF89a), this limitation stems from GIF relying on an 8-bit indexed color system. While those 256 colors can b">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/maximum-colors-in-a-standard-gif-frame">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Maximum Colors in a Standard GIF Frame - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/maximum-colors-in-a-standard-gif-frame" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="A single standard GIF frame supports a maximum of 256 simultaneous colors. Defined by the Graphics Interchange Format specifications (GIF87a and GIF89a), this limitation stems from GIF relying on an 8-bit indexed color system. While those 256 colors can b" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="maximum-colors-in-a-standard-gif-frame">Maximum Colors in a
+Standard GIF Frame</h1>
+<p>A single standard GIF frame supports a maximum of 256 simultaneous
+colors. Defined by the Graphics Interchange Format specifications
+(GIF87a and GIF89a), this limitation stems from GIF relying on an 8-bit
+indexed color system. While those 256 colors can be individually chosen
+from a broad palette of over 16 million values, no single standard frame
+block can reference more than 256 distinct hues at any one time.</p>
+<h2 id="the-8-bit-palette-architecture">The 8-Bit Palette
+Architecture</h2>
+<p>The GIF format does not store direct color values for individual
+pixels. Instead, it uses indexed color tables:</p>
+<ul>
+<li><strong>Indexed Color:</strong> Each pixel in an image references an
+index number from 0 to 255.</li>
+<li><strong>Bit Depth:</strong> Because the index is an 8-bit binary
+value (<span class="math inline">\(2^8\)</span>), the palette is
+strictly capped at 256 total entries.</li>
+<li><strong>Master Color Space:</strong> Each of the 256 palette entries
+is defined using 24-bit RGB (8 bits each for red, green, and blue). This
+means any selected color is chosen from a total space of 16,777,216
+possible colors, even though only 256 can exist in the frame at
+once.</li>
+</ul>
+<h2 id="transparency-considerations">Transparency Considerations</h2>
+<p>When transparency is enabled in a GIF89a frame, one of the 256 slots
+is designated as a transparent pixel index rather than a visible hue.
+Consequently, a frame utilizing a transparent background or transparent
+elements can only display up to 255 visible colors simultaneously.</p>
+<h2 id="global-vs-local-color-tables">Global vs. Local Color Tables</h2>
+<p>A GIF file can define color palettes in two ways:</p>
+<ol type="1">
+<li><strong>Global Color Table (GCT):</strong> Applies across the entire
+GIF animation, limiting every frame to the same shared set of 256 colors
+unless overridden.</li>
+<li><strong>Local Color Table (LCT):</strong> Embedded directly within a
+specific frame. By using an LCT, an individual frame can display its own
+distinct set of 256 colors completely independent of the frames that
+precede or follow it.</li>
+</ol>
+<h2 id="dithering-and-compression">Dithering and Compression</h2>
+<p>Because photographic images often contain thousands of distinct hues,
+converting them to GIF requires color quantization. Software uses
+dithering algorithms (such as Floyd–Steinberg) to intersperse the
+available 256 colors in patterns that trick the human eye into
+perceiving gradients, shadows, and intermediate shades that are not
+natively present in the palette.</p>
+<h2 id="the-multi-block-exception">The Multi-Block Exception</h2>
+<p>While an individual standard frame block cannot exceed 256 colors,
+the GIF89a specification allows multiple graphic blocks to be rendered
+onto a single canvas without clearing the background. By dividing an
+image into a grid of smaller, non-overlapping tiles—each containing its
+own local 256-color palette—a single composite view can theoretically
+display thousands of simultaneous colors. However, standard software
+encoders and modern web renderers treat each independent image block as
+a standard 256-color unit.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

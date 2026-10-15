@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Is a GIFAR Attack and How Does It Work? - gif</title>
+    <meta name="description" content="A GIFAR attack is a security exploit that combines a valid Graphic Interchange Format (GIF) image and an executable Java Archive (JAR) into a single, dual-format file known as a polyglot. By exploiting differences in how image parsers and archive extracto">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/what-is-a-gifar-attack-and-how-does-it-work">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What Is a GIFAR Attack and How Does It Work? - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/what-is-a-gifar-attack-and-how-does-it-work" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="A GIFAR attack is a security exploit that combines a valid Graphic Interchange Format (GIF) image and an executable Java Archive (JAR) into a single, dual-format file known as a polyglot. By exploiting differences in how image parsers and archive extracto" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-a-gifar-attack-and-how-does-it-work">What Is a GIFAR
+Attack and How Does It Work?</h1>
+<p>A GIFAR attack is a security exploit that combines a valid Graphic
+Interchange Format (GIF) image and an executable Java Archive (JAR) into
+a single, dual-format file known as a polyglot. By exploiting
+differences in how image parsers and archive extractors read file
+structures, an attacker can bypass content-based file upload filters on
+a web server. This article explains the mechanics of a GIFAR attack, how
+the two conflicting file formats are merged into one functional file,
+and how attackers historically leveraged this technique to compromise
+web applications.</p>
+<h3 id="the-anatomy-of-a-polyglot-file">The Anatomy of a Polyglot
+File</h3>
+<p>A polyglot is a file that is simultaneously valid in two or more
+distinct file formats. The GIFAR attack, first demonstrated by security
+researchers in 2008, creates a polyglot file that is both an image and a
+program. Because the file satisfies the format specifications for both
+types, a web browser or server can interpret it as a harmless picture,
+while the Java Runtime Environment (JRE) can execute it as an
+application.</p>
+<h3 id="how-gif-and-jar-formats-combine">How GIF and JAR Formats
+Combine</h3>
+<p>The GIFAR attack works because the GIF and ZIP/JAR specifications
+parse data from completely different locations within a file:</p>
+<ol type="1">
+<li><p><strong>GIF Files Read from the Top Down:</strong> A valid GIF
+file begins with a fixed header (<code>GIF87a</code> or
+<code>GIF89a</code>) at byte zero, followed by screen descriptors, color
+tables, image data, and a terminating trailer byte (<code>0x3B</code>).
+Most image decoders process the file sequentially from the beginning and
+stop reading once they hit the trailer byte, ignoring any arbitrary data
+appended after it.</p></li>
+<li><p><strong>JAR (ZIP) Files Read from the Bottom Up:</strong> A JAR
+file is structurally a ZIP archive. The ZIP standard does not require
+the archive headers to start at byte zero. Instead, the parser seeks the
+"End of Central Directory" (EOCD) record located near the very end of
+the file. The parser then uses the offsets defined in this directory to
+locate the archived files, ignoring any arbitrary data prepended before
+the archive entries.</p></li>
+</ol>
+<p>To create a GIFAR, an attacker takes a valid GIF image and appends a
+compiled JAR archive directly to the end of it (often using a basic
+concatenation command like
+<code>copy /b image.gif + applet.jar gifar.gif</code>).</p>
+<p>When processed by an image viewer, the parser reads the header,
+renders the image, and terminates at the GIF trailer, safely ignoring
+the appended JAR payload. Conversely, when the JRE loads the same file,
+it scans backward from the end, locates the ZIP Central Directory, and
+extracts or executes the Java classes while ignoring the preceding GIF
+image data.</p>
+<h3 id="exploitation-scenario">Exploitation Scenario</h3>
+<p>The primary utility of a GIFAR attack was bypassing file upload
+restrictions to achieve Cross-Site Scripting (XSS) or violate the
+Same-Origin Policy (SOP).</p>
+<ol type="1">
+<li><strong>Upload Bypass:</strong> A target website allows users to
+upload profile pictures but restricts uploads strictly to image formats
+by checking magic bytes and file extensions. The GIFAR passes validation
+because it contains valid GIF magic bytes and renders cleanly as an
+image.</li>
+<li><strong>Context Execution:</strong> Once the file is hosted on the
+target domain, the attacker points an HTML <code>&lt;applet&gt;</code>
+or <code>&lt;object&gt;</code> tag to the URL of the uploaded
+image.</li>
+<li><strong>Privilege Escalation:</strong> Because the browser's Java
+plugin fetched the applet from the target domain, the code ran under the
+security context of that domain. This allowed the applet to read
+sensitive session cookies, access DOM elements, or perform authenticated
+requests on behalf of the victim.</li>
+</ol>
+<h3 id="defense-and-modern-context">Defense and Modern Context</h3>
+<p>Mitigating GIFAR and similar polyglot attacks requires servers to
+treat user-submitted media actively rather than passively storing raw
+bytes:</p>
+<ul>
+<li><strong>Re-encoding Uploads:</strong> Servers neutralize polyglots
+by parsing and re-encoding uploaded images (e.g., loading an image into
+an internal graphics library and saving it as a fresh file). This
+discards any appended data outside the active image payload.</li>
+<li><strong>Strict MIME and Header Handling:</strong> Modern servers
+serve user uploads with the <code>X-Content-Type-Options: nosniff</code>
+header and enforce strict, verified Content-Type headers.</li>
+<li><strong>Deprecation of Java Applets:</strong> While the classic
+GIFAR attack is largely obsolete due to the removal of NPAPI plugins and
+Java applet support from modern web browsers, the polyglot concept
+remains a threat across other formats, such as combining images with
+JavaScript (WebP/JS) or PDF files.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Data Stream Sub-Block Structure Explained - gif</title>
+    <meta name="description" content="A sub-block in a GIF data stream is a framed unit of binary data designed to carry variable-length payloads—such as LZW-compressed image data and metadata extensions—without requiring fixed buffer sizes. Defined in both the GIF87a and GIF89a specification">
+    <link rel="canonical" href="https://salivity.github.io/gif/article/gif-data-stream-sub-block-structure-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="gif" href="/gif/opensearch.xml">
+    <link rel="icon" href="/gif/favicon.ico">
+    <link rel="stylesheet" href="/gif/css/style.css">
+    <link media="print" rel="stylesheet" href="/gif/css/print.css">
+    <script src="/gif/js/fuse.min.js"></script>
+    <script src="/gif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="GIF Data Stream Sub-Block Structure Explained - gif" />
+    <meta property="og:url" content="https://salivity.github.io/gif/article/gif-data-stream-sub-block-structure-explained" />
+    <meta property="og:image" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/gif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="A sub-block in a GIF data stream is a framed unit of binary data designed to carry variable-length payloads—such as LZW-compressed image data and metadata extensions—without requiring fixed buffer sizes. Defined in both the GIF87a and GIF89a specification" />
+    <link rel="manifest" href="/gif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/gif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>gif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/gif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="gif-data-stream-sub-block-structure-explained">GIF Data Stream
+Sub-Block Structure Explained</h1>
+<p>A sub-block in a GIF data stream is a framed unit of binary data
+designed to carry variable-length payloads—such as LZW-compressed image
+data and metadata extensions—without requiring fixed buffer sizes.
+Defined in both the GIF87a and GIF89a specifications, sub-blocks allow
+decoders to navigate and read streams of arbitrary length by packaging
+content into discrete chunks preceded by length indicators and concluded
+by a termination marker.</p>
+<h3 id="components-of-a-data-sub-block">Components of a Data
+Sub-Block</h3>
+<p>A standard GIF data sub-block consists of two distinct fields:</p>
+<ol type="1">
+<li><strong>Block Size (1 Byte):</strong> An unsigned 8-bit integer
+specifying the number of data bytes immediately following within the
+sub-block. Its value ranges from 1 to 255 (<code>0x01</code> to
+<code>0xFF</code>). A size of 0 is reserved specifically for terminating
+the sequence.</li>
+<li><strong>Data Values (1 to 255 Bytes):</strong> The raw binary
+payload. The exact length of this sequence must match the preceding
+Block Size byte. Depending on the enclosing context, this payload may
+contain LZW-encoded image raster data, plain text, application-specific
+instructions, or text comments.</li>
+</ol>
+<h3 id="the-block-terminator">The Block Terminator</h3>
+<p>A sequence of consecutive sub-blocks is finalized by a <strong>Block
+Terminator</strong>. The terminator is simply a sub-block with a Block
+Size of zero (<code>0x00</code>), which contains no subsequent Data
+Values. When a parser encounters a zero-length byte count, it recognizes
+the conclusion of the current data packet and advances to the next block
+or marker in the GIF stream.</p>
+<h3 id="sequence-chaining">Sequence Chaining</h3>
+<p>Because a single sub-block can only hold up to 255 bytes, larger
+payloads are divided across multiple sub-blocks chained together. The
+general layout appears sequentially in the byte stream as:</p>
+<ul>
+<li><code>[Block Size N]</code> + <code>[N Data Bytes]</code></li>
+<li><code>[Block Size M]</code> + <code>[M Data Bytes]</code></li>
+<li><code>...</code></li>
+<li><code>[0x00]</code> (Block Terminator)</li>
+</ul>
+<p>Decoders read the stream iteratively by consuming the size byte,
+reading that many bytes into a working buffer, and repeating the process
+until reaching the <code>0x00</code> byte.</p>
+<h3 id="usage-within-the-gif-file-format">Usage Within the GIF File
+Format</h3>
+<p>Sub-blocks are utilized in several core sections of a GIF file:</p>
+<ul>
+<li><strong>Table-Based Image Data:</strong> After the LZW Minimum Code
+Size byte in an Image Descriptor, the pixel data is provided as a
+chained series of sub-blocks ending in a terminator.</li>
+<li><strong>Graphic Control Extensions:</strong> Contains control
+settings (such as transparency and frame delay) enclosed within a 4-byte
+sub-block, followed by a terminator.</li>
+<li><strong>Application Extensions:</strong> Carries third-party
+application data (such as the Netscape looping block) organized into
+sub-blocks.</li>
+<li><strong>Comment Extensions:</strong> Holds human-readable ASCII text
+split across one or more sub-blocks.</li>
+</ul>
+<p>By encapsulating dynamic data inside this sub-block structure, the
+GIF format enables parsers to safely skip unrecognized extension blocks
+or buffer variable-length image streams without risking memory
+overflow.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/gif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/gif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/gif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>
